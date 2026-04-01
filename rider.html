@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Bite - Rider Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F8F9FA; }
+        .bg-zomato-red { background-color: #E23744; }
+        .card-shadow { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body class="pb-20">
+
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxvtWJp0fJOhHfbp_P0KmxFcKDM1Wjvj_1sQx5abfB16dpaxkApY5e0rQ4Ld5Lu64GzNg/exec"; 
+        const API_KEY = "HB_SECRET_99";
+    </script>
+
+    <!-- RIDER LOGIN -->
+    <div id="riderLogin" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-white rounded-3xl p-8 card-shadow">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold bg-zomato-red text-white inline-block px-4 py-1 rounded-lg mb-2">Home Bite</h1>
+                <p class="text-gray-500">Rider Delivery Portal</p>
+            </div>
+            <div class="space-y-4">
+                <input type="email" id="riderEmail" placeholder="Rider Email" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <input type="password" id="riderPass" placeholder="Password" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <button onclick="handleRiderLogin()" class="w-full bg-zomato-red text-white p-4 rounded-xl font-bold text-lg">Login to Deliver</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIDER DASHBOARD -->
+    <div id="riderDashboard" class="hidden">
+        <header class="bg-white p-4 sticky top-0 z-40 card-shadow flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-bold">My Deliveries</h2>
+                <p id="riderNameDisplay" class="text-xs text-gray-500">Rider Name</p>
+            </div>
+            <button onclick="logout()" class="text-gray-400"><i class="fa-solid fa-power-off"></i></button>
+        </header>
+
+        <div class="p-4 space-y-4" id="deliveryList">
+            <!-- Assigned deliveries will be injected here -->
+        </div>
+    </div>
+
+    <script>
+        let currentRider = null;
+
+        async function apiCall(action, payload) {
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ apiKey: API_KEY, action, payload })
+                });
+                return await response.json();
+            } catch (e) {
+                alert("Connection Error");
+                return { success: false };
+            }
+        }
+
+        async function handleRiderLogin() {
+            const email = document.getElementById('riderEmail').value;
+            const pass = document.getElementById('riderPass').value;
+            const res = await apiCall('staff_login', { email, password: pass });
+            if (res.success && res.role === 'Rider') {
+                currentRider = { email, id: res.staffId, name: res.name || "Rider" };
+                document.getElementById('riderLogin').classList.add('hidden');
+                document.getElementById('riderDashboard').classList.remove('hidden');
+                document.getElementById('riderNameDisplay').innerText = currentRider.name;
+                loadDeliveries();
+            } else { alert("Invalid Rider Credentials"); }
+        }
+
+        async function loadDeliveries() {
+            const res = await apiCall('admin_dashboard', {});
+            if (res.success) {
+                const container = document.getElementById('deliveryList');
+                // Backend returns 'users' and 'orders'
+                const orders = res.orders || [];
+                const users = res.users || [];
+                
+                if (orders.length === 0) {
+                    container.innerHTML = `<div class="text-center py-20 text-gray-400">No deliveries found.</div>`;
+                    return;
+                }
+
+                container.innerHTML = orders.map(o => {
+                    const cust = users.find(c => c.Cust_ID === o.Cust_ID);
+                    const custName = cust ? cust.Name : o.Cust_Name || 'Customer';
+                    const custPhone = cust ? cust.Phone : o.Cust_Phone || 'No Phone';
+                    const custAddress = cust ? cust.Address : o.Cust_Address || 'No Address';
+                    const custId = o.Cust_ID;
+                    const orderId = o.Order_ID;
+                    
+                    return `
+                        <div class="bg-white p-6 rounded-3xl card-shadow space-y-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-bold text-lg">${custName}</h4>
+                                    <p class="text-sm text-gray-500">Customer ID: <span class="font-bold text-gray-700">${custId}</span></p>
+                                    <p class="text-sm text-gray-500">Order ID: <span class="font-bold text-gray-700">#${orderId}</span></p>
+                                    <p class="text-sm text-blue-500 font-medium mt-1"><a href="tel:${custPhone}"><i class="fa-solid fa-phone"></i> ${custPhone}</a></p>
+                                </div>
+                                <span class="bg-orange-50 text-orange-500 text-[10px] font-bold px-2 py-1 rounded uppercase">${o.Status}</span>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-2xl">
+                                <p class="text-xs text-gray-400 uppercase font-bold mb-1">Address</p>
+                                <p class="text-sm font-medium">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(custAddress)}" target="_blank" class="text-blue-500 underline hover:text-blue-700 flex items-center gap-2">
+                                        <i class="fa-solid fa-location-dot"></i> ${custAddress}
+                                    </a>
+                                </p>
+                            </div>
+                            ${o.Status === 'Order Approved' ? `
+                                <button onclick="markDelivered('${orderId}')" class="w-full bg-zomato-red text-white p-3 rounded-xl font-bold">Mark Delivered</button>
+                            ` : `
+                                <button disabled class="w-full bg-gray-300 text-gray-500 p-3 rounded-xl font-bold cursor-not-allowed">${o.Status === 'Delivered' ? 'Already Delivered' : 'Not Ready for Delivery'}</button>
+                            `}
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        async function markDelivered(id) {
+            if (!confirm("Confirm delivery?")) return;
+            const res = await apiCall('deliver_order', { orderId: id });
+            if (res.success) { alert("Delivery Completed!"); loadDeliveries(); }
+        }
+
+        function logout() { location.reload(); }
+    </script>
+</body>
+</html>

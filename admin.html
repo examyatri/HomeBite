@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Bite - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F3F4F6; }
+        .bg-zomato-red { background-color: #E23744; }
+        .text-zomato-red { color: #E23744; }
+        .sidebar { width: 260px; background: white; height: 100vh; position: fixed; left: 0; top: 0; border-right: 1px solid #e5e7eb; padding: 24px; z-index: 40; }
+        .main-content { margin-left: 260px; padding: 32px; }
+        .card { background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #E23744; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 16px; } }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f3f4f6; }
+        th { font-weight: 600; color: #6b7280; font-size: 0.75rem; text-transform: uppercase; }
+        .btn-approve { background: #10b981; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.75rem; }
+        .btn-reject { background: #ef4444; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbxvtWJp0fJOhHfbp_P0KmxFcKDM1Wjvj_1sQx5abfB16dpaxkApY5e0rQ4Ld5Lu64GzNg/exec"; 
+        const API_KEY = "HB_SECRET_99";
+    </script>
+
+    <div id="loadingOverlay" class="fixed inset-0 bg-white bg-opacity-90 z-[100] hidden flex flex-col items-center justify-center">
+        <div class="loader mb-4"></div>
+        <p class="text-gray-600 font-medium">Processing Request...</p>
+    </div>
+
+    <!-- LOGIN SECTION -->
+    <div id="loginSection" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-white rounded-3xl p-8 shadow-xl">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-zomato-red mb-2">Staff Login</h1>
+                <p class="text-gray-500">Admin & Manager Access Only</p>
+            </div>
+            <div class="space-y-4">
+                <input type="email" id="loginEmail" placeholder="Staff Email" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
+                <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
+                <button onclick="handleLogin()" class="w-full bg-zomato-red text-white p-4 rounded-xl font-bold">Login to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboardSection" class="hidden">
+        <aside class="sidebar">
+            <div class="mb-10">
+                <h1 class="text-2xl font-bold text-zomato-red">Home Bite</h1>
+                <p id="staffRole" class="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">Role: Admin</p>
+            </div>
+            <nav class="space-y-2">
+                <button onclick="showPanel('orders')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
+                    <i class="fa-solid fa-receipt"></i> Orders
+                </button>
+                <button onclick="showPanel('customers')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
+                    <i class="fa-solid fa-users"></i> Customers
+                </button>
+                <button onclick="showPanel('recharges')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
+                    <i class="fa-solid fa-money-bill-transfer"></i> Wallet Recharges
+                </button>
+                <button onclick="showPanel('staff')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
+                    <i class="fa-solid fa-user-shield"></i> Manage Staff
+                </button>
+                <button onclick="showPanel('menu')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
+                    <i class="fa-solid fa-utensils"></i> Menu Management
+                </button>
+                <button onclick="showPanel('coupons')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
+                    <i class="fa-solid fa-ticket"></i> Coupons
+                </button>
+                <button onclick="showPanel('analytics')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
+                    <i class="fa-solid fa-chart-line"></i> Analytics
+                </button>
+                <button onclick="logout()" class="w-full text-left p-4 rounded-2xl text-gray-400 font-bold hover:bg-gray-50 transition flex items-center gap-3 mt-10">
+                    <i class="fa-solid fa-power-off"></i> Logout
+                </button>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <!-- ORDERS PANEL -->
+            <div id="panelOrders" class="panel">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Orders Management</h2>
+                    <button onclick="refreshData()" class="bg-white p-3 rounded-xl border hover:bg-gray-50"><i class="fa-solid fa-rotate"></i></button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="card border-l-4 border-blue-500">
+                        <p class="text-gray-400 text-xs font-bold">Total Orders</p>
+                        <h3 id="statTotalOrders" class="text-2xl font-bold">0</h3>
+                    </div>
+                    <div class="card border-l-4 border-green-500">
+                        <p class="text-gray-400 text-xs font-bold">Total Revenue</p>
+                        <h3 id="statTotalRevenue" class="text-2xl font-bold">₹0</h3>
+                    </div>
+                    <div class="card border-l-4 border-purple-500">
+                        <p class="text-gray-400 text-xs font-bold">Wallet Revenue</p>
+                        <h3 id="statWalletRev" class="text-2xl font-bold">₹0</h3>
+                    </div>
+                    <div class="card border-l-4 border-indigo-500">
+                        <p class="text-gray-400 text-xs font-bold">UPI Revenue</p>
+                        <h3 id="statUpiRev" class="text-2xl font-bold">₹0</h3>
+                    </div>
+                </div>
+
+                <!-- Fraud Alerts -->
+                <div id="fraudAlertsContainer" class="mb-8 hidden">
+                    <h4 class="text-red-500 font-bold mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Fraud & Suspicious Activity Alerts
+                    </h4>
+                    <div id="fraudAlertsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <div class="card table-container">
+                    <table id="ordersTable">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Cust ID</th>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Paid</th>
+                                <th>Coupon</th>
+                                <th>Notes</th>
+                                <th>Mode</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CUSTOMERS PANEL -->
+            <div id="panelCustomers" class="panel hidden">
+                <h2 class="text-3xl font-bold mb-8">Customers & Low Balance</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 card table-container">
+                        <h4 class="font-bold mb-4">All Customers</h4>
+                        <table id="customersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Orders</th>
+                                    <th>Spent</th>
+                                    <th>Wallet</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h4 class="font-bold text-red-500 mb-4">Low Balance Users (< ₹100)</h4>
+                        <div id="lowBalanceList" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RECHARGES PANEL -->
+            <div id="panelRecharges" class="panel hidden">
+                <h2 class="text-3xl font-bold mb-8">Wallet Recharge Requests</h2>
+                <div class="card table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>TXN ID</th>
+                                <th>Cust ID</th>
+                                <th>Amount</th>
+                                <th>Timestamp</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rechargesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- STAFF PANEL -->
+            <div id="panelStaff" class="panel hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Manage Staff</h2>
+                    <button onclick="openStaffModal()" class="bg-zomato-red text-white px-6 py-3 rounded-xl font-bold">+ Add Staff</button>
+                </div>
+                <div class="card table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Staff ID</th>
+                                <th>Email</th>
+                                <th>Name</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- MENU PANEL -->
+            <div id="panelMenu" class="panel hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold">Menu Management</h2>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Manage your daily offerings</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="clearTodayMenu()" class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl font-bold">Clear Today's Menu</button>
+                        <button onclick="openMenuModal()" class="bg-zomato-red text-white px-6 py-3 rounded-xl font-bold">+ Add New Item</button>
+                    </div>
+                </div>
+                <div id="adminMenuContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <!-- COUPONS PANEL -->
+            <div id="panelCoupons" class="panel hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold">Coupons</h2>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Manage Discount Codes</p>
+                    </div>
+                    <button onclick="openCouponModal()" class="bg-zomato-red text-white px-6 py-3 rounded-xl font-bold">+ Create Coupon</button>
+                </div>
+                <div class="card overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Discount (%)</th>
+                                <th>Max Discount (₹)</th>
+                                <th>Expiry Date</th>
+                                <th>Usage Count</th>
+                                <th>User ID</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="couponsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ANALYTICS PANEL -->
+            <div id="panelAnalytics" class="panel hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Earnings Analytics</h2>
+                    <button onclick="downloadOrdersPDF()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:bg-blue-700 transition">
+                        <i class="fa-solid fa-file-pdf"></i> Download Orders PDF
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card">
+                        <h4 class="font-bold mb-4">Revenue Distribution</h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span>Wallet Payments</span>
+                                <span id="anaWalletRev" class="font-bold">₹0</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-2">
+                                <div id="barWallet" class="bg-purple-500 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>UPI Payments</span>
+                                <span id="anaUpiRev" class="font-bold">₹0</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-2">
+                                <div id="barUpi" class="bg-indigo-500 h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4 class="font-bold mb-4">Top Selling Items</h4>
+                        <div id="topItemsList" class="space-y-3 text-sm"></div>
+                    </div>
+                    <div class="card">
+                        <h4 class="font-bold mb-4">Top Customers (by Revenue)</h4>
+                        <div id="topCustomersList" class="space-y-3 text-sm"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALS -->
+    <div id="staffModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
+            <h3 class="text-xl font-bold mb-6">Create New Staff</h3>
+            <div class="space-y-4">
+                <input type="text" id="sName" placeholder="Full Name" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <input type="email" id="sEmail" placeholder="Email Address" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <input type="password" id="sPass" placeholder="Password" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <select id="sRole" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                    <option value="Manager">Manager</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Rider">Rider</option>
+                </select>
+                <div class="flex gap-3">
+                    <button onclick="closeStaffModal()" class="flex-1 bg-gray-100 p-4 rounded-xl font-bold">Cancel</button>
+                    <button onclick="saveStaff()" class="flex-1 bg-zomato-red text-white p-4 rounded-xl font-bold">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="walletModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
+            <h3 class="text-xl font-bold mb-6">Manage User Wallet</h3>
+            <div class="space-y-4">
+                <p id="walletUserDisplay" class="font-bold text-gray-500"></p>
+                <select id="wType" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                    <option value="Credit">Add Money (Credit)</option>
+                    <option value="Debit">Deduct Money (Debit)</option>
+                </select>
+                <input type="number" id="wAmount" placeholder="Amount (₹)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <input type="text" id="wReason" placeholder="Reason" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <div class="flex gap-3">
+                    <button onclick="closeWalletModal()" class="flex-1 bg-gray-100 p-4 rounded-xl font-bold">Cancel</button>
+                    <button onclick="saveWalletUpdate()" class="flex-1 bg-zomato-red text-white p-4 rounded-xl font-bold">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="orderDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Order Details</h3>
+                <button onclick="closeOrderDetailsModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div id="orderDetailsContent" class="space-y-6">
+                <!-- Content populated by JS -->
+            </div>
+            <div class="mt-8 flex gap-4">
+                <button onclick="closeOrderDetailsModal()" class="flex-1 bg-gray-100 p-4 rounded-xl font-bold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="couponModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
+            <h3 id="couponModalTitle" class="text-xl font-bold mb-6">Manage Coupon</h3>
+            <div class="space-y-4">
+                <input type="text" id="cCode" placeholder="Coupon Code (e.g. FESTIVE50)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none uppercase">
+                <input type="number" id="cDiscount" placeholder="Discount Percentage (%)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <input type="number" id="cMax" placeholder="Max Discount Amount (₹)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <input type="date" id="cExpiry" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <input type="text" id="cUserId" placeholder="Specific User ID (Optional, leave blank for all)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <div id="cStatusContainer" class="hidden">
+                    <select id="cStatus" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeCouponModal()" class="flex-1 bg-gray-100 p-4 rounded-xl font-bold">Cancel</button>
+                    <button onclick="saveCoupon()" class="flex-1 bg-zomato-red text-white p-4 rounded-xl font-bold">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="menuModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
+            <h3 id="menuModalTitle" class="text-xl font-bold mb-6">Add New Menu Item</h3>
+            <div class="space-y-4">
+                <input type="hidden" id="mId">
+                <input type="text" id="mName" placeholder="Item Name" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <input type="text" id="mPrices" placeholder="Prices (e.g. Full:100, Half:60)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <input type="text" id="mImage" placeholder="Image URL" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <input type="text" id="mCategory" placeholder="Category (e.g. Veg, Non-Veg)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
+                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border">
+                    <input type="checkbox" id="mIsToday" class="w-5 h-5 accent-red-500">
+                    <label for="mIsToday" class="font-bold text-gray-600">Show in Today's Menu</label>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeMenuModal()" class="flex-1 bg-gray-100 p-4 rounded-xl font-bold">Cancel</button>
+                    <button onclick="saveMenuItem()" class="flex-1 bg-zomato-red text-white p-4 rounded-xl font-bold">Save Item</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStaff = JSON.parse(localStorage.getItem('currentStaff')) || null;
+        let selectedCustId = null;
+        let allOrders = [];
+        let allCoupons = [];
+        let isEditingCoupon = false;
+
+        async function apiCall(action, payload) {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ apiKey: API_KEY, action, payload })
+                });
+                const result = await response.json();
+                if (!result.success) alert("Error: " + result.message);
+                return result;
+            } catch (e) {
+                console.error("API Error:", e);
+                alert("Connection Error. Check console.");
+                return { success: false };
+            } finally {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            const res = await apiCall('staff_login', { email, password: pass });
+            if (res.success) {
+                currentStaff = res;
+                localStorage.setItem('currentStaff', JSON.stringify(res));
+                setupDashboard();
+                refreshData();
+            }
+        }
+
+        function setupDashboard() {
+            if (!currentStaff) return;
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            document.getElementById('staffRole').innerText = "Role: " + currentStaff.role;
+        }
+
+        function logout() {
+            localStorage.removeItem('currentStaff');
+            location.reload();
+        }
+
+        if (currentStaff) {
+            setupDashboard();
+            refreshData();
+        }
+
+        async function refreshData() {
+            const res = await apiCall('admin_dashboard', {});
+            if (res.success) {
+                // Stats
+                document.getElementById('statTotalOrders').innerText = res.totalOrders || 0;
+                document.getElementById('statTotalRevenue').innerText = "₹" + (res.revenue || 0);
+                document.getElementById('statWalletRev').innerText = "₹" + (res.walletRev || 0);
+                document.getElementById('statUpiRev').innerText = "₹" + (res.upiRev || 0);
+
+                // Fraud Alerts
+                const fraudContainer = document.getElementById('fraudAlertsContainer');
+                const fraudList = document.getElementById('fraudAlertsList');
+                if (res.fraudAlerts && res.fraudAlerts.length > 0) {
+                    fraudContainer.classList.remove('hidden');
+                    fraudList.innerHTML = res.fraudAlerts.map(a => `
+                        <div class="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-start gap-3">
+                            <i class="fa-solid fa-circle-exclamation text-red-500 mt-1"></i>
+                            <div>
+                                <p class="text-xs font-bold text-red-600">${a.type}</p>
+                                <p class="text-[10px] text-red-500">${a.msg}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    fraudContainer.classList.add('hidden');
+                }
+
+                // Analytics
+                document.getElementById('anaWalletRev').innerText = "₹" + (res.walletRev || 0);
+                document.getElementById('anaUpiRev').innerText = "₹" + (res.upiRev || 0);
+                const total = (res.walletRev || 0) + (res.upiRev || 0);
+                if (total > 0) {
+                    document.getElementById('barWallet').style.width = ((res.walletRev / total) * 100) + "%";
+                    document.getElementById('barUpi').style.width = ((res.upiRev / total) * 100) + "%";
+                }
+
+                // Orders Table
+                allOrders = res.orders || [];
+                const ordersTable = document.getElementById('ordersTableBody');
+                ordersTable.innerHTML = allOrders.slice().reverse().map(o => {
+                    let itemsHtml = "";
+                    try {
+                        const items = JSON.parse(o.Items);
+                        itemsHtml = items.map(i => `${i.name} (x${i.qty})`).join(", ");
+                    } catch(e) { itemsHtml = "Error parsing items"; }
+
+                    return `
+                        <tr>
+                            <td class="text-xs font-bold">#${o.Order_ID}</td>
+                            <td class="text-xs">${o.Cust_ID}</td>
+                            <td class="text-xs">${o.Cust_Name}</td>
+                            <td class="text-xs max-w-[150px] truncate" title="${o.Cust_Address}">${o.Cust_Address}</td>
+                            <td class="text-xs max-w-[200px] truncate" title="${itemsHtml}">${itemsHtml}</td>
+                            <td class="text-xs font-bold">₹${o.Total}</td>
+                            <td class="text-xs font-bold text-green-600">₹${o.Paid}</td>
+                            <td class="text-xs">${o.Coupon}</td>
+                            <td class="text-xs max-w-[100px] truncate" title="${o.Notes}">${o.Notes}</td>
+                            <td class="text-xs font-bold text-blue-600">${o.Mode}</td>
+                            <td>
+                                <span class="px-2 py-1 rounded-full text-[10px] font-bold ${o.Status === 'Delivered' ? 'bg-green-100 text-green-600' : (o.Status === 'Rejected' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600')}">
+                                    ${o.Status}
+                                </span>
+                            </td>
+                            <td class="flex gap-2">
+                                <button onclick="openOrderDetails('${o.Order_ID}')" class="bg-gray-100 text-gray-600 px-3 py-1 rounded-lg text-[10px] font-bold">View</button>
+                                ${o.PStatus === 'Pending' ? `
+                                    <button onclick="verifyOrder('${o.Order_ID}')" class="btn-approve">Approve</button>
+                                    <button onclick="rejectOrder('${o.Order_ID}')" class="btn-reject">Reject</button>
+                                ` : (o.Status === 'Order Approved' ? `
+                                    <button onclick="deliverOrder('${o.Order_ID}')" class="bg-blue-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold">Deliver</button>
+                                ` : `<span class="text-green-500 font-bold text-[10px]"><i class="fa-solid fa-check"></i> ${o.Status}</span>`)}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                // Customers Table
+                const customersTable = document.getElementById('customersTableBody');
+                customersTable.innerHTML = (res.users || []).map(u => `
+                    <tr>
+                        <td class="text-xs font-bold">${u.Cust_ID}</td>
+                        <td class="text-xs">${u.Name}</td>
+                        <td class="text-xs">${u.Phone}</td>
+                        <td class="text-xs font-bold">${u.TotalOrders}</td>
+                        <td class="text-xs font-bold text-green-600">₹${u.TotalSpent}</td>
+                        <td class="text-xs font-bold text-red-500">₹${u.Wallet}</td>
+                        <td>
+                            <button onclick="openWalletModal('${u.Cust_ID}', '${u.Name}')" class="text-blue-500 font-bold text-xs">Manage</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                // Low Balance List
+                const lowBalList = document.getElementById('lowBalanceList');
+                lowBalList.innerHTML = (res.lowBalanceUsers || []).map(u => `
+                    <div class="flex justify-between items-center p-3 bg-red-50 rounded-xl">
+                        <div>
+                            <p class="text-xs font-bold">${u.Name}</p>
+                            <p class="text-[10px] text-gray-400">ID: ${u.Cust_ID}</p>
+                        </div>
+                        <p class="font-bold text-red-500 text-sm">₹${u.Wallet}</p>
+                    </div>
+                `).join('');
+
+                // Recharges Table
+                const rechargesTable = document.getElementById('rechargesTableBody');
+                rechargesTable.innerHTML = (res.recharges || []).map(r => `
+                    <tr>
+                        <td class="text-xs font-bold">${r.TXN_ID}</td>
+                        <td class="text-xs">${r.Cust_ID}</td>
+                        <td class="text-xs font-bold">₹${r.Amount}</td>
+                        <td class="text-[10px]">${new Date(r.Timestamp).toLocaleString()}</td>
+                        <td>
+                            <button onclick="approveRecharge('${r.TXN_ID}')" class="btn-approve">Approve</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                // Coupons Table
+                const couponsTable = document.getElementById('couponsTableBody');
+                allCoupons = res.coupons || [];
+                couponsTable.innerHTML = allCoupons.map(c => `
+                    <tr>
+                        <td class="text-xs font-bold uppercase">${c.Code}</td>
+                        <td class="text-xs font-bold text-green-600">${c.Discount}%</td>
+                        <td class="text-xs">₹${c.Max}</td>
+                        <td class="text-xs">${c.Expiry ? new Date(c.Expiry).toLocaleDateString() : 'No Expiry'}</td>
+                        <td class="text-xs font-bold text-blue-600">${c.UsageCount || 0}</td>
+                        <td class="text-xs">${c.UserID || 'ALL'}</td>
+                        <td>
+                            <span class="px-2 py-1 rounded-full text-[10px] font-bold ${c.Status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
+                                ${c.Status}
+                            </span>
+                        </td>
+                        <td class="flex gap-2">
+                            <button onclick="openCouponModal('${c.Code}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-bold">Edit</button>
+                            <button onclick="deleteCoupon('${c.Code}')" class="bg-red-100 text-red-600 px-3 py-1 rounded-lg text-[10px] font-bold">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                // Staff Table
+                const staffTable = document.getElementById('staffTableBody');
+                staffTable.innerHTML = (res.staff || []).map(s => `
+                    <tr>
+                        <td class="text-xs font-bold">${s.Staff_ID}</td>
+                        <td class="text-xs">${s.Email}</td>
+                        <td class="text-xs">${s.Name}</td>
+                        <td class="text-xs font-bold text-blue-500">${s.Role}</td>
+                    </tr>
+                `).join('');
+
+                // Top Items
+                const topItemsList = document.getElementById('topItemsList');
+                topItemsList.innerHTML = (res.topItems || []).map(i => `
+                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                        <span class="font-medium">${i.name}</span>
+                        <span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-[10px] font-bold">${i.count} Sold</span>
+                    </div>
+                `).join('') || '<p class="text-gray-400 italic">No data yet</p>';
+
+                // Top Customers
+                const topCustomersList = document.getElementById('topCustomersList');
+                topCustomersList.innerHTML = (res.topCustomers || []).map(c => `
+                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="font-medium">${c.name}</p>
+                            <p class="text-[10px] text-gray-400">ID: ${c.id}</p>
+                        </div>
+                        <span class="font-bold text-green-600">₹${c.revenue}</span>
+                    </div>
+                `).join('') || '<p class="text-gray-400 italic">No data yet</p>';
+
+                // Menu Management
+                const menuContainer = document.getElementById('adminMenuContainer');
+                menuContainer.innerHTML = (res.menu || []).map(m => {
+                    const isToday = String(m.Date).toUpperCase() === 'TRUE' || m.Date === true;
+                    return `
+                        <div class="card relative overflow-hidden group">
+                            <img src="${m.Image_URL}" class="w-full h-32 object-cover rounded-xl mb-4" referrerPolicy="no-referrer">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-bold">${m.Name}</h4>
+                                <span class="text-[10px] px-2 py-1 bg-gray-100 rounded-full font-bold">${m.Category}</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-4">${m.Price_Options}</p>
+                            <div class="flex gap-2">
+                                <button onclick="toggleTodayStatus('${m.Item_ID}', ${isToday})" class="flex-1 ${isToday ? 'bg-green-50 text-green-500' : 'bg-gray-100 text-gray-500'} py-2 rounded-lg text-[10px] font-bold">
+                                    ${isToday ? 'Remove from Today' : 'Set for Today'}
+                                </button>
+                                <button onclick="editMenuItem('${m.Item_ID}', '${m.Name}', '${m.Price_Options}', '${m.Image_URL}', '${m.Category}', ${isToday})" class="bg-gray-100 p-2 rounded-lg text-xs font-bold"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteMenuItem('${m.Item_ID}')" class="bg-red-50 text-red-500 p-2 rounded-lg text-xs font-bold"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                            ${isToday ? `<div class="absolute top-2 right-2 bg-green-500 text-white text-[8px] px-2 py-1 rounded-full font-bold">TODAY</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        async function deliverOrder(id) {
+            if(!confirm("Mark this order as Delivered?")) return;
+            const res = await apiCall('deliver_order', { orderId: id });
+            if (res.success) { alert("Order Delivered!"); refreshData(); }
+        }
+
+        async function verifyOrder(id) {
+            if(!confirm("Approve this payment?")) return;
+            const res = await apiCall('verify_order', { orderId: id });
+            if (res.success) { alert("Payment Approved!"); refreshData(); }
+        }
+
+        async function rejectOrder(id) {
+            if(!confirm("Reject this order?")) return;
+            const res = await apiCall('reject_order', { orderId: id });
+            if (res.success) { alert("Order Rejected!"); refreshData(); }
+        }
+
+        async function approveRecharge(txnId) {
+            if(!confirm("Approve this recharge?")) return;
+            const res = await apiCall('approve_recharge', { txnId });
+            if (res.success) { alert("Recharge Approved!"); refreshData(); }
+        }
+
+        function openStaffModal() { document.getElementById('staffModal').classList.remove('hidden'); }
+        function closeStaffModal() { document.getElementById('staffModal').classList.add('hidden'); }
+        async function saveStaff() {
+            const payload = {
+                name: document.getElementById('sName').value,
+                email: document.getElementById('sEmail').value,
+                password: document.getElementById('sPass').value,
+                role: document.getElementById('sRole').value
+            };
+            const res = await apiCall('add_staff', payload);
+            if (res.success) { alert("Staff Created!"); closeStaffModal(); refreshData(); }
+        }
+
+        function openWalletModal(id, name) {
+            selectedCustId = id;
+            document.getElementById('walletUserDisplay').innerText = `User: ${name} (${id})`;
+            document.getElementById('walletModal').classList.remove('hidden');
+        }
+        function closeWalletModal() { document.getElementById('walletModal').classList.add('hidden'); }
+
+        function openOrderDetails(orderId) {
+            const order = allOrders.find(o => o.Order_ID === orderId);
+            if (!order) return;
+
+            let itemsHtml = "";
+            try {
+                const items = JSON.parse(order.Items);
+                itemsHtml = items.map(i => `
+                    <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                        <div>
+                            <p class="font-bold text-sm">${i.name}</p>
+                            <p class="text-[10px] text-gray-400">${i.variant || 'Standard'}</p>
+                        </div>
+                        <p class="font-bold text-sm">x${i.qty}</p>
+                    </div>
+                `).join('');
+            } catch(e) { itemsHtml = "<p class='text-red-500'>Error parsing items</p>"; }
+
+            const content = `
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Order ID</p>
+                        <p class="font-bold">#${order.Order_ID}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Date & Time</p>
+                        <p class="font-bold">${new Date(order.Timestamp).toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Customer Name</p>
+                        <p class="font-bold">${order.Cust_Name}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Customer ID</p>
+                        <p class="font-bold">${order.Cust_ID}</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Delivery Address</p>
+                    <p class="text-sm bg-gray-50 p-3 rounded-xl mt-1">${order.Cust_Address}</p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Items Ordered</p>
+                    <div class="bg-gray-50 p-4 rounded-2xl">${itemsHtml}</div>
+                </div>
+                ${order.Notes ? `
+                <div>
+                    <p class="text-[10px] font-bold text-red-500 uppercase">Special Instructions</p>
+                    <p class="text-sm bg-red-50 p-3 rounded-xl mt-1 font-bold text-red-600">${order.Notes}</p>
+                </div>
+                ` : ''}
+                <div class="grid grid-cols-2 gap-4 pt-4 border-t">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Payment Mode</p>
+                        <p class="font-bold text-blue-600">${order.Mode}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Payment Status</p>
+                        <p class="font-bold ${order.PStatus === 'Paid' ? 'text-green-600' : 'text-orange-500'}">${order.PStatus}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Coupon Used</p>
+                        <p class="font-bold">${order.Coupon}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Total Amount</p>
+                        <p class="text-xl font-bold text-zomato-red">₹${order.Total}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('orderDetailsContent').innerHTML = content;
+            document.getElementById('orderDetailsModal').classList.remove('hidden');
+        }
+
+        function closeOrderDetailsModal() { document.getElementById('orderDetailsModal').classList.add('hidden'); }
+
+        async function saveWalletUpdate() {
+            const payload = {
+                custId: selectedCustId,
+                type: document.getElementById('wType').value,
+                amount: document.getElementById('wAmount').value,
+                reason: document.getElementById('wReason').value
+            };
+            const res = await apiCall('update_wallet', payload);
+            if (res.success) { closeWalletModal(); refreshData(); }
+        }
+
+        function openCouponModal(code = null) {
+            isEditingCoupon = !!code;
+            if (code) {
+                document.getElementById('couponModalTitle').innerText = "Edit Coupon";
+                const coupon = allCoupons.find(c => c.Code === code);
+                document.getElementById('cCode').value = coupon.Code;
+                document.getElementById('cCode').readOnly = true;
+                document.getElementById('cDiscount').value = coupon.Discount;
+                document.getElementById('cMax').value = coupon.Max;
+                let expiryDate = "";
+                if (coupon.Expiry) {
+                    try {
+                        expiryDate = new Date(coupon.Expiry).toISOString().split('T')[0];
+                    } catch(e) {}
+                }
+                document.getElementById('cExpiry').value = expiryDate;
+                document.getElementById('cUserId').value = coupon.UserID === 'ALL' ? '' : coupon.UserID;
+                document.getElementById('cStatusContainer').classList.remove('hidden');
+                document.getElementById('cStatus').value = coupon.Status;
+            } else {
+                document.getElementById('couponModalTitle').innerText = "Create Coupon";
+                document.getElementById('cCode').value = '';
+                document.getElementById('cCode').readOnly = false;
+                document.getElementById('cDiscount').value = '';
+                document.getElementById('cMax').value = '';
+                document.getElementById('cExpiry').value = '';
+                document.getElementById('cUserId').value = '';
+                document.getElementById('cStatusContainer').classList.add('hidden');
+                document.getElementById('cStatus').value = 'Active';
+            }
+            document.getElementById('couponModal').classList.remove('hidden');
+        }
+
+        function closeCouponModal() {
+            document.getElementById('couponModal').classList.add('hidden');
+        }
+
+        async function saveCoupon() {
+            const code = document.getElementById('cCode').value.trim();
+            const discount = document.getElementById('cDiscount').value;
+            const max = document.getElementById('cMax').value;
+            const expiry = document.getElementById('cExpiry').value;
+            const userId = document.getElementById('cUserId').value.trim();
+            const status = document.getElementById('cStatus').value;
+
+            if (!code || !discount || !max) {
+                alert("Code, Discount, and Max Discount are required.");
+                return;
+            }
+
+            const action = isEditingCoupon ? 'update_coupon' : 'add_coupon';
+            const res = await apiCall(action, { code, discount, max, expiry, userId, status });
+            if (res.success) {
+                closeCouponModal();
+                refreshData();
+            } else {
+                alert("Failed to save coupon.");
+            }
+        }
+
+        async function deleteCoupon(code) {
+            if (!confirm(`Are you sure you want to delete coupon ${code}?`)) return;
+            const res = await apiCall('delete_coupon', { code });
+            if (res.success) {
+                refreshData();
+            } else {
+                alert("Failed to delete coupon.");
+            }
+        }
+
+        function openMenuModal() {
+            document.getElementById('menuModalTitle').innerText = "Add New Menu Item";
+            document.getElementById('mId').value = "";
+            document.getElementById('mName').value = "";
+            document.getElementById('mPrices').value = "";
+            document.getElementById('mImage').value = "";
+            document.getElementById('mCategory').value = "";
+            document.getElementById('mIsToday').checked = false;
+            document.getElementById('menuModal').classList.remove('hidden');
+        }
+
+        function closeMenuModal() { document.getElementById('menuModal').classList.add('hidden'); }
+
+        function editMenuItem(id, name, prices, image, category, isToday) {
+            document.getElementById('menuModalTitle').innerText = "Edit Menu Item";
+            document.getElementById('mId').value = id;
+            document.getElementById('mName').value = name;
+            document.getElementById('mPrices').value = prices;
+            document.getElementById('mImage').value = image;
+            document.getElementById('mCategory').value = category;
+            document.getElementById('mIsToday').checked = isToday;
+            document.getElementById('menuModal').classList.remove('hidden');
+        }
+
+        async function saveMenuItem() {
+            const payload = {
+                id: document.getElementById('mId').value,
+                name: document.getElementById('mName').value,
+                prices: document.getElementById('mPrices').value,
+                image: document.getElementById('mImage').value,
+                category: document.getElementById('mCategory').value,
+                isToday: document.getElementById('mIsToday').checked
+            };
+            const res = await apiCall('save_menu_item', payload);
+            if (res.success) { alert("Menu Updated!"); closeMenuModal(); refreshData(); }
+        }
+
+        async function deleteMenuItem(id) {
+            if(!confirm("Are you sure you want to delete this item?")) return;
+            const res = await apiCall('delete_menu_item', { id });
+            if (res.success) { alert("Item Deleted!"); refreshData(); }
+        }
+
+        async function toggleTodayStatus(id, currentStatus) {
+            const item = (await apiCall('admin_dashboard', {})).menu.find(m => m.Item_ID === id);
+            if (!item) return;
+            
+            const payload = {
+                id: item.Item_ID,
+                name: item.Name,
+                prices: item.Price_Options,
+                image: item.Image_URL,
+                category: item.Category,
+                isToday: !currentStatus
+            };
+            const res = await apiCall('save_menu_item', payload);
+            if (res.success) refreshData();
+        }
+
+        async function clearTodayMenu() {
+            if(!confirm("Clear all items from Today's Menu?")) return;
+            const res = await apiCall('admin_dashboard', {});
+            const todayItems = res.menu.filter(m => String(m.Date).toUpperCase() === 'TRUE' || m.Date === true);
+            
+            for (const item of todayItems) {
+                await apiCall('save_menu_item', {
+                    id: item.Item_ID,
+                    name: item.Name,
+                    prices: item.Price_Options,
+                    image: item.Image_URL,
+                    category: item.Category,
+                    isToday: false
+                });
+            }
+            alert("Today's Menu Cleared!");
+            refreshData();
+        }
+
+        function showPanel(p) {
+            document.querySelectorAll('.panel').forEach(el => el.classList.add('hidden'));
+            document.getElementById('panel' + p.charAt(0).toUpperCase() + p.slice(1)).classList.remove('hidden');
+        }
+
+        function downloadOrdersPDF() {
+            if (!allOrders || allOrders.length === 0) {
+                alert("No orders available to download.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape');
+
+            doc.setFontSize(18);
+            doc.text("Home Bite - Orders Report", 14, 22);
+            doc.setFontSize(11);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+
+            const tableColumn = ["Order ID", "Date", "Customer", "Phone", "Items", "Total", "Mode", "Status"];
+            const tableRows = [];
+
+            allOrders.forEach(order => {
+                let itemsStr = "";
+                try {
+                    const items = JSON.parse(order.Items);
+                    itemsStr = items.map(i => `${i.name} (x${i.qty})`).join(', ');
+                } catch(e) {
+                    itemsStr = "Error parsing items";
+                }
+
+                const orderData = [
+                    order.Order_ID,
+                    new Date(order.Timestamp).toLocaleString(),
+                    `${order.Cust_Name}\n(${order.Cust_ID})`,
+                    order.Cust_Phone,
+                    itemsStr,
+                    `Rs. ${order.Total}`,
+                    order.Mode,
+                    order.Status
+                ];
+                tableRows.push(orderData);
+            });
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 35,
+                styles: { fontSize: 8, cellPadding: 2 },
+                columnStyles: {
+                    4: { cellWidth: 80 } // Make items column wider
+                }
+            });
+
+            doc.save(`HomeBite_Orders_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+    </script>
+</body>
+</html>
