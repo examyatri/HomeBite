@@ -1,992 +1,962 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Bite - Admin Panel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #F3F4F6; }
-        .bg-zomato-red { background-color: #E23744; }
-        .text-zomato-red { color: #E23744; }
-        .sidebar { width: 260px; background: white; height: 100vh; position: fixed; left: 0; top: 0; border-right: 1px solid #e5e7eb; padding: 24px; z-index: 40; }
-        .main-content { margin-left: 260px; padding: 32px; }
-        .card { background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #E23744; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 16px; } }
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f3f4f6; }
-        th { font-weight: 600; color: #6b7280; font-size: 0.75rem; text-transform: uppercase; }
-        .btn-approve { background: #10b981; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.75rem; }
-        .btn-reject { background: #ef4444; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.75rem; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home Bite – Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --p:#e63946;--pd:#c1121f;--pl:#fde8ea;
+  --g:#2a9d8f;--gl:#e8f5f3;
+  --dk:#111827;--sb:#0f172a;--sba:#1e293b;
+  --gr:#6b7280;--lt:#f3f4f6;--wh:#fff;
+  --sh:0 2px 16px rgba(0,0,0,.08);
+  --r:12px;--sw:240px;
+  --ff:'Sora',sans-serif;--fb:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fb);background:var(--lt);color:var(--dk)}
+.hide{display:none!important}
+
+/* ── AUTH ── */
+#auth-pg{min-height:100vh;background:var(--sb);display:flex;align-items:center;justify-content:center;padding:20px}
+.a-card{background:#fff;border-radius:20px;padding:36px 28px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.a-logo{text-align:center;margin-bottom:28px}
+.a-logo h1{font-family:var(--ff);font-size:24px;font-weight:800;color:var(--p)}
+.a-logo p{color:var(--gr);font-size:13px;margin-top:4px}
+.fg{margin-bottom:14px}
+.lbl{display:block;font-size:11px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.inp{width:100%;padding:12px 14px;background:var(--lt);border:2px solid transparent;border-radius:var(--r);font-family:var(--fb);font-size:14px;font-weight:500;color:var(--dk);outline:none;transition:border-color .18s}
+.inp:focus{border-color:var(--p);background:#fff}
+select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:34px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 18px;border-radius:10px;font-family:var(--ff);font-weight:700;font-size:13px;border:none;cursor:pointer;transition:all .18s}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--pd)}
+.btn-g{background:var(--g);color:#fff}
+.btn-dk{background:var(--dk);color:#fff}
+.btn-ghost{background:rgba(0,0,0,.06);color:var(--dk)}
+.btn-red{background:var(--p);color:#fff}
+.btn-out{background:transparent;border:2px solid var(--p);color:var(--p)}
+.btn-full{width:100%}
+.btn-sm{padding:7px 13px;font-size:12px;border-radius:8px}
+.spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ── LAYOUT ── */
+#app{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sb{width:var(--sw);background:var(--sb);color:#fff;display:flex;flex-direction:column;
+    position:fixed;top:0;left:0;height:100vh;z-index:300;overflow-y:auto;transition:transform .3s}
+.sb-logo{padding:22px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo h1{font-family:var(--ff);font-size:17px;font-weight:800;color:var(--p)}
+.sb-logo p{font-size:10px;color:rgba(255,255,255,.3);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.sb-sec{padding:14px 10px 3px;font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1px}
+.ni{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:9px;margin:1px 8px;
+    font-size:13px;font-weight:600;color:rgba(255,255,255,.55);cursor:pointer;border:none;background:none;width:calc(100% - 16px);text-align:left;transition:all .18s}
+.ni:hover{background:rgba(255,255,255,.06);color:#fff}
+.ni.act{background:var(--p);color:#fff;box-shadow:0 4px 14px rgba(230,57,70,.35)}
+.ni i{width:16px;text-align:center;font-size:14px}
+.sb-foot{margin-top:auto;padding:14px;border-top:1px solid rgba(255,255,255,.08)}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:#fff;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:100}
+.topbar h2{font-family:var(--ff);font-size:19px;font-weight:700}
+.ca{padding:22px 24px;flex:1}
+.pg-v{display:none}.pg-v.act{display:block}
+
+/* ── STATS ── */
+.st-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:24px}
+.st-card{background:#fff;border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
+.st-lbl{font-size:11px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.st-val{font-family:var(--ff);font-size:26px;font-weight:800}
+.st-ico{font-size:26px;margin-bottom:8px}
+
+/* ── TABLES ── */
+.tc{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:20px}
+.th{padding:16px 18px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.th h3{font-family:var(--ff);font-size:15px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;background:#fafafa;border-bottom:1px solid #f0f0f0;white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid #f7f7f7;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.bdg{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+.b-g{background:var(--gl);color:var(--g)}.b-r{background:var(--pl);color:var(--p)}
+.b-o{background:#fff3e0;color:#c45500}.b-y{background:#fffde7;color:#c67c00}
+.b-bl{background:#e3f2fd;color:#1565c0}.b-gr{background:#f5f5f5;color:#666}
+
+/* ── FILTERS ── */
+.fb{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.f-btn{padding:6px 14px;border-radius:18px;border:2px solid #e5e7eb;background:#fff;font-family:var(--ff);font-weight:600;font-size:12px;cursor:pointer;color:var(--gr);transition:all .18s}
+.f-btn.act{background:var(--p);border-color:var(--p);color:#fff}
+.s-inp{padding:8px 14px;border-radius:9px;border:2px solid #e5e7eb;font-family:var(--fb);font-size:13px;outline:none}
+.s-inp:focus{border-color:var(--p)}
+
+/* ── MODAL ── */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.mo-box{background:#fff;border-radius:20px;padding:26px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mo-t{font-family:var(--ff);font-size:17px;font-weight:700;margin-bottom:18px}
+.mo-ft{display:flex;gap:9px;margin-top:18px;justify-content:flex-end}
+.var-entry{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.var-entry .inp{flex:1}
+
+/* ── TOAST ── */
+.toast{position:fixed;top:18px;right:18px;background:var(--dk);color:#fff;padding:13px 18px;border-radius:12px;font-weight:600;font-size:13px;z-index:9999;transform:translateX(120%);transition:transform .3s;box-shadow:0 8px 28px rgba(0,0,0,.2)}
+.toast.on{transform:none}
+
+/* ── OVERLAY (mobile sidebar) ── */
+.sb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:299}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .sb{transform:translateX(-100%)}
+  .sb.open{transform:none}
+  .sb-ov{display:block}
+  .main{margin-left:0}
+  .ca{padding:14px}
+  .topbar{padding:14px 16px}
+  .st-grid{grid-template-columns:1fr 1fr}
+  #menu-toggle{display:block!important}
+}
+</style>
 </head>
 <body>
 
-    <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxvtWJp0fJOhHfbp_P0KmxFcKDM1Wjvj_1sQx5abfB16dpaxkApY5e0rQ4Ld5Lu64GzNg/exec"; 
-        const API_KEY = "HB_SECRET_99";
-    </script>
+<!-- AUTH -->
+<div id="auth-pg">
+  <div class="a-card">
+    <div class="a-logo"><h1>🍱 Home Bite</h1><p>Admin Control Center</p></div>
+    <div class="fg"><label class="lbl">Email</label><input id="a-em" class="inp" type="email" placeholder="admin@email.com"></div>
+    <div class="fg"><label class="lbl">Password</label><input id="a-pw" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-p btn-full" id="login-btn" onclick="doLogin()"><i class="fa-solid fa-lock-open"></i> Access Dashboard</button>
+  </div>
+</div>
 
-    <div id="loadingOverlay" class="fixed inset-0 bg-white bg-opacity-90 z-[100] hidden flex flex-col items-center justify-center">
-        <div class="loader mb-4"></div>
-        <p class="text-gray-600 font-medium">Processing Request...</p>
+<!-- APP -->
+<div id="app" class="hide">
+  <!-- SIDEBAR OVERLAY (mobile) -->
+  <div class="sb-ov hide" id="sb-ov" onclick="closeSb()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sb" id="sidebar">
+    <div class="sb-logo"><h1>Home Bite</h1><p>Admin Panel</p></div>
+    <nav style="flex:1;padding:6px 0">
+      <div class="sb-sec">Overview</div>
+      <button class="ni act" id="ni-dashboard" onclick="showPg('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+      <div class="sb-sec">Operations</div>
+      <button class="ni" id="ni-orders" onclick="showPg('orders')"><i class="fa-solid fa-bag-shopping"></i> Orders</button>
+      <button class="ni" id="ni-bulk" onclick="showPg('bulk')"><i class="fa-solid fa-boxes-stacked"></i> Bulk Orders</button>
+      <button class="ni" id="ni-menu" onclick="showPg('menu')"><i class="fa-solid fa-utensils"></i> Menu</button>
+      <button class="ni" id="ni-coupons" onclick="showPg('coupons')"><i class="fa-solid fa-tags"></i> Coupons</button>
+      <div class="sb-sec">Users</div>
+      <button class="ni" id="ni-subscribers" onclick="showPg('subscribers')"><i class="fa-solid fa-crown"></i> Subscribers</button>
+      <button class="ni" id="ni-users" onclick="showPg('users')"><i class="fa-solid fa-users"></i> All Users</button>
+      <div class="sb-sec">Staff</div>
+      <button class="ni" id="ni-riders" onclick="showPg('riders')"><i class="fa-solid fa-motorcycle"></i> Riders</button>
+      <div class="sb-sec">System</div>
+      <button class="ni" id="ni-settings" onclick="showPg('settings')"><i class="fa-solid fa-gear"></i> Settings</button>
+    </nav>
+    <div class="sb-foot"><button class="btn btn-ghost btn-full" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button id="menu-toggle" onclick="toggleSb()" style="display:none;background:none;border:none;cursor:pointer;font-size:20px"><i class="fa-solid fa-bars"></i></button>
+        <h2 id="pg-title">Dashboard</h2>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span id="admin-badge" style="font-size:13px;font-weight:600;color:var(--gr)">Admin</span>
+        <button class="btn btn-ghost btn-sm" onclick="refreshCurrent()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      </div>
     </div>
+    <div class="ca">
 
-    <!-- LOGIN SECTION -->
-    <div id="loginSection" class="min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-white rounded-3xl p-8 shadow-xl">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-zomato-red mb-2">Staff Login</h1>
-                <p class="text-gray-500">Admin & Manager Access Only</p>
-            </div>
-            <div class="space-y-4">
-                <input type="email" id="loginEmail" placeholder="Staff Email" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
-                <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
-                <button onclick="handleLogin()" class="w-full bg-zomato-red text-white p-4 rounded-xl font-bold">Login to Dashboard</button>
-            </div>
+      <!-- DASHBOARD -->
+      <div class="pg-v act" id="pg-dashboard">
+        <div class="st-grid" id="st-grid">
+          <div class="st-card"><div class="st-ico">📦</div><div class="st-lbl">Today's Orders</div><div class="st-val" id="s-tod-ord">—</div></div>
+          <div class="st-card"><div class="st-ico">💰</div><div class="st-lbl">Today's Revenue</div><div class="st-val" id="s-tod-rev">—</div></div>
+          <div class="st-card"><div class="st-ico">📅</div><div class="st-lbl">Monthly Revenue</div><div class="st-val" id="s-mo-rev">—</div></div>
+          <div class="st-card"><div class="st-ico">🛒</div><div class="st-lbl">Total Orders</div><div class="st-val" id="s-tot-ord">—</div></div>
+          <div class="st-card"><div class="st-ico">👥</div><div class="st-lbl">Total Users</div><div class="st-val" id="s-users">—</div></div>
+          <div class="st-card"><div class="st-ico">👑</div><div class="st-lbl">Subscribers</div><div class="st-val" id="s-subs">—</div></div>
         </div>
-    </div>
+      </div>
 
-    <!-- DASHBOARD SECTION -->
-    <div id="dashboardSection" class="hidden">
-        <aside class="sidebar">
-            <div class="mb-10">
-                <h1 class="text-2xl font-bold text-zomato-red">Home Bite</h1>
-                <p id="staffRole" class="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">Role: Admin</p>
-            </div>
-            <nav class="space-y-2">
-                <button onclick="showPanel('orders')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
-                    <i class="fa-solid fa-receipt"></i> Orders
-                </button>
-                <button onclick="showPanel('customers')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
-                    <i class="fa-solid fa-users"></i> Customers
-                </button>
-                <button onclick="showPanel('recharges')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
-                    <i class="fa-solid fa-money-bill-transfer"></i> Wallet Recharges
-                </button>
-                <button onclick="showPanel('staff')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
-                    <i class="fa-solid fa-user-shield"></i> Manage Staff
-                </button>
-                <button onclick="showPanel('menu')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
-                    <i class="fa-solid fa-utensils"></i> Menu Management
-                </button>
-                <button onclick="showPanel('coupons')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
-                    <i class="fa-solid fa-ticket"></i> Coupons
-                </button>
-                <button onclick="showPanel('analytics')" class="w-full text-left p-4 rounded-2xl hover:bg-red-50 hover:text-red-500 font-bold transition flex items-center gap-3">
-                    <i class="fa-solid fa-chart-line"></i> Analytics
-                </button>
-                <button onclick="logout()" class="w-full text-left p-4 rounded-2xl text-gray-400 font-bold hover:bg-gray-50 transition flex items-center gap-3 mt-10">
-                    <i class="fa-solid fa-power-off"></i> Logout
-                </button>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <!-- ORDERS PANEL -->
-            <div id="panelOrders" class="panel">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-bold">Orders Management</h2>
-                    <button onclick="refreshData()" class="bg-white p-3 rounded-xl border hover:bg-gray-50"><i class="fa-solid fa-rotate"></i></button>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="card border-l-4 border-blue-500">
-                        <p class="text-gray-400 text-xs font-bold">Total Orders</p>
-                        <h3 id="statTotalOrders" class="text-2xl font-bold">0</h3>
-                    </div>
-                    <div class="card border-l-4 border-green-500">
-                        <p class="text-gray-400 text-xs font-bold">Total Revenue</p>
-                        <h3 id="statTotalRevenue" class="text-2xl font-bold">₹0</h3>
-                    </div>
-                    <div class="card border-l-4 border-purple-500">
-                        <p class="text-gray-400 text-xs font-bold">Wallet Revenue</p>
-                        <h3 id="statWalletRev" class="text-2xl font-bold">₹0</h3>
-                    </div>
-                    <div class="card border-l-4 border-indigo-500">
-                        <p class="text-gray-400 text-xs font-bold">UPI Revenue</p>
-                        <h3 id="statUpiRev" class="text-2xl font-bold">₹0</h3>
-                    </div>
-                </div>
-
-                <!-- Fraud Alerts -->
-                <div id="fraudAlertsContainer" class="mb-8 hidden">
-                    <h4 class="text-red-500 font-bold mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Fraud & Suspicious Activity Alerts
-                    </h4>
-                    <div id="fraudAlertsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                </div>
-
-                <div class="card table-container">
-                    <table id="ordersTable">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Cust ID</th>
-                                <th>Name</th>
-                                <th>Address</th>
-                                <th>Items</th>
-                                <th>Total</th>
-                                <th>Paid</th>
-                                <th>Coupon</th>
-                                <th>Notes</th>
-                                <th>Mode</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ordersTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- CUSTOMERS PANEL -->
-            <div id="panelCustomers" class="panel hidden">
-                <h2 class="text-3xl font-bold mb-8">Customers & Low Balance</h2>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-2 card table-container">
-                        <h4 class="font-bold mb-4">All Customers</h4>
-                        <table id="customersTable">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Phone</th>
-                                    <th>Orders</th>
-                                    <th>Spent</th>
-                                    <th>Wallet</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="customersTableBody"></tbody>
-                        </table>
-                    </div>
-                    <div class="card">
-                        <h4 class="font-bold text-red-500 mb-4">Low Balance Users (< ₹100)</h4>
-                        <div id="lowBalanceList" class="space-y-3"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RECHARGES PANEL -->
-            <div id="panelRecharges" class="panel hidden">
-                <h2 class="text-3xl font-bold mb-8">Wallet Recharge Requests</h2>
-                <div class="card table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>TXN ID</th>
-                                <th>Cust ID</th>
-                                <th>Amount</th>
-                                <th>Timestamp</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="rechargesTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- STAFF PANEL -->
-            <div id="panelStaff" class="panel hidden">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-bold">Manage Staff</h2>
-                    <button onclick="openStaffModal()" class="bg-zomato-red text-white px-6 py-3 rounded-xl font-bold">+ Add Staff</button>
-                </div>
-                <div class="card table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Staff ID</th>
-                                <th>Email</th>
-                                <th>Name</th>
-                                <th>Role</th>
-                            </tr>
-                        </thead>
-                        <tbody id="staffTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- MENU PANEL -->
-            <div id="panelMenu" class="panel hidden">
-                <div class="flex justify-between items-center mb-8">
-                    <div>
-                        <h2 class="text-3xl font-bold">Menu Management</h2>
-                        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Manage your daily offerings</p>
-                    </div>
-                    <div class="flex gap-3">
-                        <button onclick="clearTodayMenu()" class="bg-gray-100 text-gray-600 px-6 py-3 rounded-xl font-bold">Clear Today's Menu</button>
-                        <button onclick="openMenuModal()" class="bg-zomato-red text-white px-6 py-3 rounded-xl font-bold">+ Add New Item</button>
-                    </div>
-                </div>
-                <div id="adminMenuContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </div>
-
-            <!-- COUPONS PANEL -->
-            <div id="panelCoupons" class="panel hidden">
-                <div class="flex justify-between items-center mb-8">
-                    <div>
-                        <h2 class="text-3xl font-bold">Coupons</h2>
-                        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Manage Discount Codes</p>
-                    </div>
-                    <button onclick="openCouponModal()" class="bg-zomato-red text-white px-6 py-3 rounded-xl font-bold">+ Create Coupon</button>
-                </div>
-                <div class="card overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>Discount (%)</th>
-                                <th>Max Discount (₹)</th>
-                                <th>Expiry Date</th>
-                                <th>Usage Count</th>
-                                <th>User ID</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="couponsTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- ANALYTICS PANEL -->
-            <div id="panelAnalytics" class="panel hidden">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-bold">Earnings Analytics</h2>
-                    <button onclick="downloadOrdersPDF()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:bg-blue-700 transition">
-                        <i class="fa-solid fa-file-pdf"></i> Download Orders PDF
-                    </button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="card">
-                        <h4 class="font-bold mb-4">Revenue Distribution</h4>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <span>Wallet Payments</span>
-                                <span id="anaWalletRev" class="font-bold">₹0</span>
-                            </div>
-                            <div class="w-full bg-gray-100 rounded-full h-2">
-                                <div id="barWallet" class="bg-purple-500 h-2 rounded-full" style="width: 0%"></div>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span>UPI Payments</span>
-                                <span id="anaUpiRev" class="font-bold">₹0</span>
-                            </div>
-                            <div class="w-full bg-gray-100 rounded-full h-2">
-                                <div id="barUpi" class="bg-indigo-500 h-2 rounded-full" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <h4 class="font-bold mb-4">Top Selling Items</h4>
-                        <div id="topItemsList" class="space-y-3 text-sm"></div>
-                    </div>
-                    <div class="card">
-                        <h4 class="font-bold mb-4">Top Customers (by Revenue)</h4>
-                        <div id="topCustomersList" class="space-y-3 text-sm"></div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- MODALS -->
-    <div id="staffModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
-            <h3 class="text-xl font-bold mb-6">Create New Staff</h3>
-            <div class="space-y-4">
-                <input type="text" id="sName" placeholder="Full Name" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <input type="email" id="sEmail" placeholder="Email Address" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <input type="password" id="sPass" placeholder="Password" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <select id="sRole" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                    <option value="Manager">Manager</option>
-                    <option value="Admin">Admin</option>
-                    <option value="Rider">Rider</option>
-                </select>
-                <div class="flex gap-3">
-                    <button onclick="closeStaffModal()" class="flex-1 bg-gray-100 p-4 rounded-xl font-bold">Cancel</button>
-                    <button onclick="saveStaff()" class="flex-1 bg-zomato-red text-white p-4 rounded-xl font-bold">Create</button>
-                </div>
-            </div>
+      <!-- ORDERS -->
+      <div class="pg-v" id="pg-orders">
+        <div class="fb">
+          <button class="f-btn act" onclick="filterOrd('all',this)">All</button>
+          <button class="f-btn" onclick="filterOrd('today',this)">Today</button>
+          <button class="f-btn" onclick="filterOrd('pending',this)">Pending</button>
+          <button class="f-btn" onclick="filterOrd('preparing',this)">Preparing</button>
+          <button class="f-btn" onclick="filterOrd('out for delivery',this)">Out for Del.</button>
+          <button class="f-btn" onclick="filterOrd('delivered',this)">Delivered</button>
+          <input class="s-inp" type="text" placeholder="Search name/phone/ID..." id="ord-srch" oninput="renderOrds()">
         </div>
-    </div>
-
-    <div id="walletModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
-            <h3 class="text-xl font-bold mb-6">Manage User Wallet</h3>
-            <div class="space-y-4">
-                <p id="walletUserDisplay" class="font-bold text-gray-500"></p>
-                <select id="wType" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                    <option value="Credit">Add Money (Credit)</option>
-                    <option value="Debit">Deduct Money (Debit)</option>
-                </select>
-                <input type="number" id="wAmount" placeholder="Amount (₹)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <input type="text" id="wReason" placeholder="Reason" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <div class="flex gap-3">
-                    <button onclick="closeWalletModal()" class="flex-1 bg-gray-100 p-4 rounded-xl font-bold">Cancel</button>
-                    <button onclick="saveWalletUpdate()" class="flex-1 bg-zomato-red text-white p-4 rounded-xl font-bold">Update</button>
-                </div>
-            </div>
+        <div class="tc">
+          <div class="th"><h3>Orders</h3><button class="btn btn-ghost btn-sm" onclick="loadOrds()"><i class="fa-solid fa-rotate"></i></button></div>
+          <div style="overflow-x:auto"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Amount</th><th>Type</th><th>Payment</th><th>Status</th><th>Date</th><th>Rider</th><th>Actions</th></tr></thead><tbody id="ord-tb"></tbody></table></div>
         </div>
-    </div>
+      </div>
 
-    <div id="orderDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">Order Details</h3>
-                <button onclick="closeOrderDetailsModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+      <!-- BULK ORDERS -->
+      <div class="pg-v" id="pg-bulk">
+        <div class="tc">
+          <div class="th"><h3>Manual Order Generation</h3><span style="font-size:12px;color:var(--gr)">For subscribers who didn't order by cutoff</span></div>
+          <div style="padding:18px">
+            <p style="font-size:13px;color:var(--gr);margin-bottom:16px">Generate bulk orders for subscribers (Day cutoff: 11:30 AM, Night cutoff: 7:30 PM)</p>
+            <div class="fg"><label class="lbl">Select Menu Item</label><select id="bulk-item" class="inp"><option value="">-- Select item --</option></select></div>
+            <div class="fg"><label class="lbl">Override Price (₹) — leave blank to use menu price</label><input id="bulk-price" class="inp" type="number" placeholder="e.g. 80"></div>
+            <div class="fg"><label class="lbl">Reason / Note</label><input id="bulk-reason" class="inp" type="text" placeholder="e.g. Auto-generated for Day subscribers"></div>
+            <div class="fg"><label class="lbl">Filter Subscribers By Plan</label>
+              <select id="bulk-plan" class="inp" onchange="loadBulkSubs()">
+                <option value="all">All Active</option><option value="day">Day Only</option>
+                <option value="night">Night Only</option><option value="both">Both Plans</option>
+              </select>
             </div>
-            <div id="orderDetailsContent" class="space-y-6">
-                <!-- Content populated by JS -->
+            <div class="tc" style="margin-top:14px">
+              <div class="th"><h3>Subscribers to Order For</h3></div>
+              <div style="overflow-x:auto"><table><thead><tr><th><input type="checkbox" id="bulk-all" onchange="toggleAllBulk(this)"></th><th>Phone</th><th>Name</th><th>Plan</th><th>Address</th></tr></thead><tbody id="bulk-tb"></tbody></table></div>
             </div>
-            <div class="mt-8 flex gap-4">
-                <button onclick="closeOrderDetailsModal()" class="flex-1 bg-gray-100 p-4 rounded-xl font-bold">Close</button>
-            </div>
+            <button class="btn btn-p" style="margin-top:14px" onclick="genBulkOrders()"><i class="fa-solid fa-boxes-stacked"></i> Generate Selected Orders</button>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <div id="couponModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
-            <h3 id="couponModalTitle" class="text-xl font-bold mb-6">Manage Coupon</h3>
-            <div class="space-y-4">
-                <input type="text" id="cCode" placeholder="Coupon Code (e.g. FESTIVE50)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none uppercase">
-                <input type="number" id="cDiscount" placeholder="Discount Percentage (%)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <input type="number" id="cMax" placeholder="Max Discount Amount (₹)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <input type="date" id="cExpiry" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <input type="text" id="cUserId" placeholder="Specific User ID (Optional, leave blank for all)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <div id="cStatusContainer" class="hidden">
-                    <select id="cStatus" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="closeCouponModal()" class="flex-1 bg-gray-100 p-4 rounded-xl font-bold">Cancel</button>
-                    <button onclick="saveCoupon()" class="flex-1 bg-zomato-red text-white p-4 rounded-xl font-bold">Save</button>
-                </div>
+      <!-- MENU -->
+      <div class="pg-v" id="pg-menu">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn btn-p" onclick="openMenuModal()"><i class="fa-solid fa-plus"></i> Add Item</button></div>
+        <div class="tc">
+          <div class="th"><h3>Menu Items</h3>
+            <div class="fb" style="margin:0">
+              <button class="f-btn act" onclick="filterMenu('all',this)">All</button>
+              <button class="f-btn" onclick="filterMenu('morning',this)">Morning</button>
+              <button class="f-btn" onclick="filterMenu('evening',this)">Evening</button>
             </div>
+          </div>
+          <div style="overflow-x:auto"><table><thead><tr><th>Img</th><th>Name</th><th>Category</th><th>Price</th><th>Variants</th><th>Type</th><th>Avail</th><th>Actions</th></tr></thead><tbody id="menu-tb"></tbody></table></div>
         </div>
-    </div>
+      </div>
 
-    <div id="menuModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
-            <h3 id="menuModalTitle" class="text-xl font-bold mb-6">Add New Menu Item</h3>
-            <div class="space-y-4">
-                <input type="hidden" id="mId">
-                <input type="text" id="mName" placeholder="Item Name" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <input type="text" id="mPrices" placeholder="Prices (e.g. Full:100, Half:60)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <input type="text" id="mImage" placeholder="Image URL" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <input type="text" id="mCategory" placeholder="Category (e.g. Veg, Non-Veg)" class="w-full p-4 bg-gray-50 rounded-xl border outline-none">
-                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border">
-                    <input type="checkbox" id="mIsToday" class="w-5 h-5 accent-red-500">
-                    <label for="mIsToday" class="font-bold text-gray-600">Show in Today's Menu</label>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="closeMenuModal()" class="flex-1 bg-gray-100 p-4 rounded-xl font-bold">Cancel</button>
-                    <button onclick="saveMenuItem()" class="flex-1 bg-zomato-red text-white p-4 rounded-xl font-bold">Save Item</button>
-                </div>
+      <!-- COUPONS -->
+      <div class="pg-v" id="pg-coupons">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn btn-p" onclick="openCpnModal()"><i class="fa-solid fa-plus"></i> Create Coupon</button></div>
+        <div class="tc"><div class="th"><h3>Coupons</h3></div>
+          <div style="overflow-x:auto"><table><thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Expiry</th><th>User</th><th>Status</th><th>Actions</th></tr></thead><tbody id="cpn-tb"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- SUBSCRIBERS -->
+      <div class="pg-v" id="pg-subscribers">
+        <div style="display:flex;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+          <div class="fb" style="margin:0">
+            <button class="f-btn act" onclick="filterSubs('all',this)">All</button>
+            <button class="f-btn" onclick="filterSubs('day',this)">Day</button>
+            <button class="f-btn" onclick="filterSubs('night',this)">Night</button>
+            <button class="f-btn" onclick="filterSubs('both',this)">Both</button>
+            <button class="f-btn" onclick="filterSubs('active',this)">Active</button>
+            <button class="f-btn" onclick="filterSubs('paused',this)">Paused</button>
+          </div>
+          <button class="btn btn-g" onclick="openSubModal()"><i class="fa-solid fa-plus"></i> Add Subscriber</button>
+        </div>
+        <div class="tc"><div class="th"><h3 id="sub-count">Subscribers</h3></div>
+          <div style="overflow-x:auto"><table><thead><tr><th>Phone</th><th>Name</th><th>Plan</th><th>Status</th><th>Start Date</th><th>Actions</th></tr></thead><tbody id="sub-tb"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div class="pg-v" id="pg-users">
+        <div class="fb">
+          <input class="s-inp" type="text" id="usr-srch" placeholder="Search users..." oninput="renderUsers()">
+          <button class="f-btn act" onclick="filterUsrSub('all',this)">All</button>
+          <button class="f-btn" onclick="filterUsrSub('subscriber',this)">Subscribers</button>
+          <button class="f-btn" onclick="filterUsrSub('non',this)">Non-Sub</button>
+        </div>
+        <div class="tc"><div class="th"><h3>All Users</h3><button class="btn btn-ghost btn-sm" onclick="loadUsers()"><i class="fa-solid fa-rotate"></i></button></div>
+          <div style="overflow-x:auto"><table><thead><tr><th>Phone</th><th>Name</th><th>Email</th><th>Address</th><th>Subscriber</th><th>Joined</th></tr></thead><tbody id="usr-tb"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- RIDERS -->
+      <div class="pg-v" id="pg-riders">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn btn-p" onclick="openRiderModal()"><i class="fa-solid fa-plus"></i> Add Rider</button></div>
+        <div class="tc"><div class="th"><h3>Riders</h3></div>
+          <div style="overflow-x:auto"><table><thead><tr><th>Rider ID</th><th>Name</th><th>Email</th></tr></thead><tbody id="rider-tb"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="pg-v" id="pg-settings">
+        <div class="tc" style="max-width:520px">
+          <div class="th"><h3>⏰ Order Time Restriction</h3></div>
+          <div style="padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding:14px;background:var(--lt);border-radius:var(--r)">
+              <div>
+                <div style="font-weight:700;font-size:14px">Enable Order Cutoff Times</div>
+                <div style="font-size:12px;color:var(--gr);margin-top:3px">When ON, orders stop being accepted after cutoff</div>
+              </div>
+              <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer">
+                <input type="checkbox" id="cutoff-enabled" style="opacity:0;width:0;height:0" onchange="toggleCutoffUI()">
+                <span id="cutoff-slider" style="position:absolute;inset:0;background:#ccc;border-radius:26px;transition:.3s">
+                  <span style="position:absolute;left:3px;bottom:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.3)" id="cutoff-knob"></span>
+                </span>
+              </label>
             </div>
+            <div id="cutoff-fields" style="display:none">
+              <div class="fg">
+                <label class="lbl">🌅 Day (Lunch) Cutoff Time</label>
+                <input id="cutoff-day" class="inp" type="time" value="11:30">
+                <div style="font-size:11px;color:var(--gr);margin-top:4px">Orders for morning menu close at this time</div>
+              </div>
+              <div class="fg">
+                <label class="lbl">🌙 Night (Dinner) Cutoff Time</label>
+                <input id="cutoff-night" class="inp" type="time" value="19:30">
+                <div style="font-size:11px;color:var(--gr);margin-top:4px">Orders for evening menu close at this time</div>
+              </div>
+            </div>
+            <button class="btn btn-p" onclick="saveCutoffSettings()" style="margin-top:4px"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
+          </div>
         </div>
+      </div>
+
     </div>
+  </div>
+</div>
 
-    <script>
-        let currentStaff = JSON.parse(localStorage.getItem('currentStaff')) || null;
-        let selectedCustId = null;
-        let allOrders = [];
-        let allCoupons = [];
-        let isEditingCoupon = false;
+<!-- MODALS -->
 
-        async function apiCall(action, payload) {
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-            try {
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ apiKey: API_KEY, action, payload })
-                });
-                const result = await response.json();
-                if (!result.success) alert("Error: " + result.message);
-                return result;
-            } catch (e) {
-                console.error("API Error:", e);
-                alert("Connection Error. Check console.");
-                return { success: false };
-            } finally {
-                document.getElementById('loadingOverlay').classList.add('hidden');
-            }
-        }
+<!-- Order Detail -->
+<div class="mo hide" id="mo-order"><div class="mo-box"><div class="mo-t">Order Details</div><div id="mo-order-c"></div><div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-order')">Close</button></div></div></div>
 
-        async function handleLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPass').value;
-            const res = await apiCall('staff_login', { email, password: pass });
-            if (res.success) {
-                currentStaff = res;
-                localStorage.setItem('currentStaff', JSON.stringify(res));
-                setupDashboard();
-                refreshData();
-            }
-        }
+<!-- Order Status -->
+<div class="mo hide" id="mo-status"><div class="mo-box">
+  <div class="mo-t">Update Order</div>
+  <input type="hidden" id="st-oid">
+  <div class="fg"><label class="lbl">Order Status</label>
+    <select id="st-os" class="inp"><option value="pending">Pending</option><option value="preparing">Preparing</option><option value="out for delivery">Out for Delivery</option><option value="delivered">Delivered</option></select></div>
+  <div class="fg"><label class="lbl">Payment Status</label>
+    <select id="st-ps" class="inp"><option value="pending">Pending</option><option value="paid">Paid</option></select></div>
+  <div class="fg"><label class="lbl">Rider ID (optional — auto-assigned on Out for Delivery)</label>
+    <select id="st-rid" class="inp"><option value="">Auto-assign available rider</option></select></div>
+  <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-status')">Cancel</button><button class="btn btn-p" onclick="submitStatus()"><i class="fa-solid fa-check"></i> Update</button></div>
+</div></div>
 
-        function setupDashboard() {
-            if (!currentStaff) return;
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('dashboardSection').classList.remove('hidden');
-            document.getElementById('staffRole').innerText = "Role: " + currentStaff.role;
-        }
+<!-- Menu Item -->
+<div class="mo hide" id="mo-menu"><div class="mo-box">
+  <div class="mo-t" id="mo-menu-t">Add Menu Item</div>
+  <input type="hidden" id="mi-id">
+  <div class="fg"><label class="lbl">Item Name *</label><input id="mi-name" class="inp" type="text" placeholder="e.g. Dal Makhani"></div>
+  <div class="fg"><label class="lbl">Category</label><input id="mi-cat" class="inp" type="text" placeholder="e.g. Dal, Rice"></div>
+  <div class="fg"><label class="lbl">Base Price (₹) — used if no variants</label><input id="mi-price" class="inp" type="number" placeholder="e.g. 80"></div>
+  <div class="fg">
+    <label class="lbl">Variants (size/weight/qty with different prices)</label>
+    <div id="var-list"></div>
+    <button class="btn btn-ghost btn-sm" onclick="addVarRow()" style="margin-top:8px"><i class="fa-solid fa-plus"></i> Add Variant</button>
+    <div style="font-size:11px;color:var(--gr);margin-top:4px">Leave empty to use base price only</div>
+  </div>
+  <div class="fg"><label class="lbl">Image URL (ibb.co / imgur / direct link)</label><input id="mi-img" class="inp" type="url" placeholder="https://i.ibb.co/..."></div>
+  <div class="fg"><label class="lbl">Menu Type</label>
+    <select id="mi-type" class="inp"><option value="morning">Morning (Before 11:30 AM)</option><option value="evening">Evening (After 11:30 AM)</option></select></div>
+  <div class="fg"><label class="lbl">Availability</label>
+    <select id="mi-avail" class="inp"><option value="TRUE">Available</option><option value="FALSE">Not Available</option></select></div>
+  <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-menu')">Cancel</button><button class="btn btn-p" onclick="submitMenu()"><i class="fa-solid fa-check"></i> Save</button></div>
+</div></div>
 
-        function logout() {
-            localStorage.removeItem('currentStaff');
-            location.reload();
-        }
+<!-- Coupon -->
+<div class="mo hide" id="mo-cpn"><div class="mo-box">
+  <div class="mo-t">Create Coupon</div>
+  <div class="fg"><label class="lbl">Code *</label><input id="cp-code" class="inp" type="text" placeholder="e.g. SAVE50" style="text-transform:uppercase"></div>
+  <div class="fg"><label class="lbl">Type *</label><select id="cp-type" class="inp"><option value="percent">Percentage (%)</option><option value="fixed">Fixed (₹)</option></select></div>
+  <div class="fg"><label class="lbl">Value *</label><input id="cp-val" class="inp" type="number" placeholder="e.g. 20"></div>
+  <div class="fg"><label class="lbl">Expiry Date</label><input id="cp-exp" class="inp" type="date"></div>
+  <div class="fg"><label class="lbl">User Phone (blank = all)</label><input id="cp-ph" class="inp" type="tel" placeholder="Specific phone"></div>
+  <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-cpn')">Cancel</button><button class="btn btn-p" onclick="submitCpn()"><i class="fa-solid fa-check"></i> Create</button></div>
+</div></div>
 
-        if (currentStaff) {
-            setupDashboard();
-            refreshData();
-        }
+<!-- Subscriber -->
+<div class="mo hide" id="mo-sub"><div class="mo-box">
+  <div class="mo-t" id="mo-sub-t">Add Subscriber</div>
+  <input type="hidden" id="sub-orig-ph">
+  <div class="fg"><label class="lbl">Phone *</label><input id="sub-ph" class="inp" type="tel" placeholder="10-digit"></div>
+  <div class="fg"><label class="lbl">Name</label><input id="sub-nm" class="inp" type="text" placeholder="Subscriber name"></div>
+  <div class="fg"><label class="lbl">Plan</label>
+    <select id="sub-plan" class="inp"><option value="both">Both (Day + Night)</option><option value="day">Day Only</option><option value="night">Night Only</option></select></div>
+  <div class="fg"><label class="lbl">Status</label>
+    <select id="sub-stat" class="inp"><option value="active">Active</option><option value="paused">Paused</option></select></div>
+  <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-sub')">Cancel</button><button class="btn btn-g" onclick="submitSub()"><i class="fa-solid fa-check"></i> Save</button></div>
+</div></div>
 
-        async function refreshData() {
-            const res = await apiCall('admin_dashboard', {});
-            if (res.success) {
-                // Stats
-                document.getElementById('statTotalOrders').innerText = res.totalOrders || 0;
-                document.getElementById('statTotalRevenue').innerText = "₹" + (res.revenue || 0);
-                document.getElementById('statWalletRev').innerText = "₹" + (res.walletRev || 0);
-                document.getElementById('statUpiRev').innerText = "₹" + (res.upiRev || 0);
+<!-- Rider -->
+<div class="mo hide" id="mo-rider"><div class="mo-box">
+  <div class="mo-t">Add Rider</div>
+  <div class="fg"><label class="lbl">Name *</label><input id="rd-nm" class="inp" type="text"></div>
+  <div class="fg"><label class="lbl">Email *</label><input id="rd-em" class="inp" type="email"></div>
+  <div class="fg"><label class="lbl">Password *</label><input id="rd-pw" class="inp" type="password"></div>
+  <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-rider')">Cancel</button><button class="btn btn-p" onclick="submitRider()"><i class="fa-solid fa-check"></i> Create</button></div>
+</div></div>
 
-                // Fraud Alerts
-                const fraudContainer = document.getElementById('fraudAlertsContainer');
-                const fraudList = document.getElementById('fraudAlertsList');
-                if (res.fraudAlerts && res.fraudAlerts.length > 0) {
-                    fraudContainer.classList.remove('hidden');
-                    fraudList.innerHTML = res.fraudAlerts.map(a => `
-                        <div class="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-start gap-3">
-                            <i class="fa-solid fa-circle-exclamation text-red-500 mt-1"></i>
-                            <div>
-                                <p class="text-xs font-bold text-red-600">${a.type}</p>
-                                <p class="text-[10px] text-red-500">${a.msg}</p>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    fraudContainer.classList.add('hidden');
-                }
+<div class="toast" id="toast"></div>
+<script>
+// ════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════
+const CFG={
+  GAS:'https://script.google.com/macros/s/AKfycbwHq-D_E4_aD2W3R9TmaTk39pW87El0UCN89Vrjx4lUUhWRnMJbcsuUZLt1trwjkAq8Yg/exec',
+  KEY:'HB_SECURE_API_KEY_2026'
+};
+async function api(action,data={}){
+  const r=await fetch(CFG.GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,data,apiKey:CFG.KEY})});
+  const res=await r.json();
+  if(!res.success) throw new Error(res.error||'API error');
+  return res.data;
+}
 
-                // Analytics
-                document.getElementById('anaWalletRev').innerText = "₹" + (res.walletRev || 0);
-                document.getElementById('anaUpiRev').innerText = "₹" + (res.upiRev || 0);
-                const total = (res.walletRev || 0) + (res.upiRev || 0);
-                if (total > 0) {
-                    document.getElementById('barWallet').style.width = ((res.walletRev / total) * 100) + "%";
-                    document.getElementById('barUpi').style.width = ((res.upiRev / total) * 100) + "%";
-                }
+// ════════════════════════════════════════════════
+// AUTH — persists in sessionStorage
+// ════════════════════════════════════════════════
+async function doLogin(){
+  const em=doc('a-em').value.trim(),pw=doc('a-pw').value;
+  if(!em||!pw) return toast('Email and password required');
+  const btn=doc('login-btn');
+  btn.innerHTML='<span class="spin"></span> Logging in...'; btn.disabled=true;
+  try{
+    const admin=await api('adminLogin',{email:em,password:pw});
+    sessionStorage.setItem('hb_admin',JSON.stringify(admin));
+    showApp(admin);
+  }catch(e){ toast('❌ '+e.message); }
+  finally{ btn.innerHTML='<i class="fa-solid fa-lock-open"></i> Access Dashboard'; btn.disabled=false; }
+}
 
-                // Orders Table
-                allOrders = res.orders || [];
-                const ordersTable = document.getElementById('ordersTableBody');
-                ordersTable.innerHTML = allOrders.slice().reverse().map(o => {
-                    let itemsHtml = "";
-                    try {
-                        const items = JSON.parse(o.Items);
-                        itemsHtml = items.map(i => `${i.name} (x${i.qty})`).join(", ");
-                    } catch(e) { itemsHtml = "Error parsing items"; }
+function showApp(admin){
+  doc('auth-pg').classList.add('hide');
+  doc('app').classList.remove('hide');
+  doc('admin-badge').textContent=admin.name||'Admin';
+  showPg('dashboard');
+  if(window.innerWidth<=768){ doc('menu-toggle').style.display='block'; doc('sb-ov').classList.add('hide'); }
+}
 
-                    return `
-                        <tr>
-                            <td class="text-xs font-bold">#${o.Order_ID}</td>
-                            <td class="text-xs">${o.Cust_ID}</td>
-                            <td class="text-xs">${o.Cust_Name}</td>
-                            <td class="text-xs max-w-[150px] truncate" title="${o.Cust_Address}">${o.Cust_Address}</td>
-                            <td class="text-xs max-w-[200px] truncate" title="${itemsHtml}">${itemsHtml}</td>
-                            <td class="text-xs font-bold">₹${o.Total}</td>
-                            <td class="text-xs font-bold text-green-600">₹${o.Paid}</td>
-                            <td class="text-xs">${o.Coupon}</td>
-                            <td class="text-xs max-w-[100px] truncate" title="${o.Notes}">${o.Notes}</td>
-                            <td class="text-xs font-bold text-blue-600">${o.Mode}</td>
-                            <td>
-                                <span class="px-2 py-1 rounded-full text-[10px] font-bold ${o.Status === 'Delivered' ? 'bg-green-100 text-green-600' : (o.Status === 'Rejected' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600')}">
-                                    ${o.Status}
-                                </span>
-                            </td>
-                            <td class="flex gap-2">
-                                <button onclick="openOrderDetails('${o.Order_ID}')" class="bg-gray-100 text-gray-600 px-3 py-1 rounded-lg text-[10px] font-bold">View</button>
-                                ${o.PStatus === 'Pending' ? `
-                                    <button onclick="verifyOrder('${o.Order_ID}')" class="btn-approve">Approve</button>
-                                    <button onclick="rejectOrder('${o.Order_ID}')" class="btn-reject">Reject</button>
-                                ` : (o.Status === 'Order Approved' ? `
-                                    <button onclick="deliverOrder('${o.Order_ID}')" class="bg-blue-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold">Deliver</button>
-                                ` : `<span class="text-green-500 font-bold text-[10px]"><i class="fa-solid fa-check"></i> ${o.Status}</span>`)}
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+function doLogout(){ if(confirm('Logout?')){ sessionStorage.removeItem('hb_admin'); location.reload(); } }
 
-                // Customers Table
-                const customersTable = document.getElementById('customersTableBody');
-                customersTable.innerHTML = (res.users || []).map(u => `
-                    <tr>
-                        <td class="text-xs font-bold">${u.Cust_ID}</td>
-                        <td class="text-xs">${u.Name}</td>
-                        <td class="text-xs">${u.Phone}</td>
-                        <td class="text-xs font-bold">${u.TotalOrders}</td>
-                        <td class="text-xs font-bold text-green-600">₹${u.TotalSpent}</td>
-                        <td class="text-xs font-bold text-red-500">₹${u.Wallet}</td>
-                        <td>
-                            <button onclick="openWalletModal('${u.Cust_ID}', '${u.Name}')" class="text-blue-500 font-bold text-xs">Manage</button>
-                        </td>
-                    </tr>
-                `).join('');
+// ════════════════════════════════════════════════
+// SIDEBAR (mobile)
+// ════════════════════════════════════════════════
+function toggleSb(){ doc('sidebar').classList.toggle('open'); doc('sb-ov').classList.toggle('hide'); }
+function closeSb(){ doc('sidebar').classList.remove('open'); doc('sb-ov').classList.add('hide'); }
 
-                // Low Balance List
-                const lowBalList = document.getElementById('lowBalanceList');
-                lowBalList.innerHTML = (res.lowBalanceUsers || []).map(u => `
-                    <div class="flex justify-between items-center p-3 bg-red-50 rounded-xl">
-                        <div>
-                            <p class="text-xs font-bold">${u.Name}</p>
-                            <p class="text-[10px] text-gray-400">ID: ${u.Cust_ID}</p>
-                        </div>
-                        <p class="font-bold text-red-500 text-sm">₹${u.Wallet}</p>
-                    </div>
-                `).join('');
+// ════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════
+let _curPg='dashboard';
+const _titles={dashboard:'Dashboard',orders:'Orders',bulk:'Bulk Orders',menu:'Menu Management',coupons:'Coupons',subscribers:'Subscribers',users:'All Users',riders:'Riders',settings:'Settings'};
 
-                // Recharges Table
-                const rechargesTable = document.getElementById('rechargesTableBody');
-                rechargesTable.innerHTML = (res.recharges || []).map(r => `
-                    <tr>
-                        <td class="text-xs font-bold">${r.TXN_ID}</td>
-                        <td class="text-xs">${r.Cust_ID}</td>
-                        <td class="text-xs font-bold">₹${r.Amount}</td>
-                        <td class="text-[10px]">${new Date(r.Timestamp).toLocaleString()}</td>
-                        <td>
-                            <button onclick="approveRecharge('${r.TXN_ID}')" class="btn-approve">Approve</button>
-                        </td>
-                    </tr>
-                `).join('');
+function showPg(name){
+  document.querySelectorAll('.pg-v').forEach(p=>p.classList.remove('act'));
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('act'));
+  doc('pg-'+name).classList.add('act');
+  const ni=doc('ni-'+name); if(ni) ni.classList.add('act');
+  doc('pg-title').textContent=_titles[name]||name;
+  _curPg=name; closeSb();
+  const loaders={dashboard:loadDash,orders:loadOrds,menu:loadMenu,coupons:loadCpns,subscribers:loadSubs,users:loadUsers,riders:loadRiders,bulk:initBulk,settings:loadSettings};
+  if(loaders[name]) loaders[name]();
+}
 
-                // Coupons Table
-                const couponsTable = document.getElementById('couponsTableBody');
-                allCoupons = res.coupons || [];
-                couponsTable.innerHTML = allCoupons.map(c => `
-                    <tr>
-                        <td class="text-xs font-bold uppercase">${c.Code}</td>
-                        <td class="text-xs font-bold text-green-600">${c.Discount}%</td>
-                        <td class="text-xs">₹${c.Max}</td>
-                        <td class="text-xs">${c.Expiry ? new Date(c.Expiry).toLocaleDateString() : 'No Expiry'}</td>
-                        <td class="text-xs font-bold text-blue-600">${c.UsageCount || 0}</td>
-                        <td class="text-xs">${c.UserID || 'ALL'}</td>
-                        <td>
-                            <span class="px-2 py-1 rounded-full text-[10px] font-bold ${c.Status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
-                                ${c.Status}
-                            </span>
-                        </td>
-                        <td class="flex gap-2">
-                            <button onclick="openCouponModal('${c.Code}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-bold">Edit</button>
-                            <button onclick="deleteCoupon('${c.Code}')" class="bg-red-100 text-red-600 px-3 py-1 rounded-lg text-[10px] font-bold">Delete</button>
-                        </td>
-                    </tr>
-                `).join('');
+function refreshCurrent(){ const m={dashboard:loadDash,orders:loadOrds,menu:loadMenu,coupons:loadCpns,subscribers:loadSubs,users:loadUsers,riders:loadRiders,bulk:initBulk,settings:loadSettings}; if(m[_curPg]) m[_curPg](); }
 
-                // Staff Table
-                const staffTable = document.getElementById('staffTableBody');
-                staffTable.innerHTML = (res.staff || []).map(s => `
-                    <tr>
-                        <td class="text-xs font-bold">${s.Staff_ID}</td>
-                        <td class="text-xs">${s.Email}</td>
-                        <td class="text-xs">${s.Name}</td>
-                        <td class="text-xs font-bold text-blue-500">${s.Role}</td>
-                    </tr>
-                `).join('');
+// ════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════
+async function loadDash(){
+  // Show loading state
+  ['s-tod-ord','s-tod-rev','s-mo-rev','s-tot-ord','s-users','s-subs'].forEach(id=>{ const el=doc(id); if(el) el.innerHTML='<span style="font-size:16px;color:#999">loading...</span>'; });
+  try{
+    const a=await api('getAnalytics');
+    doc('s-tod-ord').textContent=a.todayOrders||0;
+    doc('s-tod-rev').textContent='₹'+(a.todayRevenue||0);
+    doc('s-mo-rev').textContent='₹'+(a.monthlyRevenue||0);
+    doc('s-tot-ord').textContent=a.totalOrders||0;
+    doc('s-users').textContent=a.totalUsers||0;
+    doc('s-subs').textContent=a.totalSubscribers||0;
+  }catch(e){ toast('Dashboard error: '+e.message); }
+}
 
-                // Top Items
-                const topItemsList = document.getElementById('topItemsList');
-                topItemsList.innerHTML = (res.topItems || []).map(i => `
-                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
-                        <span class="font-medium">${i.name}</span>
-                        <span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-[10px] font-bold">${i.count} Sold</span>
-                    </div>
-                `).join('') || '<p class="text-gray-400 italic">No data yet</p>';
+// ════════════════════════════════════════════════
+// ORDERS
+// ════════════════════════════════════════════════
+let _ords=[],_ordF='all';
 
-                // Top Customers
-                const topCustomersList = document.getElementById('topCustomersList');
-                topCustomersList.innerHTML = (res.topCustomers || []).map(c => `
-                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
-                        <div>
-                            <p class="font-medium">${c.name}</p>
-                            <p class="text-[10px] text-gray-400">ID: ${c.id}</p>
-                        </div>
-                        <span class="font-bold text-green-600">₹${c.revenue}</span>
-                    </div>
-                `).join('') || '<p class="text-gray-400 italic">No data yet</p>';
+async function loadOrds(){
+  doc('ord-tb').innerHTML='<tr><td colspan="10" style="text-align:center;padding:28px;color:#999">Loading...</td></tr>';
+  try{ _ords=await api('adminGetOrders'); renderOrds(); }
+  catch(e){ toast('Orders error: '+e.message); }
+}
 
-                // Menu Management
-                const menuContainer = document.getElementById('adminMenuContainer');
-                menuContainer.innerHTML = (res.menu || []).map(m => {
-                    const isToday = String(m.Date).toUpperCase() === 'TRUE' || m.Date === true;
-                    return `
-                        <div class="card relative overflow-hidden group">
-                            <img src="${m.Image_URL}" class="w-full h-32 object-cover rounded-xl mb-4" referrerPolicy="no-referrer">
-                            <div class="flex justify-between items-start mb-2">
-                                <h4 class="font-bold">${m.Name}</h4>
-                                <span class="text-[10px] px-2 py-1 bg-gray-100 rounded-full font-bold">${m.Category}</span>
-                            </div>
-                            <p class="text-xs text-gray-500 mb-4">${m.Price_Options}</p>
-                            <div class="flex gap-2">
-                                <button onclick="toggleTodayStatus('${m.Item_ID}', ${isToday})" class="flex-1 ${isToday ? 'bg-green-50 text-green-500' : 'bg-gray-100 text-gray-500'} py-2 rounded-lg text-[10px] font-bold">
-                                    ${isToday ? 'Remove from Today' : 'Set for Today'}
-                                </button>
-                                <button onclick="editMenuItem('${m.Item_ID}', '${m.Name}', '${m.Price_Options}', '${m.Image_URL}', '${m.Category}', ${isToday})" class="bg-gray-100 p-2 rounded-lg text-xs font-bold"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deleteMenuItem('${m.Item_ID}')" class="bg-red-50 text-red-500 p-2 rounded-lg text-xs font-bold"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                            ${isToday ? `<div class="absolute top-2 right-2 bg-green-500 text-white text-[8px] px-2 py-1 rounded-full font-bold">TODAY</div>` : ''}
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
+function filterOrd(f,btn){
+  _ordF=f;
+  document.querySelectorAll('#pg-orders .f-btn').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act'); renderOrds();
+}
 
-        async function deliverOrder(id) {
-            if(!confirm("Mark this order as Delivered?")) return;
-            const res = await apiCall('deliver_order', { orderId: id });
-            if (res.success) { alert("Order Delivered!"); refreshData(); }
-        }
+function renderOrds(){
+  const srch=(doc('ord-srch').value||'').toLowerCase();
+  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const sc={pending:'b-y',preparing:'b-o','out for delivery':'b-bl',delivered:'b-g',paid:'b-g'};
 
-        async function verifyOrder(id) {
-            if(!confirm("Approve this payment?")) return;
-            const res = await apiCall('verify_order', { orderId: id });
-            if (res.success) { alert("Payment Approved!"); refreshData(); }
-        }
+  let filtered=_ords.filter(o=>{
+    if(_ordF==='today') return normDate(o.date)===today;
+    if(_ordF==='pending'||_ordF==='preparing'||_ordF==='out for delivery'||_ordF==='delivered') return o.orderStatus===_ordF;
+    return true;
+  }).filter(o=>!srch||(o.name||'').toLowerCase().includes(srch)||(o.phone||'').includes(srch)||(o.orderId||'').toLowerCase().includes(srch));
 
-        async function rejectOrder(id) {
-            if(!confirm("Reject this order?")) return;
-            const res = await apiCall('reject_order', { orderId: id });
-            if (res.success) { alert("Order Rejected!"); refreshData(); }
-        }
+  doc('ord-tb').innerHTML=filtered.length?filtered.map(o=>{
+    let items=[]; try{ items=safeP(o.items); }catch{}
+    const sum=items.slice(0,2).map(i=>`${i.name}${i.selectedVariant?` (${i.selectedVariant})`:''} ×${i.qty}`).join(', ')+(items.length>2?'...':'');
+    return `<tr>
+      <td><code style="font-size:11px;font-weight:700">${esc(o.orderId)}</code></td>
+      <td><div style="font-weight:700">${esc(o.name)}</div><div style="font-size:11px;color:#999">${esc(o.phone)}</div></td>
+      <td style="max-width:180px;font-size:12px">${esc(sum)}</td>
+      <td><strong>₹${Number(o.finalAmount).toFixed(0)}</strong></td>
+      <td><span class="bdg ${o.userType==='subscriber'?'b-g':'b-gr'}">${esc(o.userType||'daily')}</span></td>
+      <td><span class="bdg ${sc[o.paymentStatus]||'b-y'}">${esc(o.paymentStatus||'pending')}</span></td>
+      <td><span class="bdg ${sc[o.orderStatus]||'b-y'}">${esc(o.orderStatus||'pending')}</span></td>
+      <td style="font-size:12px;white-space:nowrap">${esc(fmtDate(o.date))}<br><span style="color:#999">${esc(fmtTime(o.time))}</span></td>
+      <td style="font-size:12px">${o.riderId?`<code>${esc(o.riderId)}</code>`:'<span style="color:#ccc">—</span>'}</td>
+      <td>
+        <button class="btn btn-sm btn-ghost" onclick='showOrdDetail(${JSON.stringify(o).replace(/'/g,"&#39;")})' style="margin-right:4px"><i class="fa-solid fa-eye"></i></button>
+        <button class="btn btn-sm btn-p" onclick="openStatusMo('${esc(o.orderId)}','${esc(o.orderStatus)}','${esc(o.paymentStatus)}','${esc(o.riderId||'')}')"><i class="fa-solid fa-pen"></i></button>
+      </td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="10" style="text-align:center;padding:28px;color:#999">No orders found</td></tr>';
+}
 
-        async function approveRecharge(txnId) {
-            if(!confirm("Approve this recharge?")) return;
-            const res = await apiCall('approve_recharge', { txnId });
-            if (res.success) { alert("Recharge Approved!"); refreshData(); }
-        }
+function showOrdDetail(o){
+  let items=[]; try{ items=safeP(o.items); }catch{}
+  doc('mo-order-c').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div><div style="font-size:11px;color:#999;font-weight:700">ORDER ID</div><code style="font-weight:700">${esc(o.orderId)}</code></div>
+      <div><div style="font-size:11px;color:#999;font-weight:700">DATE</div>${esc(fmtDate(o.date))} ${esc(fmtTime(o.time))}</div>
+      <div><div style="font-size:11px;color:#999;font-weight:700">CUSTOMER</div><strong>${esc(o.name)}</strong></div>
+      <div><div style="font-size:11px;color:#999;font-weight:700">PHONE</div><a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>
+    </div>
+    <div style="background:#f3f4f6;border-radius:10px;padding:12px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:#999;margin-bottom:4px">ADDRESS</div><div style="font-weight:600">${esc(o.address)}</div></div>
+    <div style="background:#f3f4f6;border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;color:#999;margin-bottom:6px">ITEMS</div>
+      ${items.map(i=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-weight:600;font-size:13px"><span>${esc(i.name)}${i.selectedVariant?` <span style="color:#999">(${esc(i.selectedVariant)})</span>`:''} ×${i.qty}</span><span>₹${Number(i.price)*i.qty}</span></div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:#f3f4f6;border-radius:10px;padding:10px"><div style="font-size:11px;color:#999;font-weight:700">SUBTOTAL</div><strong>₹${esc(String(o.totalAmount))}</strong></div>
+      <div style="background:#f3f4f6;border-radius:10px;padding:10px"><div style="font-size:11px;color:#999;font-weight:700">DELIVERY</div><strong>₹${esc(String(o.deliveryCharge))}</strong></div>
+      <div style="background:#f3f4f6;border-radius:10px;padding:10px"><div style="font-size:11px;color:#999;font-weight:700">DISCOUNT</div><strong style="color:var(--g)">−₹${esc(String(o.discount||0))}</strong></div>
+      <div style="background:var(--p);color:#fff;border-radius:10px;padding:10px"><div style="font-size:11px;font-weight:700;opacity:.8">TOTAL</div><strong>₹${esc(String(o.finalAmount))}</strong></div>
+    </div>`;
+  doc('mo-order').classList.remove('hide');
+}
 
-        function openStaffModal() { document.getElementById('staffModal').classList.remove('hidden'); }
-        function closeStaffModal() { document.getElementById('staffModal').classList.add('hidden'); }
-        async function saveStaff() {
-            const payload = {
-                name: document.getElementById('sName').value,
-                email: document.getElementById('sEmail').value,
-                password: document.getElementById('sPass').value,
-                role: document.getElementById('sRole').value
-            };
-            const res = await apiCall('add_staff', payload);
-            if (res.success) { alert("Staff Created!"); closeStaffModal(); refreshData(); }
-        }
+async function openStatusMo(orderId,curSt,curPay,curRider){
+  doc('st-oid').value=orderId;
+  doc('st-os').value=curSt;
+  doc('st-ps').value=curPay;
+  // Populate rider select
+  const rSel=doc('st-rid');
+  rSel.innerHTML='<option value="">Auto-assign available rider</option>';
+  try{
+    const riders=await api('getRiders');
+    riders.forEach(r=>{ const o=document.createElement('option'); o.value=r.riderId; o.textContent=`${r.name} (${r.riderId})`; if(r.riderId===curRider) o.selected=true; rSel.appendChild(o); });
+  }catch(e){}
+  doc('mo-status').classList.remove('hide');
+}
 
-        function openWalletModal(id, name) {
-            selectedCustId = id;
-            document.getElementById('walletUserDisplay').innerText = `User: ${name} (${id})`;
-            document.getElementById('walletModal').classList.remove('hidden');
-        }
-        function closeWalletModal() { document.getElementById('walletModal').classList.add('hidden'); }
+async function submitStatus(){
+  const orderId=doc('st-oid').value, status=doc('st-os').value, paymentStatus=doc('st-ps').value, riderId=doc('st-rid').value;
+  try{
+    await api('updateOrderStatus',{orderId,status,paymentStatus,...(riderId?{riderId}:{})});
+    toast('✅ Order updated!'); closeMo('mo-status'); loadOrds();
+  }catch(e){ toast('❌ '+e.message); }
+}
 
-        function openOrderDetails(orderId) {
-            const order = allOrders.find(o => o.Order_ID === orderId);
-            if (!order) return;
+// ════════════════════════════════════════════════
+// BULK ORDERS
+// ════════════════════════════════════════════════
+let _bulkSubs=[],_bulkMenu=[];
 
-            let itemsHtml = "";
-            try {
-                const items = JSON.parse(order.Items);
-                itemsHtml = items.map(i => `
-                    <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
-                        <div>
-                            <p class="font-bold text-sm">${i.name}</p>
-                            <p class="text-[10px] text-gray-400">${i.variant || 'Standard'}</p>
-                        </div>
-                        <p class="font-bold text-sm">x${i.qty}</p>
-                    </div>
-                `).join('');
-            } catch(e) { itemsHtml = "<p class='text-red-500'>Error parsing items</p>"; }
+async function initBulk(){
+  try{
+    _bulkMenu=await api('adminGetMenu');
+    const sel=doc('bulk-item'); sel.innerHTML='<option value="">-- Select item --</option>';
+    _bulkMenu.forEach(i=>{ const o=document.createElement('option'); o.value=i.itemId; o.textContent=`${i.name} — ₹${i.price} (${i.menuType})`; sel.appendChild(o); });
+  }catch(e){}
+  await loadBulkSubs();
+}
 
-            const content = `
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Order ID</p>
-                        <p class="font-bold">#${order.Order_ID}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Date & Time</p>
-                        <p class="font-bold">${new Date(order.Timestamp).toLocaleString()}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Customer Name</p>
-                        <p class="font-bold">${order.Cust_Name}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Customer ID</p>
-                        <p class="font-bold">${order.Cust_ID}</p>
-                    </div>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">Delivery Address</p>
-                    <p class="text-sm bg-gray-50 p-3 rounded-xl mt-1">${order.Cust_Address}</p>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Items Ordered</p>
-                    <div class="bg-gray-50 p-4 rounded-2xl">${itemsHtml}</div>
-                </div>
-                ${order.Notes ? `
-                <div>
-                    <p class="text-[10px] font-bold text-red-500 uppercase">Special Instructions</p>
-                    <p class="text-sm bg-red-50 p-3 rounded-xl mt-1 font-bold text-red-600">${order.Notes}</p>
-                </div>
-                ` : ''}
-                <div class="grid grid-cols-2 gap-4 pt-4 border-t">
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Payment Mode</p>
-                        <p class="font-bold text-blue-600">${order.Mode}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Payment Status</p>
-                        <p class="font-bold ${order.PStatus === 'Paid' ? 'text-green-600' : 'text-orange-500'}">${order.PStatus}</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Coupon Used</p>
-                        <p class="font-bold">${order.Coupon}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[10px] font-bold text-gray-400 uppercase">Total Amount</p>
-                        <p class="text-xl font-bold text-zomato-red">₹${order.Total}</p>
-                    </div>
-                </div>
-            `;
-            document.getElementById('orderDetailsContent').innerHTML = content;
-            document.getElementById('orderDetailsModal').classList.remove('hidden');
-        }
+async function loadBulkSubs(){
+  const plan=doc('bulk-plan').value;
+  const tb=doc('bulk-tb');
+  tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">Loading...</td></tr>';
+  try{
+    const subs=await api('adminGetSubscribers');
+    _bulkSubs=subs.filter(s=>{
+      if(String(s.status||'active').toLowerCase()==='paused') return false;
+      if(plan==='all') return true;
+      return (s.plan||'both')===plan;
+    });
+    tb.innerHTML=_bulkSubs.length?_bulkSubs.map((s,i)=>`<tr>
+      <td><input type="checkbox" class="bulk-cb" data-i="${i}" checked></td>
+      <td><code>${esc(s.phone)}</code></td>
+      <td style="font-weight:700">${esc(s.name)}</td>
+      <td><span class="bdg b-g">${esc(s.plan||'both')}</span></td>
+      <td style="font-size:12px;color:#999">${esc(s.address||'No address')}</td>
+    </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">No matching subscribers</td></tr>';
+  }catch(e){ toast('Error: '+e.message); }
+}
 
-        function closeOrderDetailsModal() { document.getElementById('orderDetailsModal').classList.add('hidden'); }
+function toggleAllBulk(cb){ document.querySelectorAll('.bulk-cb').forEach(c=>c.checked=cb.checked); }
 
-        async function saveWalletUpdate() {
-            const payload = {
-                custId: selectedCustId,
-                type: document.getElementById('wType').value,
-                amount: document.getElementById('wAmount').value,
-                reason: document.getElementById('wReason').value
-            };
-            const res = await apiCall('update_wallet', payload);
-            if (res.success) { closeWalletModal(); refreshData(); }
-        }
+async function genBulkOrders(){
+  const itemId=doc('bulk-item').value;
+  if(!itemId){ toast('Select a menu item'); return; }
+  const item=_bulkMenu.find(i=>i.itemId===itemId);
+  const price=Number(doc('bulk-price').value)||Number(item?.price)||0;
+  const reason=doc('bulk-reason').value.trim()||'Manual bulk order';
+  const selected=[];
+  document.querySelectorAll('.bulk-cb:checked').forEach(cb=>{ selected.push(_bulkSubs[Number(cb.dataset.i)]); });
+  if(!selected.length){ toast('Select at least one subscriber'); return; }
+  if(!confirm(`Generate ${selected.length} orders?`)) return;
 
-        function openCouponModal(code = null) {
-            isEditingCoupon = !!code;
-            if (code) {
-                document.getElementById('couponModalTitle').innerText = "Edit Coupon";
-                const coupon = allCoupons.find(c => c.Code === code);
-                document.getElementById('cCode').value = coupon.Code;
-                document.getElementById('cCode').readOnly = true;
-                document.getElementById('cDiscount').value = coupon.Discount;
-                document.getElementById('cMax').value = coupon.Max;
-                let expiryDate = "";
-                if (coupon.Expiry) {
-                    try {
-                        expiryDate = new Date(coupon.Expiry).toISOString().split('T')[0];
-                    } catch(e) {}
-                }
-                document.getElementById('cExpiry').value = expiryDate;
-                document.getElementById('cUserId').value = coupon.UserID === 'ALL' ? '' : coupon.UserID;
-                document.getElementById('cStatusContainer').classList.remove('hidden');
-                document.getElementById('cStatus').value = coupon.Status;
-            } else {
-                document.getElementById('couponModalTitle').innerText = "Create Coupon";
-                document.getElementById('cCode').value = '';
-                document.getElementById('cCode').readOnly = false;
-                document.getElementById('cDiscount').value = '';
-                document.getElementById('cMax').value = '';
-                document.getElementById('cExpiry').value = '';
-                document.getElementById('cUserId').value = '';
-                document.getElementById('cStatusContainer').classList.add('hidden');
-                document.getElementById('cStatus').value = 'Active';
-            }
-            document.getElementById('couponModal').classList.remove('hidden');
-        }
+  const orders=selected.map(s=>({
+    userId:s.phone, name:s.name, phone:s.phone, address:s.address||'',
+    items:[{itemId:item.itemId,name:item.name,price,qty:1,selectedVariant:'',imageUrl:item.imageUrl}],
+    totalAmount:price, deliveryCharge:0, finalAmount:price,
+    couponCode:'', discount:0, userType:'subscriber',
+    note:reason
+  }));
 
-        function closeCouponModal() {
-            document.getElementById('couponModal').classList.add('hidden');
-        }
+  try{
+    const res=await api('createBulkOrders',{orders});
+    toast(`✅ ${res.created} orders created!`); loadOrds(); showPg('orders');
+  }catch(e){ toast('❌ '+e.message); }
+}
 
-        async function saveCoupon() {
-            const code = document.getElementById('cCode').value.trim();
-            const discount = document.getElementById('cDiscount').value;
-            const max = document.getElementById('cMax').value;
-            const expiry = document.getElementById('cExpiry').value;
-            const userId = document.getElementById('cUserId').value.trim();
-            const status = document.getElementById('cStatus').value;
+// ════════════════════════════════════════════════
+// MENU
+// ════════════════════════════════════════════════
+let _menu=[],_menuF='all';
 
-            if (!code || !discount || !max) {
-                alert("Code, Discount, and Max Discount are required.");
-                return;
-            }
+async function loadMenu(){
+  doc('menu-tb').innerHTML='<tr><td colspan="8" style="text-align:center;padding:28px;color:#999">Loading...</td></tr>';
+  try{ _menu=await api('adminGetMenu'); renderMenu(); }
+  catch(e){ toast('Menu error: '+e.message); }
+}
 
-            const action = isEditingCoupon ? 'update_coupon' : 'add_coupon';
-            const res = await apiCall(action, { code, discount, max, expiry, userId, status });
-            if (res.success) {
-                closeCouponModal();
-                refreshData();
-            } else {
-                alert("Failed to save coupon.");
-            }
-        }
+function filterMenu(f,btn){ _menuF=f; document.querySelectorAll('#pg-menu .f-btn').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); renderMenu(); }
 
-        async function deleteCoupon(code) {
-            if (!confirm(`Are you sure you want to delete coupon ${code}?`)) return;
-            const res = await apiCall('delete_coupon', { code });
-            if (res.success) {
-                refreshData();
-            } else {
-                alert("Failed to delete coupon.");
-            }
-        }
+function renderMenu(){
+  const filtered=_menu.filter(i=>_menuF==='all'||i.menuType===_menuF);
+  doc('menu-tb').innerHTML=filtered.length?filtered.map(item=>{
+    const av=String(item.availability).toUpperCase()==='TRUE';
+    const vars=safeP(item.variants);
+    const varStr=vars.length?vars.map(v=>`${v.label}:₹${v.price}`).join(', '):'—';
+    return `<tr>
+      <td><img src="${esc(item.imageUrl)||'https://picsum.photos/seed/'+item.itemId+'/44'}" style="width:44px;height:44px;object-fit:cover;border-radius:8px" onerror="this.src='https://picsum.photos/44'"></td>
+      <td style="font-weight:700">${esc(item.name)}</td>
+      <td>${esc(item.category)}</td>
+      <td><strong>₹${Number(item.price).toFixed(0)}</strong></td>
+      <td style="font-size:11px;max-width:160px;color:#666">${esc(varStr)}</td>
+      <td><span class="bdg ${item.menuType==='morning'?'b-y':'b-bl'}">${esc(item.menuType)}</span></td>
+      <td><span class="bdg ${av?'b-g':'b-r'}">${av?'Yes':'No'}</span></td>
+      <td>
+        <button class="btn btn-sm btn-ghost" onclick='editMenu(${JSON.stringify(item).replace(/'/g,"&#39;")})' style="margin-right:4px"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-sm btn-red" onclick="delMenu('${esc(item.itemId)}','${esc(item.name)}')"><i class="fa-solid fa-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="8" style="text-align:center;padding:28px;color:#999">No items</td></tr>';
+}
 
-        function openMenuModal() {
-            document.getElementById('menuModalTitle').innerText = "Add New Menu Item";
-            document.getElementById('mId').value = "";
-            document.getElementById('mName').value = "";
-            document.getElementById('mPrices').value = "";
-            document.getElementById('mImage').value = "";
-            document.getElementById('mCategory').value = "";
-            document.getElementById('mIsToday').checked = false;
-            document.getElementById('menuModal').classList.remove('hidden');
-        }
+let _varRows=[];
+function openMenuModal(){
+  doc('mo-menu-t').textContent='Add Menu Item';
+  doc('mi-id').value='';
+  ['mi-name','mi-cat','mi-img'].forEach(id=>doc(id).value='');
+  doc('mi-price').value=''; doc('mi-type').value='morning'; doc('mi-avail').value='TRUE';
+  _varRows=[]; renderVarRows();
+  doc('mo-menu').classList.remove('hide');
+}
 
-        function closeMenuModal() { document.getElementById('menuModal').classList.add('hidden'); }
+function editMenu(item){
+  doc('mo-menu-t').textContent='Edit Menu Item';
+  doc('mi-id').value=item.itemId; doc('mi-name').value=item.name; doc('mi-cat').value=item.category;
+  doc('mi-price').value=item.price; doc('mi-img').value=item.imageUrl||'';
+  doc('mi-type').value=item.menuType; doc('mi-avail').value=String(item.availability).toUpperCase()==='FALSE'?'FALSE':'TRUE';
+  _varRows=safeP(item.variants).map(v=>({...v}));
+  renderVarRows();
+  doc('mo-menu').classList.remove('hide');
+}
 
-        function editMenuItem(id, name, prices, image, category, isToday) {
-            document.getElementById('menuModalTitle').innerText = "Edit Menu Item";
-            document.getElementById('mId').value = id;
-            document.getElementById('mName').value = name;
-            document.getElementById('mPrices').value = prices;
-            document.getElementById('mImage').value = image;
-            document.getElementById('mCategory').value = category;
-            document.getElementById('mIsToday').checked = isToday;
-            document.getElementById('menuModal').classList.remove('hidden');
-        }
+function addVarRow(){ _varRows.push({label:'',price:''}); renderVarRows(); }
+function removeVarRow(i){ _varRows.splice(i,1); renderVarRows(); }
+function renderVarRows(){
+  doc('var-list').innerHTML=_varRows.map((v,i)=>`
+    <div class="var-entry">
+      <input class="inp" type="text" placeholder="Label e.g. Half / 250g" value="${esc(v.label)}" oninput="_varRows[${i}].label=this.value" style="flex:2">
+      <input class="inp" type="number" placeholder="₹ price" value="${v.price}" oninput="_varRows[${i}].price=Number(this.value)" style="flex:1">
+      <button class="btn btn-ghost btn-sm" onclick="removeVarRow(${i})"><i class="fa-solid fa-times"></i></button>
+    </div>`).join('');
+}
 
-        async function saveMenuItem() {
-            const payload = {
-                id: document.getElementById('mId').value,
-                name: document.getElementById('mName').value,
-                prices: document.getElementById('mPrices').value,
-                image: document.getElementById('mImage').value,
-                category: document.getElementById('mCategory').value,
-                isToday: document.getElementById('mIsToday').checked
-            };
-            const res = await apiCall('save_menu_item', payload);
-            if (res.success) { alert("Menu Updated!"); closeMenuModal(); refreshData(); }
-        }
+async function submitMenu(){
+  const itemId=doc('mi-id').value;
+  const variants=_varRows.filter(v=>v.label&&v.price);
+  const data={
+    name:doc('mi-name').value.trim(), category:doc('mi-cat').value.trim(),
+    price:doc('mi-price').value||'0', variants,
+    imageUrl:doc('mi-img').value.trim(), menuType:doc('mi-type').value, availability:doc('mi-avail').value
+  };
+  if(!data.name) return toast('Item name required');
+  try{
+    if(itemId){ await api('updateMenuItem',{itemId,...data}); toast('✅ Updated!'); }
+    else{ await api('addMenuItem',data); toast('✅ Added!'); }
+    closeMo('mo-menu'); loadMenu();
+  }catch(e){ toast('❌ '+e.message); }
+}
 
-        async function deleteMenuItem(id) {
-            if(!confirm("Are you sure you want to delete this item?")) return;
-            const res = await apiCall('delete_menu_item', { id });
-            if (res.success) { alert("Item Deleted!"); refreshData(); }
-        }
+async function delMenu(itemId,name){
+  if(!confirm(`Delete "${name}"?`)) return;
+  try{ await api('deleteMenuItem',{itemId}); toast('✅ Deleted'); loadMenu(); }
+  catch(e){ toast('❌ '+e.message); }
+}
 
-        async function toggleTodayStatus(id, currentStatus) {
-            const item = (await apiCall('admin_dashboard', {})).menu.find(m => m.Item_ID === id);
-            if (!item) return;
-            
-            const payload = {
-                id: item.Item_ID,
-                name: item.Name,
-                prices: item.Price_Options,
-                image: item.Image_URL,
-                category: item.Category,
-                isToday: !currentStatus
-            };
-            const res = await apiCall('save_menu_item', payload);
-            if (res.success) refreshData();
-        }
+// ════════════════════════════════════════════════
+// COUPONS
+// ════════════════════════════════════════════════
+async function loadCpns(){
+  try{
+    const coupons=await api('adminGetCoupons');
+    doc('cpn-tb').innerHTML=coupons.length?coupons.map(c=>`<tr>
+      <td><code style="font-weight:700;font-size:13px">${esc(c.code)}</code></td>
+      <td>${esc(c.discountType)}</td>
+      <td><strong>${c.discountType.includes('percent')?c.discountValue+'%':'₹'+c.discountValue}</strong></td>
+      <td>${c.expiryDate||'—'}</td>
+      <td>${c.userPhone?`<code>${esc(c.userPhone)}</code>`:'<span style="color:#999">All</span>'}</td>
+      <td><span class="bdg ${String(c.isActive).toUpperCase()==='TRUE'?'b-g':'b-r'}">${String(c.isActive).toUpperCase()==='TRUE'?'Active':'Inactive'}</span></td>
+      <td><button class="btn btn-sm btn-red" onclick="delCpn('${esc(c.code)}')"><i class="fa-solid fa-trash"></i></button></td>
+    </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:28px;color:#999">No coupons</td></tr>';
+  }catch(e){ toast('Error: '+e.message); }
+}
 
-        async function clearTodayMenu() {
-            if(!confirm("Clear all items from Today's Menu?")) return;
-            const res = await apiCall('admin_dashboard', {});
-            const todayItems = res.menu.filter(m => String(m.Date).toUpperCase() === 'TRUE' || m.Date === true);
-            
-            for (const item of todayItems) {
-                await apiCall('save_menu_item', {
-                    id: item.Item_ID,
-                    name: item.Name,
-                    prices: item.Price_Options,
-                    image: item.Image_URL,
-                    category: item.Category,
-                    isToday: false
-                });
-            }
-            alert("Today's Menu Cleared!");
-            refreshData();
-        }
+function openCpnModal(){ ['cp-code','cp-val','cp-exp','cp-ph'].forEach(id=>doc(id).value=''); doc('cp-type').value='percent'; doc('mo-cpn').classList.remove('hide'); }
+async function submitCpn(){
+  const data={code:doc('cp-code').value.trim().toUpperCase(),discountType:doc('cp-type').value,discountValue:doc('cp-val').value,expiryDate:doc('cp-exp').value,userPhone:doc('cp-ph').value.trim()};
+  if(!data.code||!data.discountValue) return toast('Code and value required');
+  try{ await api('createCoupon',data); toast('✅ Created!'); closeMo('mo-cpn'); loadCpns(); }
+  catch(e){ toast('❌ '+e.message); }
+}
 
-        function showPanel(p) {
-            document.querySelectorAll('.panel').forEach(el => el.classList.add('hidden'));
-            document.getElementById('panel' + p.charAt(0).toUpperCase() + p.slice(1)).classList.remove('hidden');
-        }
+async function delCpn(code){
+  if(!confirm(`Delete coupon "${code}"?`)) return;
+  try{ await api('deleteCoupon',{code}); toast('✅ Deleted'); loadCpns(); }
+  catch(e){ toast('❌ '+e.message); }
+}
 
-        function downloadOrdersPDF() {
-            if (!allOrders || allOrders.length === 0) {
-                alert("No orders available to download.");
-                return;
-            }
+// ════════════════════════════════════════════════
+// SUBSCRIBERS
+// ════════════════════════════════════════════════
+let _subs=[],_subF='all';
 
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('landscape');
+async function loadSubs(){
+  const tb=doc('sub-tb');
+  tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:#999">Loading...</td></tr>';
+  try{ _subs=await api('adminGetSubscribers'); renderSubs(); }
+  catch(e){ toast('Error: '+e.message); }
+}
 
-            doc.setFontSize(18);
-            doc.text("Home Bite - Orders Report", 14, 22);
-            doc.setFontSize(11);
-            doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+function filterSubs(f,btn){ _subF=f; document.querySelectorAll('#pg-subscribers .f-btn').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); renderSubs(); }
 
-            const tableColumn = ["Order ID", "Date", "Customer", "Phone", "Items", "Total", "Mode", "Status"];
-            const tableRows = [];
+function renderSubs(){
+  let filtered=_subs.filter(s=>{
+    if(_subF==='all') return true;
+    if(_subF==='active'||_subF==='paused') return (s.status||'active')===_subF;
+    return (s.plan||'both')===_subF;
+  });
+  doc('sub-count').textContent=`Subscribers (${filtered.length})`;
+  doc('sub-tb').innerHTML=filtered.length?filtered.map(s=>`<tr>
+    <td><code>${esc(s.phone)}</code></td>
+    <td style="font-weight:700">${esc(s.name)}</td>
+    <td><span class="bdg b-g">${esc(s.plan||'both')}</span></td>
+    <td><span class="bdg ${(s.status||'active')==='active'?'b-g':'b-o'}">${esc(s.status||'active')}</span></td>
+    <td style="font-size:12px;color:#999">${s.startDate?new Date(s.startDate).toLocaleDateString():''}</td>
+    <td>
+      <button class="btn btn-sm btn-ghost" onclick="editSub('${esc(s.phone)}','${esc(s.name)}','${esc(s.plan||'both')}','${esc(s.status||'active')}')" style="margin-right:4px"><i class="fa-solid fa-pen"></i></button>
+      <button class="btn btn-sm btn-red" onclick="delSub('${esc(s.phone)}')"><i class="fa-solid fa-user-minus"></i></button>
+    </td>
+  </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:28px;color:#999">No subscribers</td></tr>';
+}
 
-            allOrders.forEach(order => {
-                let itemsStr = "";
-                try {
-                    const items = JSON.parse(order.Items);
-                    itemsStr = items.map(i => `${i.name} (x${i.qty})`).join(', ');
-                } catch(e) {
-                    itemsStr = "Error parsing items";
-                }
+function openSubModal(){ doc('mo-sub-t').textContent='Add Subscriber'; doc('sub-orig-ph').value=''; ['sub-ph','sub-nm'].forEach(id=>doc(id).value=''); doc('sub-plan').value='both'; doc('sub-stat').value='active'; doc('mo-sub').classList.remove('hide'); }
+function editSub(ph,nm,plan,stat){ doc('mo-sub-t').textContent='Edit Subscriber'; doc('sub-orig-ph').value=ph; doc('sub-ph').value=ph; doc('sub-nm').value=nm; doc('sub-plan').value=plan; doc('sub-stat').value=stat; doc('mo-sub').classList.remove('hide'); }
 
-                const orderData = [
-                    order.Order_ID,
-                    new Date(order.Timestamp).toLocaleString(),
-                    `${order.Cust_Name}\n(${order.Cust_ID})`,
-                    order.Cust_Phone,
-                    itemsStr,
-                    `Rs. ${order.Total}`,
-                    order.Mode,
-                    order.Status
-                ];
-                tableRows.push(orderData);
-            });
+async function submitSub(){
+  const origPh=doc('sub-orig-ph').value, ph=doc('sub-ph').value.trim().replace(/\D/g,''), nm=doc('sub-nm').value.trim();
+  if(!ph||ph.length!==10) return toast('Valid 10-digit phone');
+  try{
+    if(origPh){ await api('updateSubscriber',{phone:origPh,plan:doc('sub-plan').value,status:doc('sub-stat').value}); toast('✅ Updated!'); }
+    else{ await api('addSubscriber',{phone:ph,name:nm,plan:doc('sub-plan').value,status:doc('sub-stat').value}); toast('✅ Added!'); }
+    closeMo('mo-sub'); loadSubs();
+  }catch(e){ toast('❌ '+e.message); }
+}
 
-            doc.autoTable({
-                head: [tableColumn],
-                body: tableRows,
-                startY: 35,
-                styles: { fontSize: 8, cellPadding: 2 },
-                columnStyles: {
-                    4: { cellWidth: 80 } // Make items column wider
-                }
-            });
+async function delSub(phone){
+  if(!confirm(`Remove subscriber ${phone}?`)) return;
+  try{ await api('removeSubscriber',{phone}); toast('✅ Removed'); loadSubs(); }
+  catch(e){ toast('❌ '+e.message); }
+}
 
-            doc.save(`HomeBite_Orders_${new Date().toISOString().split('T')[0]}.pdf`);
-        }
-    </script>
+// ════════════════════════════════════════════════
+// USERS
+// ════════════════════════════════════════════════
+let _users=[],_subPhones=new Set(),_usrF='all';
+
+async function loadUsers(){
+  doc('usr-tb').innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:#999">Loading...</td></tr>';
+  try{
+    const [users,subs]=await Promise.all([api('getUsers'),api('adminGetSubscribers')]);
+    _users=users; _subPhones=new Set(subs.map(s=>String(s.phone).replace(/\D/g,'')));
+    renderUsers();
+  }catch(e){ toast('Error: '+e.message); }
+}
+
+function filterUsrSub(f,btn){ _usrF=f; document.querySelectorAll('#pg-users .f-btn').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); renderUsers(); }
+
+function renderUsers(){
+  const srch=(doc('usr-srch').value||'').toLowerCase();
+  let filtered=_users.filter(u=>{
+    const isSub=_subPhones.has(String(u.phone).replace(/\D/g,''));
+    if(_usrF==='subscriber'&&!isSub) return false;
+    if(_usrF==='non'&&isSub) return false;
+    return !srch||(u.name||'').toLowerCase().includes(srch)||(u.phone||'').includes(srch);
+  });
+  doc('usr-tb').innerHTML=filtered.length?filtered.map(u=>{
+    const isSub=_subPhones.has(String(u.phone).replace(/\D/g,''));
+    return `<tr>
+      <td><code>${esc(u.phone)}</code></td>
+      <td style="font-weight:700">${esc(u.name)}</td>
+      <td style="font-size:12px;color:#999">${esc(u.email)}</td>
+      <td style="font-size:12px;max-width:160px">${esc(u.address)}</td>
+      <td><span class="bdg ${isSub?'b-g':'b-gr'}">${isSub?'Subscriber':'Daily'}</span></td>
+      <td style="font-size:12px;color:#999">${u.createdAt?new Date(u.createdAt).toLocaleDateString():''}</td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="6" style="text-align:center;padding:28px;color:#999">No users</td></tr>';
+}
+
+// ════════════════════════════════════════════════
+// RIDERS
+// ════════════════════════════════════════════════
+async function loadRiders(){
+  try{
+    const riders=await api('getRiders');
+    doc('rider-tb').innerHTML=riders.length?riders.map(r=>`<tr>
+      <td><code>${esc(r.riderId)}</code></td><td style="font-weight:700">${esc(r.name)}</td><td>${esc(r.email)}</td>
+    </tr>`).join(''):'<tr><td colspan="3" style="text-align:center;padding:28px;color:#999">No riders</td></tr>';
+  }catch(e){ toast('Error: '+e.message); }
+}
+
+function openRiderModal(){ ['rd-nm','rd-em','rd-pw'].forEach(id=>doc(id).value=''); doc('mo-rider').classList.remove('hide'); }
+async function submitRider(){
+  const nm=doc('rd-nm').value.trim(), em=doc('rd-em').value.trim(), pw=doc('rd-pw').value;
+  if(!nm||!em||!pw) return toast('All fields required');
+  try{ await api('createRider',{name:nm,email:em,password:pw}); toast('✅ Rider created!'); closeMo('mo-rider'); loadRiders(); }
+  catch(e){ toast('❌ '+e.message); }
+}
+
+// ════════════════════════════════════════════════
+// SETTINGS — Order Cutoff
+// ════════════════════════════════════════════════
+async function loadSettings(){
+  try{
+    const cfg=await api('getOrderCutoff');
+    doc('cutoff-enabled').checked=!!cfg.enabled;
+    if(cfg.cutoffDay) doc('cutoff-day').value=cfg.cutoffDay;
+    if(cfg.cutoffNight) doc('cutoff-night').value=cfg.cutoffNight;
+    toggleCutoffUI();
+  }catch(e){ /* not set yet */ }
+}
+
+function toggleCutoffUI(){
+  const on=doc('cutoff-enabled').checked;
+  doc('cutoff-fields').style.display=on?'block':'none';
+  const slider=doc('cutoff-slider');
+  const knob=doc('cutoff-knob');
+  if(slider) slider.style.background=on?'var(--p)':'#ccc';
+  if(knob) knob.style.left=on?'25px':'3px';
+}
+
+async function saveCutoffSettings(){
+  const enabled=doc('cutoff-enabled').checked;
+  const cutoffDay=doc('cutoff-day').value||'11:30';
+  const cutoffNight=doc('cutoff-night').value||'19:30';
+  try{
+    await api('setOrderCutoff',{enabled,cutoffDay,cutoffNight});
+    toast('✅ Settings saved!');
+  }catch(e){ toast('❌ '+e.message); }
+}
+
+// ════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════
+function doc(id){ return document.getElementById(id); }
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// Shared IST parser: any date/time value → IST-adjusted Date
+function toIST(v){
+  if(!v) return null;
+  if(v instanceof Date) return new Date(v.getTime()+5.5*60*60*1000);
+  const s=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)||/^\d{4}-\d{2}-\d{2}$/.test(s)){
+    const d=new Date(s); if(!isNaN(d.getTime())) return new Date(d.getTime()+5.5*60*60*1000);
+  }
+  return null;
+}
+// normDate: → "DD/MM/YYYY" string for Today filter comparison
+function normDate(v){
+  if(!v) return '';
+  const ist=toIST(v);
+  if(ist) return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
+  return String(v);
+}
+// fmtDate: → display string "DD/MM/YYYY"
+function fmtDate(v){
+  if(!v) return '';
+  const ist=toIST(v);
+  if(ist) return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
+  return String(v);
+}
+// fmtTime: → display string "HH:MM AM/PM"
+function fmtTime(v){
+  if(!v) return '';
+  const ist=toIST(v);
+  if(ist){ let h=ist.getUTCHours(),m=ist.getUTCMinutes(); const p=h>=12?'PM':'AM'; h=h%12||12; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+p; }
+  return String(v).replace(/[\u00a0\u202f\u2009]/g,' ');
+}
+function toast(msg){ const t=doc('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),3500); }
+function closeMo(id){ doc(id).classList.add('hide'); }
+function safeP(v){ if(Array.isArray(v)) return v; if(typeof v==='object'&&v!==null) return v; if(!v||typeof v!=='string') return []; try{ return JSON.parse(v); }catch{ return []; } }
+
+// Click outside modal to close
+document.querySelectorAll('.mo').forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) m.classList.add('hide'); }); });
+
+// ════════════════════════════════════════════════
+// STARTUP
+// ════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  const admin=sessionStorage.getItem('hb_admin');
+  if(admin){
+    showApp(JSON.parse(admin));
+  }
+  if(window.innerWidth<=768){ doc('menu-toggle').style.display='block'; }
+});
+</script>
 </body>
 </html>

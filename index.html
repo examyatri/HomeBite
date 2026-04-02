@@ -1,831 +1,905 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Bite - Ghar ka Khana</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #F8F9FA; color: #1C1C1C; }
-        .bg-zomato-red { background-color: #E23744; }
-        .text-zomato-red { color: #E23744; }
-        .card-shadow { box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; padding: 12px; z-index: 50; box-shadow: 0 -4px 12px rgba(0,0,0,0.05); }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #E23744; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .variant-btn { transition: all 0.2s; border: 2px solid #f3f4f6; cursor: pointer; }
-        .variant-btn.active { border-color: #E23744; background-color: #FEF2F2; color: #E23744; }
-        .animate-slide-up { animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .zomato-logo { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; color: #E23744; font-style: italic; }
-        .whatsapp-btn { background-color: #25D366; color: white; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Home Bite – Ghar ka Khana</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --p:#e63946;--pd:#c1121f;--pl:#fde8ea;
+  --g:#2a9d8f;--gl:#e8f5f3;
+  --o:#f4a261;--y:#ffd166;
+  --dk:#111827;--gr:#6b7280;--lt:#f3f4f6;--wh:#fff;
+  --sh:0 2px 16px rgba(0,0,0,.08);--shl:0 8px 32px rgba(0,0,0,.12);
+  --r:14px;--rl:22px;
+  --ff:'Sora',sans-serif;--fb:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#f3f4f6}
+body{font-family:var(--fb);color:var(--dk);max-width:480px;margin:0 auto;position:relative}
+
+/* ── PAGE SYSTEM ── */
+.pg{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;background:#f3f4f6;
+    transition:transform .32s cubic-bezier(.4,0,.2,1),opacity .32s;will-change:transform;display:flex;flex-direction:column}
+.pg.right{transform:translateX(100%);opacity:0;pointer-events:none}
+.pg.left{transform:translateX(-100%);opacity:0;pointer-events:none}
+.pg.here{transform:none;opacity:1;pointer-events:all}
+
+/* ── UTILS ── */
+.hide{display:none!important}
+h1,h2,h3,h4{font-family:var(--ff)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 22px;
+     border-radius:var(--r);font-family:var(--ff);font-weight:700;font-size:14px;border:none;
+     cursor:pointer;transition:all .18s;-webkit-appearance:none;text-decoration:none}
+.btn:active{transform:scale(.96)}
+.btn-p{background:var(--p);color:#fff;width:100%;box-shadow:0 4px 16px rgba(230,57,70,.3)}
+.btn-p:hover{background:var(--pd)}
+.btn-g{background:var(--g);color:#fff;width:100%}
+.btn-dk{background:var(--dk);color:#fff;width:100%}
+.btn-out{background:transparent;border:2px solid var(--p);color:var(--p);width:100%}
+.btn-ghost{background:rgba(0,0,0,.06);color:var(--dk);border:none}
+.btn-sm{padding:8px 14px;font-size:12px;border-radius:10px}
+.inp{width:100%;padding:14px 16px;background:var(--lt);border:2px solid transparent;border-radius:var(--r);
+     font-family:var(--fb);font-size:15px;font-weight:500;color:var(--dk);outline:none;transition:border-color .18s;-webkit-appearance:none}
+.inp:focus{border-color:var(--p);background:#fff}
+.inp::placeholder{color:#9ca3af}
+.card{background:#fff;border-radius:var(--rl);padding:18px;box-shadow:var(--sh)}
+.bdg{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+.b-g{background:var(--gl);color:var(--g)}.b-r{background:var(--pl);color:var(--p)}
+.b-o{background:#fff3e0;color:#c45500}.b-y{background:#fffde7;color:#c67c00}
+.lbl{font-size:11px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+.fg{margin-bottom:14px}
+.spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(16px);
+       background:var(--dk);color:#fff;padding:12px 22px;border-radius:30px;font-weight:600;
+       font-size:13px;z-index:9999;opacity:0;transition:all .28s;pointer-events:none;
+       white-space:nowrap;max-width:88%;font-family:var(--ff)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.sk{background:linear-gradient(90deg,#eee 25%,#e0e0e0 50%,#eee 75%);background-size:200% 100%;animation:shim 1.4s infinite;border-radius:var(--r)}
+.sk-lg{height:196px;margin-bottom:14px;border-radius:var(--rl)}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── TOP-NAV ── */
+.tnav{position:sticky;top:0;z-index:80;background:rgba(255,255,255,.94);
+      backdrop-filter:blur(16px);padding:13px 16px;
+      display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(0,0,0,.06)}
+.bk-btn{width:38px;height:38px;border-radius:12px;background:var(--lt);border:none;
+        cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--dk);font-size:15px;flex-shrink:0}
+.pg-title{font-family:var(--ff);font-size:19px;font-weight:700;flex:1}
+.pg-body{padding:16px 16px 96px;flex:1}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;
+      background:#fff;border-top:1px solid #e5e7eb;padding:6px 0 12px;
+      display:flex;justify-content:space-around;z-index:200;box-shadow:0 -2px 16px rgba(0,0,0,.06)}
+.bn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:4px 14px}
+.bn i{font-size:19px;color:var(--gr)}
+.bn span{font-size:10px;font-weight:700;color:var(--gr);font-family:var(--ff)}
+.bn.act i,.bn.act span{color:var(--p)}
+
+/* ══ PAGE 1: WELCOME ══ */
+#pg-auth{background:linear-gradient(170deg,#fff5f5 0%,#fff 65%)}
+.auth-hero{padding:52px 26px 28px}
+.auth-hero .em{font-size:64px;display:block;margin-bottom:18px;animation:bob .7s ease}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.auth-hero h1{font-family:var(--ff);font-size:36px;font-weight:800;line-height:1.18;margin-bottom:10px}
+.auth-hero h1 em{font-style:normal;color:var(--p)}
+.auth-hero p{color:var(--gr);font-size:15px;line-height:1.6}
+.auth-body{background:#fff;border-radius:26px 26px 0 0;padding:28px 22px 44px;flex:1;box-shadow:0 -4px 28px rgba(0,0,0,.07)}
+.atabs{display:flex;background:var(--lt);border-radius:12px;padding:3px;margin-bottom:22px}
+.atab{flex:1;padding:10px;text-align:center;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;color:var(--gr);border:none;background:none;transition:all .18s;font-family:var(--ff)}
+.atab.act{background:#fff;color:var(--p);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+
+/* ══ PAGE 2: HOME ══ */
+.home-top{position:sticky;top:0;z-index:80;background:#fff;padding:13px 16px;
+          display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.logo-n{font-family:var(--ff);font-size:21px;font-weight:800;color:var(--p)}
+.logo-t{font-size:10px;color:var(--gr);font-weight:600;font-style:italic;margin-top:1px}
+.t-acts{display:flex;gap:8px}
+.t-btn{width:38px;height:38px;border-radius:12px;background:var(--lt);border:none;cursor:pointer;
+       display:flex;align-items:center;justify-content:center;color:var(--gr);font-size:15px;position:relative}
+.cb{position:absolute;top:-4px;right:-4px;background:var(--p);color:#fff;width:17px;height:17px;
+    border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.sub-ban{background:linear-gradient(135deg,#2a9d8f,#21867a);color:#fff;border-radius:var(--r);
+         padding:13px 16px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sub-ban .ico{font-size:26px}
+.sub-ban h4{font-size:13px;font-weight:700}
+.sub-ban p{font-size:11px;opacity:.85}
+.tif-ban{background:linear-gradient(135deg,#f4a261,#e76f51);color:#fff;border-radius:var(--r);
+         padding:13px 16px;display:flex;align-items:center;justify-content:space-between;
+         margin-bottom:14px;cursor:pointer;border:none;width:100%;text-align:left}
+.tif-ban h4{font-size:13px;font-weight:700;margin-bottom:2px}
+.tif-ban p{font-size:11px;opacity:.9}
+.sec-t{font-family:var(--ff);font-size:20px;font-weight:700;margin-bottom:3px}
+.sec-s{font-size:13px;color:var(--gr);margin-bottom:14px}
+.m-grid{display:flex;flex-direction:column;gap:14px}
+.m-card{background:#fff;border-radius:var(--rl);overflow:hidden;box-shadow:var(--sh)}
+.m-card:active{transform:scale(.98)}
+.m-img{width:100%;height:172px;object-fit:cover;background:linear-gradient(135deg,#fde8ea,#f4a261);display:block}
+.m-body{padding:15px}
+.m-name{font-family:var(--ff);font-size:16px;font-weight:700;margin-bottom:3px}
+.m-cat{font-size:12px;color:var(--gr);margin-bottom:10px}
+/* variant pills */
+.var-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.var-pill{padding:5px 12px;border-radius:20px;border:2px solid #e5e7eb;background:#fff;
+          font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--dk)}
+.var-pill.sel{border-color:var(--p);background:var(--pl);color:var(--p)}
+.m-foot{display:flex;align-items:center;justify-content:space-between}
+.m-price{font-family:var(--ff);font-size:20px;font-weight:800}
+.add-btn{background:var(--p);color:#fff;border:none;padding:9px 18px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--ff)}
+.qty-ctl{display:flex;align-items:center;gap:10px;background:var(--lt);border-radius:12px;padding:3px}
+.q-btn{width:32px;height:32px;border-radius:10px;background:#fff;border:none;cursor:pointer;font-size:15px;font-weight:800;color:var(--p);box-shadow:0 1px 6px rgba(0,0,0,.08)}
+.q-n{font-size:15px;font-weight:800;min-width:18px;text-align:center;font-family:var(--ff)}
+
+/* ══ PAGE 3: CART ══ */
+.c-item{background:#fff;border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 8px rgba(0,0,0,.05);margin-bottom:10px}
+.c-img{width:56px;height:56px;border-radius:12px;object-fit:cover;background:var(--lt);flex-shrink:0}
+.c-info{flex:1;min-width:0}
+.c-name{font-family:var(--ff);font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-var{font-size:11px;color:var(--gr);font-weight:500;margin-top:1px}
+.c-price{font-size:13px;color:var(--gr);margin-top:2px}
+.bill{background:#fff;border-radius:var(--rl);padding:18px;box-shadow:var(--sh);margin-top:14px}
+.br{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:14px;font-weight:600}
+.br.tot{border-top:2px dashed #e5e7eb;margin-top:8px;padding-top:14px;font-family:var(--ff);font-size:17px;font-weight:800}
+.muted{color:var(--gr)}.green{color:var(--g)}
+.del-note{background:var(--gl);border-radius:var(--r);padding:10px 14px;font-size:12px;font-weight:600;color:var(--g);margin-top:10px}
+.del-note.warn{background:#fff3e0;color:#c45500}
+
+/* ══ PAGE 4: ORDER CONFIRM ══ */
+.suc-wrap{padding:56px 22px 36px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center}
+.suc-ico{width:96px;height:96px;background:var(--gl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:44px;margin-bottom:22px;animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(0)}80%{transform:scale(1.1)}100%{transform:scale(1)}}
+.suc-t{font-family:var(--ff);font-size:24px;font-weight:800;margin-bottom:8px}
+.suc-s{color:var(--gr);font-size:14px;margin-bottom:24px}
+.dt-card{background:#fff;border-radius:var(--rl);padding:18px;box-shadow:var(--sh);margin-bottom:18px;width:100%;text-align:left}
+.dt-h{font-size:11px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.dt-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--lt);font-size:14px;font-weight:600}
+.dt-row:last-child{border-bottom:none}
+
+/* ══ PAGE 5: ORDERS ══ */
+.ord-card{background:#fff;border-radius:var(--rl);padding:16px;box-shadow:var(--sh);margin-bottom:12px}
+.ord-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.ord-id{font-family:var(--ff);font-size:13px;font-weight:700}
+.ord-dt{font-size:11px;color:var(--gr);margin-top:2px}
+.ord-items{font-size:12px;color:var(--gr);margin-bottom:10px;line-height:1.6}
+.ord-ft{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--lt)}
+.ord-amt{font-family:var(--ff);font-size:16px;font-weight:800}
+
+/* ══ COUPON BOX (in cart) ══ */
+.cpn-row{display:flex;gap:8px}
+.cpn-row .inp{flex:1;font-size:14px}
+.cpn-btn{padding:14px 16px;background:var(--dk);color:#fff;border:none;border-radius:var(--r);font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;font-family:var(--ff)}
+.cpn-msg{font-size:12px;font-weight:600;margin-top:7px;padding:7px 12px;border-radius:10px}
+.cpn-msg.ok{background:var(--gl);color:var(--g)}.cpn-msg.err{background:var(--pl);color:var(--p)}
+.empty{text-align:center;padding:52px 20px}
+.empty .em{font-size:60px;display:block;margin-bottom:14px}
+.empty h3{font-family:var(--ff);font-size:18px;font-weight:700;margin-bottom:6px}
+.empty p{color:var(--gr);font-size:13px}
+
+/* ══ FLOATING CART BUTTON ══ */
+.cart-fab{display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--p);color:#fff;border:none;border-radius:50px;padding:13px 26px;
+  font-family:var(--ff);font-size:15px;font-weight:800;cursor:pointer;
+  box-shadow:0 6px 24px rgba(230,57,70,.45);z-index:900;
+  align-items:center;gap:10px;min-width:180px;justify-content:center;
+  animation:fabIn .25s ease;white-space:nowrap}
+.cart-fab.show{display:flex}
+.cart-fab-count{background:rgba(255,255,255,.25);border-radius:20px;padding:2px 9px;font-size:13px;font-weight:800}
+@keyframes fabIn{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+</style>
 </head>
-<body class="pb-20">
+<body>
 
-    <script>
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbxvtWJp0fJOhHfbp_P0KmxFcKDM1Wjvj_1sQx5abfB16dpaxkApY5e0rQ4Ld5Lu64GzNg/exec"; 
-        const API_KEY = "HB_SECRET_99";
-    </script>
-
-    <div id="loadingOverlay" class="fixed inset-0 bg-white bg-opacity-90 z-[100] hidden flex flex-col items-center justify-center">
-        <div class="loader mb-4"></div>
-        <p class="text-gray-600 font-medium">Processing...</p>
+<!-- ═══ PAGE 1: AUTH ═══ -->
+<div class="pg here" id="pg-auth">
+  <div class="auth-hero">
+    <span class="em">🍱</span>
+    <h1>Ghar jaisa<br><em>khana</em>,<br>aapke liye!</h1>
+    <p>Home-cooked meals delivered fresh. Free home delivery on monthly plan.</p>
+  </div>
+  <div class="auth-body">
+    <div class="atabs" id="atab-bar">
+      <button class="atab act" onclick="switchTab('login',this)">Login</button>
+      <button class="atab" onclick="switchTab('signup',this)">Sign Up</button>
     </div>
-
-    <!-- RECHARGE SUCCESS SECTION -->
-    <div id="rechargeSuccessSection" class="min-h-screen flex items-center justify-center p-4 hidden bg-white">
-        <div class="w-full max-w-md text-center p-8">
-            <div class="w-24 h-24 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
-                <i class="fa-solid fa-paper-plane"></i>
-            </div>
-            <h2 class="text-3xl font-bold mb-2">Request Sent!</h2>
-            <p class="text-gray-500 mb-6 font-medium">Your recharge request has been submitted. Admin will verify and update your balance.</p>
-            
-            <div class="bg-red-50 p-6 rounded-3xl border-2 border-red-200 mb-8">
-                <h3 class="text-red-600 font-bold text-xl mb-3 uppercase tracking-tight">MANDATORY STEP</h3>
-                <p class="text-red-500 font-extrabold text-2xl mb-4 leading-tight">PLEASE SHARE SCREENSHOT OF PAYMENT ON WHATSAPP</p>
-                <a id="rechargeWaLink" href="#" class="whatsapp-btn w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 shadow-lg">
-                    <i class="fa-brands fa-whatsapp text-2xl"></i> Send screenshots to WhatsApp
-                </a>
-            </div>
-
-            <p class="text-sm text-gray-400 mb-8">It may take a few hours for approval. Please don't panic!</p>
-
-            <button onclick="location.reload()" class="text-zomato-red font-bold text-lg">Back to Wallet</button>
-        </div>
+    <!-- LOGIN -->
+    <div id="f-login">
+      <div class="fg"><label class="lbl">Phone Number</label>
+        <input id="l-ph" class="inp" type="tel" maxlength="10" placeholder="10-digit mobile number" inputmode="numeric"></div>
+      <div class="fg"><label class="lbl">Password</label>
+        <input id="l-pw" class="inp" type="password" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn btn-p" id="btn-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
     </div>
-
-    <!-- SUCCESS SECTION -->
-    <div id="successSection" class="min-h-screen flex items-center justify-center p-4 hidden bg-white">
-        <div class="w-full max-w-md text-center p-8">
-            <div class="w-24 h-24 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
-                <i class="fa-solid fa-check"></i>
-            </div>
-            <h2 class="text-3xl font-bold mb-2">Order Sent!</h2>
-            <p class="text-gray-500 mb-6 font-medium">Your order has been sent to the restaurant. Please wait for payment confirmation.</p>
-            
-            <div id="whatsappStepContainer" class="bg-red-50 p-6 rounded-3xl border-2 border-red-200 mb-8">
-                <h3 class="text-red-600 font-bold text-xl mb-3 uppercase tracking-tight">MANDATORY STEP</h3>
-                <p class="text-red-500 font-extrabold text-2xl mb-4 leading-tight">PLEASE SHARE SCREENSHOT OF PAYMENT ON WHATSAPP</p>
-                <a id="whatsappLink" href="#" class="whatsapp-btn w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 shadow-lg">
-                    <i class="fa-brands fa-whatsapp text-2xl"></i> Send screenshots to WhatsApp
-                </a>
-            </div>
-
-            <div class="space-y-4 text-left bg-gray-50 p-6 rounded-3xl">
-                <h4 class="font-bold text-gray-700 border-b pb-2 mb-3">Delivery Schedule</h4>
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium">Morning Delivery</span>
-                    <span class="text-sm font-bold text-red-500">12:00 PM - 01:00 PM</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium">Evening Delivery</span>
-                    <span class="text-sm font-bold text-red-500">08:00 PM - 09:00 PM</span>
-                </div>
-                <p class="text-[10px] text-gray-400 mt-4">*Approval may take a few hours. Please don't panic, your Tiffin is on the way!</p>
-            </div>
-
-            <button onclick="location.reload()" class="mt-8 text-zomato-red font-bold text-lg">Back to Home</button>
-        </div>
+    <!-- SIGNUP -->
+    <div id="f-signup" class="hide">
+      <div class="fg"><label class="lbl">Full Name</label>
+        <input id="s-nm" class="inp" type="text" placeholder="Your full name"></div>
+      <div class="fg"><label class="lbl">Phone Number</label>
+        <input id="s-ph" class="inp" type="tel" maxlength="10" placeholder="10-digit mobile number" inputmode="numeric"></div>
+      <div class="fg"><label class="lbl">Email (Optional)</label>
+        <input id="s-em" class="inp" type="email" placeholder="email@example.com"></div>
+      <div class="fg"><label class="lbl">Delivery Address</label>
+        <textarea id="s-ad" class="inp" rows="2" placeholder="House no, Street, Area, City"></textarea></div>
+      <div class="fg"><label class="lbl">Create Password</label>
+        <input id="s-pw" class="inp" type="password" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')doSignup()"></div>
+      <button class="btn btn-p" id="btn-signup" onclick="doSignup()"><i class="fa-solid fa-user-plus"></i> Create Account</button>
     </div>
+  </div>
+</div>
 
-    <!-- AUTH SECTION -->
-    <div id="authSection" class="min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-white rounded-3xl p-8 card-shadow">
-            <div class="text-center mb-8">
-                <h1 class="zomato-logo mb-2">Home Bite</h1>
-                <p class="text-gray-500 font-medium">Ghar ka swad, har roz!</p>
-            </div>
-            <div id="loginForm">
-                <div class="space-y-4">
-                    <input type="email" id="loginEmail" placeholder="Email Address" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
-                    <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
-                    <button onclick="handleLogin()" class="w-full bg-zomato-red text-white p-4 rounded-xl font-bold">Login</button>
-                    <button onclick="toggleStaffAuth(true)" class="w-full mt-2 text-gray-400 font-bold text-sm">Staff Login</button>
-                </div>
-                <p class="text-center mt-6 text-gray-500">New here? <a href="#" onclick="toggleAuth(false)" class="text-red-500 font-bold">Create Account</a></p>
-            </div>
-            <div id="staffLoginForm" class="hidden">
-                <div class="space-y-4">
-                    <input type="email" id="staffEmail" placeholder="Staff Email" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
-                    <input type="password" id="staffPass" placeholder="Staff Password" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
-                    <button onclick="handleStaffLogin()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold">Staff Login</button>
-                    <button onclick="toggleStaffAuth(false)" class="w-full text-gray-400 font-bold text-sm">Back to User Login</button>
-                </div>
-            </div>
-            <div id="signupForm" class="hidden">
-                <div class="space-y-4">
-                    <input type="text" id="regName" placeholder="Full Name" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
-                    <input type="email" id="regEmail" placeholder="Email Address" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
-                    <input type="password" id="regPass" placeholder="Password" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
-                    <input type="text" id="regPhone" placeholder="Phone Number" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500">
-                    <textarea id="regAddress" placeholder="Full Delivery Address" class="w-full p-4 bg-gray-50 rounded-xl border outline-none focus:ring-2 focus:ring-red-500"></textarea>
-                    <button onclick="handleSignup()" class="w-full bg-zomato-red text-white p-4 rounded-xl font-bold">Sign Up</button>
-                </div>
-                <p class="text-center mt-6 text-gray-500">Have an account? <a href="#" onclick="toggleAuth(true)" class="text-red-500 font-bold">Login</a></p>
-            </div>
-        </div>
+<!-- ═══ PAGE 2: HOME / MENU ═══ -->
+<div class="pg right" id="pg-home">
+  <div class="home-top">
+    <div><div class="logo-n">Home Bite</div><div class="logo-t">Ghar ka khana ♥</div></div>
+    <div class="t-acts">
+      <button class="t-btn" onclick="nav('pg-orders')"><i class="fa-solid fa-receipt"></i></button>
+      <button class="t-btn" id="cart-btn" onclick="nav('pg-cart')">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span class="cb hide" id="cart-badge">0</span>
+      </button>
+      <button class="t-btn" onclick="Auth.logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
-
-    <!-- MAIN APP SECTION -->
-    <div id="appSection" class="hidden">
-        <header class="bg-white p-4 sticky top-0 z-40 card-shadow flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="bg-red-500 text-white p-2 rounded-xl">
-                    <i class="fa-solid fa-utensils"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-black tracking-tighter text-red-500 italic">Home Bite</h1>
-                    <div class="flex items-center gap-1">
-                        <span class="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Delivering to</span>
-                        <p id="userAddressHeader" class="text-[10px] text-gray-400 font-bold truncate w-24">Address...</p>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <div onclick="showTab('wallet')" class="bg-red-50 px-3 py-1 rounded-full border border-red-100 cursor-pointer">
-                    <span class="text-xs font-bold text-red-500">₹<span id="walletDisplay">0</span></span>
-                </div>
-                <button onclick="logout()" class="text-gray-400"><i class="fa-solid fa-power-off"></i></button>
-            </div>
-        </header>
-
-        <!-- HOME TAB -->
-        <div id="homeTab" class="p-4 space-y-6">
-            <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-3xl p-6 text-white relative overflow-hidden">
-                <h2 class="text-2xl font-bold mb-1">Ghar ka Khana</h2>
-                <p id="mealTypeHeader" class="text-red-100 text-sm">Loading meal type...</p>
-                <i class="fa-solid fa-bowl-rice absolute -right-4 -bottom-4 text-8xl opacity-20 rotate-12"></i>
-            </div>
-            <div id="menuContainer" class="grid grid-cols-1 gap-4"></div>
-        </div>
-
-        <!-- ORDERS TAB -->
-        <div id="ordersTab" class="p-4 hidden">
-            <h3 class="text-xl font-bold mb-4">My Orders</h3>
-            <div id="orderHistoryContainer" class="space-y-4"></div>
-        </div>
-
-        <!-- WALLET TAB -->
-        <div id="walletTab" class="p-4 hidden">
-            <div class="bg-white p-8 rounded-3xl card-shadow mb-6 text-center">
-                <p class="text-gray-400 text-sm mb-1 uppercase font-bold tracking-widest">Current Balance</p>
-                <h2 class="text-5xl font-bold text-red-500">₹<span id="walletFullDisplay">0</span></h2>
-                <button onclick="openRechargeModal()" class="mt-4 bg-red-50 text-red-500 px-6 py-2 rounded-full font-bold text-sm border border-red-100">
-                    <i class="fa-solid fa-plus-circle mr-2"></i>Recharge Wallet
-                </button>
-            </div>
-            <h3 class="text-xl font-bold mb-4">Wallet History</h3>
-            <div id="walletHistoryContainer" class="space-y-3"></div>
-        </div>
-
-        <!-- ACCOUNT TAB -->
-        <div id="accountTab" class="p-4 hidden">
-            <h3 class="text-xl font-bold mb-4">My Account</h3>
-            <div class="bg-white p-6 rounded-3xl card-shadow space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Full Name</label>
-                    <input type="text" id="accName" class="w-full p-3 bg-gray-50 rounded-xl border-none outline-none font-medium">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Email Address</label>
-                    <input type="email" id="accEmail" class="w-full p-3 bg-gray-50 rounded-xl border-none outline-none font-medium">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Phone Number</label>
-                    <input type="text" id="accPhone" class="w-full p-3 bg-gray-50 rounded-xl border-none outline-none font-medium">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Delivery Address</label>
-                    <textarea id="accAddress" class="w-full p-3 bg-gray-50 rounded-xl border-none outline-none font-medium h-24"></textarea>
-                </div>
-                
-                <div class="pt-4 border-t">
-                    <h4 class="text-sm font-bold mb-3 text-red-500"><i class="fa-solid fa-calendar-xmark mr-2"></i>Mess OFF System</h4>
-                    <div class="space-y-3">
-                        <select id="messOffType" onchange="toggleMessOffDates()" class="w-full p-3 bg-gray-50 rounded-xl border-none outline-none text-xs font-bold">
-                            <option value="None">Active (No Mess Off)</option>
-                            <option value="Today">Today Only</option>
-                            <option value="Tomorrow">Tomorrow Only</option>
-                            <option value="Next2Days">Next 2 Days</option>
-                            <option value="Custom">Custom Date Range</option>
-                        </select>
-                        
-                        <div id="customMessOffDates" class="grid grid-cols-2 gap-3 hidden">
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-400 uppercase">Start Date</label>
-                                <input type="date" id="messOffStart" class="w-full p-3 bg-gray-50 rounded-xl border-none outline-none text-xs font-medium">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-gray-400 uppercase">End Date</label>
-                                <input type="date" id="messOffEnd" class="w-full p-3 bg-gray-50 rounded-xl border-none outline-none text-xs font-medium">
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-[9px] text-gray-400 mt-2">*In dates ke beech aapka auto-order nahi lagega.</p>
-                </div>
-
-                <button onclick="updateProfile()" class="w-full bg-zomato-red text-white p-4 rounded-xl font-bold">Update Profile & Mess Status</button>
-            </div>
-            <button onclick="logout()" class="w-full mt-6 text-gray-400 font-bold text-sm"><i class="fa-solid fa-power-off mr-2"></i>Logout</button>
-        </div>
-
-        <!-- ADMIN TAB -->
-        <div id="adminTab" class="p-4 hidden">
-            <h3 class="text-xl font-bold mb-4">Admin Dashboard</h3>
-            <div class="space-y-6">
-                <div class="bg-white p-6 rounded-3xl card-shadow">
-                    <h4 class="font-bold text-orange-500 mb-4"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Pending Recharges</h4>
-                    <div id="pendingRechargesContainer" class="space-y-3"></div>
-                </div>
-            </div>
-        </div>
-
-        <nav class="bottom-nav">
-            <button onclick="showTab('home')" class="flex flex-col items-center gap-1 text-red-500" id="nav-home">
-                <i class="fa-solid fa-house"></i><span class="text-[10px] font-bold">Home</span>
-            </button>
-            <button onclick="showTab('orders')" class="flex flex-col items-center gap-1 text-gray-400" id="nav-orders">
-                <i class="fa-solid fa-receipt"></i><span class="text-[10px] font-bold">Orders</span>
-            </button>
-            <button onclick="showTab('wallet')" class="flex flex-col items-center gap-1 text-gray-400" id="nav-wallet">
-                <i class="fa-solid fa-wallet"></i><span class="text-[10px] font-bold">Wallet</span>
-            </button>
-            <button onclick="showTab('account')" class="flex flex-col items-center gap-1 text-gray-400" id="nav-account">
-                <i class="fa-solid fa-user"></i><span class="text-[10px] font-bold">Account</span>
-            </button>
-            <button onclick="showTab('admin')" class="flex flex-col items-center gap-1 text-gray-400 hidden" id="nav-admin">
-                <i class="fa-solid fa-user-shield"></i><span class="text-[10px] font-bold">Admin</span>
-            </button>
-        </nav>
+  </div>
+  <div class="pg-body">
+    <div id="sub-banner" class="sub-ban hide">
+      <div class="ico">✨</div>
+      <div><h4>Subscriber Active!</h4><p>🚚 Free Home Delivery on all your orders</p></div>
     </div>
-
-    <!-- ORDER MODAL -->
-    <div id="orderModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-end sm:items-center justify-center">
-        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 animate-slide-up">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="modalItemName" class="text-xl font-bold">Item Name</h3>
-                <button onclick="closeOrderModal()" class="text-gray-400 text-2xl">&times;</button>
-            </div>
-            <div class="space-y-4">
-                <div id="variantContainer" class="grid grid-cols-2 gap-3"></div>
-                <div class="bg-gray-50 p-3 rounded-xl flex gap-2">
-                    <input type="text" id="couponCode" placeholder="Enter Coupon" class="flex-1 bg-transparent outline-none text-sm font-bold uppercase">
-                    <button onclick="applyCoupon()" class="text-red-500 font-bold text-sm">APPLY</button>
-                </div>
-                <p id="couponMsg" class="text-[10px] font-bold hidden"></p>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Special Instructions (Optional)</label>
-                    <textarea id="orderNotes" placeholder="e.g. No onion, extra spicy, etc." class="w-full p-3 bg-gray-50 rounded-xl border-none outline-none text-sm font-medium h-20 resize-none"></textarea>
-                </div>
-                <div class="flex justify-between items-center border-t pt-4">
-                    <span class="font-bold">Final Amount</span>
-                    <span class="text-xl font-bold text-red-500">₹<span id="modalTotal">0</span></span>
-                </div>
-                <div id="payInstructions" class="hidden bg-red-50 p-4 rounded-xl text-xs text-red-600 font-bold border border-red-100">
-                    <p class="mb-2 uppercase tracking-wide"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Important Instruction:</p>
-                    <p class="text-sm">Payment ke baad screenshot WhatsApp par zaroor bhejein. Approval mein kuch ghante lag sakte hain.</p>
-                </div>
-                <div class="space-y-2">
-                    <button id="walletPayBtn" onclick="confirmOrder('Wallet')" class="w-full bg-zomato-red text-white p-4 rounded-xl font-bold flex justify-between items-center">
-                        <span>Pay via Wallet</span><i class="fa-solid fa-wallet"></i>
-                    </button>
-                    <button id="upiPayBtn" onclick="confirmOrder('UPI')" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold flex justify-between items-center">
-                        <span>Pay via PhonePe</span><i class="fa-solid fa-qrcode"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
+    <!-- Order cutoff notice -->
+    <div id="cutoff-banner" class="hide" style="background:linear-gradient(135deg,#e63946,#c1121f);color:#fff;border-radius:var(--r);padding:11px 16px;margin-bottom:14px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">⏰</span>
+      <div><div id="cutoff-msg" style="font-weight:700">Orders closed</div><div style="font-size:11px;opacity:.85" id="cutoff-sub">Next slot opens soon</div></div>
     </div>
-
-    <!-- RECHARGE MODAL -->
-    <div id="rechargeModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 animate-slide-up">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Recharge Wallet</h3>
-                <button onclick="closeRechargeModal()" class="text-gray-400 text-2xl">&times;</button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Enter Amount (₹)</label>
-                    <input type="number" id="rechargeAmount" placeholder="e.g. 1000" class="w-full p-4 bg-gray-50 rounded-xl border-none outline-none font-bold text-xl">
-                </div>
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="setRechargeAmount(500)" class="bg-gray-100 p-2 rounded-lg text-xs font-bold">₹500</button>
-                    <button onclick="setRechargeAmount(1000)" class="bg-gray-100 p-2 rounded-lg text-xs font-bold">₹1000</button>
-                    <button onclick="setRechargeAmount(2000)" class="bg-gray-100 p-2 rounded-lg text-xs font-bold">₹2000</button>
-                </div>
-                <div class="bg-blue-50 p-3 rounded-xl text-[10px] text-blue-600 font-bold">
-                    <i class="fa-solid fa-circle-info mr-1"></i> Payment ke baad screenshot WhatsApp par zaroor bhejein. Admin verify karke balance update karega.
-                </div>
-                <button onclick="handleRecharge()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold flex justify-between items-center">
-                    <span>Pay via UPI</span><i class="fa-solid fa-qrcode"></i>
-                </button>
-            </div>
-        </div>
+    <button class="tif-ban" onclick="joinTiffin()">
+      <div><h4>🍛 Monthly Tiffin Plan</h4><p>Free Home Delivery + Save ₹200/month</p></div>
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+    <div class="sec-t">Today's Menu</div>
+    <div class="sec-s" id="menu-lbl">Loading fresh meals...</div>
+    <div id="menu-list">
+      <div class="sk sk-lg"></div><div class="sk sk-lg"></div><div class="sk sk-lg"></div>
     </div>
+  </div>
+  <!-- Floating Cart Button (shows when items in cart) -->
+  <button class="cart-fab" id="cart-fab" onclick="nav('pg-cart')">
+    <i class="fa-solid fa-bag-shopping"></i>
+    <span>View Cart</span>
+    <span class="cart-fab-count" id="cart-fab-count">0</span>
+  </button>
+  <nav class="bnav">
+    <button class="bn act" onclick="scrollTop('pg-home')"><i class="fa-solid fa-house"></i><span>Home</span></button>
+    <button class="bn" onclick="nav('pg-cart')"><i class="fa-solid fa-bag-shopping"></i><span>Cart</span></button>
+    <button class="bn" onclick="nav('pg-orders')"><i class="fa-solid fa-receipt"></i><span>Orders</span></button>
+  </nav>
+</div>
 
-    <!-- REVIEW MODAL -->
-    <div id="reviewModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 animate-slide-up">
-            <h3 class="text-xl font-bold mb-4">Rate Your Order</h3>
-            <div class="flex justify-center gap-2 mb-4 text-2xl text-gray-300" id="starRating">
-                <i class="fa-solid fa-star cursor-pointer" onclick="setRating(1)"></i>
-                <i class="fa-solid fa-star cursor-pointer" onclick="setRating(2)"></i>
-                <i class="fa-solid fa-star cursor-pointer" onclick="setRating(3)"></i>
-                <i class="fa-solid fa-star cursor-pointer" onclick="setRating(4)"></i>
-                <i class="fa-solid fa-star cursor-pointer" onclick="setRating(5)"></i>
-            </div>
-            <textarea id="reviewComment" placeholder="Write your feedback..." class="w-full p-4 bg-gray-50 rounded-xl border outline-none h-24 mb-4"></textarea>
-            <div class="flex gap-2">
-                <button onclick="closeReviewModal()" class="flex-1 bg-gray-100 p-3 rounded-xl font-bold">Cancel</button>
-                <button onclick="submitReview()" class="flex-1 bg-zomato-red text-white p-3 rounded-xl font-bold">Submit</button>
-            </div>
-        </div>
+<!-- ═══ PAGE 3: CART ═══ -->
+<div class="pg right" id="pg-cart">
+  <div class="tnav">
+    <button class="bk-btn" onclick="back()"><i class="fa-solid fa-arrow-left"></i></button>
+    <span class="pg-title">Your Cart</span>
+    <button class="btn-ghost btn btn-sm" onclick="Cart.clear();renderCart()">Clear</button>
+  </div>
+  <div class="pg-body">
+    <!-- Coupon -->
+    <div class="card" style="margin-bottom:14px">
+      <label class="lbl">🎟️ Have a Coupon?</label>
+      <div class="cpn-row">
+        <input id="cpn-inp" class="inp" type="text" placeholder="Enter coupon code" style="text-transform:uppercase">
+        <button class="cpn-btn" onclick="applyCoupon()">Apply</button>
+      </div>
+      <div id="cpn-msg" class="cpn-msg hide"></div>
     </div>
+    <div id="cart-list"></div>
+    <div id="cart-bill"></div>
+    <div id="del-note"></div>
+    <button class="btn btn-p" id="place-btn" style="margin-top:14px" onclick="placeOrder()">
+      <i class="fa-brands fa-whatsapp"></i> Place Order
+    </button>
+  </div>
+</div>
 
-    <script>
-        let currentUser = null;
-        let selectedItem = null;
-        let selectedVariant = null;
-        let originalPrice = 0;
-        let discount = 0;
-        let currentRating = 0;
-        let ratingOrderId = null;
+<!-- ═══ PAGE 4: ORDER CONFIRM ═══ -->
+<div class="pg right" id="pg-success">
+  <div class="suc-wrap">
+    <div class="suc-ico">✅</div>
+    <div class="suc-t">Order Sent!</div>
+    <div class="suc-s" style="color:#e63946;font-weight:700;font-size:15px">🍱 Order sent to restaurant</div>
+    <div class="dt-card" style="border-left:4px solid #2a9d8f">
+      <div class="dt-h">⏰ Estimated Delivery Time</div>
+      <div class="dt-row"><span>🌅</span><div><div style="font-weight:700">Breakfast/Lunch</div><div style="font-size:12px;color:var(--gr)">12:00 PM – 1:00 PM</div></div></div>
+      <div class="dt-row"><span>🌙</span><div><div style="font-weight:700">Dinner</div><div style="font-size:12px;color:var(--gr)">8:00 PM – 9:00 PM</div></div></div>
+    </div>
+    <div id="pay-note" class="hide" style="width:100%;margin-bottom:16px">
+      <div class="card" style="text-align:left;border-left:4px solid var(--p);background:#fff5f5">
+        <div style="font-weight:800;font-size:15px;margin-bottom:6px;color:var(--p)">📸 Please send payment screenshot on WhatsApp</div>
+        <div style="font-size:13px;color:var(--gr);line-height:1.6">UPI / QR details will be shared by us. Send screenshot after payment to confirm your order.</div>
+      </div>
+    </div>
+    <!-- WhatsApp button shown after delay -->
+    <div id="wa-btn-wrap" style="width:100%;margin-bottom:12px;display:none">
+      <button class="btn btn-g" id="wa-open-btn" onclick="openWhatsApp()" style="background:#25d366;font-size:15px;gap:10px">
+        <i class="fa-brands fa-whatsapp" style="font-size:18px"></i> Open WhatsApp &amp; Send Screenshot
+      </button>
+    </div>
+    <button class="btn btn-out" onclick="nav('pg-home')" style="margin-top:8px"><i class="fa-solid fa-house"></i> Back to Menu</button>
+  </div>
+</div>
 
-        async function apiCall(action, payload) {
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-            try {
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ apiKey: API_KEY, action, payload })
-                });
-                const result = await response.json();
-                if (!result.success) alert("Error: " + result.message);
-                return result;
-            } catch (e) {
-                console.error("API Error:", e);
-                alert("Connection Error: Check console for details.");
-                return { success: false };
-            } finally {
-                document.getElementById('loadingOverlay').classList.add('hidden');
-            }
-        }
+<!-- ═══ PAGE 5: ORDERS ═══ -->
+<div class="pg right" id="pg-orders">
+  <div class="tnav">
+    <button class="bk-btn" onclick="back()"><i class="fa-solid fa-arrow-left"></i></button>
+    <span class="pg-title">My Orders</span>
+    <button class="btn-ghost btn btn-sm" onclick="loadOrders()"><i class="fa-solid fa-rotate"></i></button>
+  </div>
+  <div class="pg-body" id="orders-list">
+    <div class="sk sk-lg"></div><div class="sk sk-lg"></div>
+  </div>
+</div>
 
-        function toggleAuth(isLogin) {
-            document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
-            document.getElementById('signupForm').classList.toggle('hidden', isLogin);
-            document.getElementById('staffLoginForm').classList.add('hidden');
-        }
+<div class="toast" id="toast"></div>
+<script>
+// ══════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════
+const CFG = {
+  GAS:  'https://script.google.com/macros/s/AKfycbwHq-D_E4_aD2W3R9TmaTk39pW87El0UCN89Vrjx4lUUhWRnMJbcsuUZLt1trwjkAq8Yg/exec',
+  KEY:  'HB_SECURE_API_KEY_2026',
+  WA:   '919889760350',   // WhatsApp app number (country code)
+  TIFFIN: '919454871263'
+};
 
-        function toggleStaffAuth(isStaff) {
-            document.getElementById('staffLoginForm').classList.toggle('hidden', !isStaff);
-            document.getElementById('loginForm').classList.toggle('hidden', isStaff);
-            document.getElementById('signupForm').classList.add('hidden');
-        }
+// ══════════════════════════════════════════════
+// PAGE ROUTER
+// ══════════════════════════════════════════════
+let stack = ['pg-auth'];
 
-        async function handleStaffLogin() {
-            const payload = {
-                email: document.getElementById('staffEmail').value,
-                password: document.getElementById('staffPass').value
-            };
-            const res = await apiCall('staff_login', payload);
-            if (res.success) {
-                currentUser = { Cust_ID: 'STAFF', Name: res.name, Role: res.role, isStaff: true };
-                localStorage.setItem('hb_user', JSON.stringify(currentUser));
-                initApp();
-            }
-        }
+function nav(id) {
+  const cur = stack[stack.length-1];
+  if (cur === id) return;
+  doc(cur).classList.replace('here','left');
+  doc(id).classList.remove('right','left');
+  doc(id).classList.add('here');
+  stack.push(id);
+  onEnter(id);
+}
 
-        async function handleSignup() {
-            const payload = {
-                name: document.getElementById('regName').value,
-                email: document.getElementById('regEmail').value,
-                password: document.getElementById('regPass').value,
-                phone: document.getElementById('regPhone').value,
-                address: document.getElementById('regAddress').value
-            };
-            const res = await apiCall('customer_signup', payload);
-            if (res.success) { alert("Signup Success! Your ID is: " + res.custId + ". Please Login."); toggleAuth(true); }
-        }
+function back() {
+  if (stack.length < 2) return;
+  const cur  = stack.pop();
+  const prev = stack[stack.length-1];
+  doc(cur).classList.replace('here','right');
+  doc(prev).classList.remove('left');
+  doc(prev).classList.add('here');
+}
 
-        async function handleLogin() {
-            const payload = {
-                email: document.getElementById('loginEmail').value,
-                password: document.getElementById('loginPass').value
-            };
-            const res = await apiCall('customer_login', payload);
-            if (res.success) {
-                currentUser = res.user;
-                localStorage.setItem('hb_user', JSON.stringify(currentUser));
-                initApp();
-            }
-        }
+function onEnter(id) {
+  if (id==='pg-home')   { loadMenu(); updateBadge(); }
+  if (id==='pg-cart')   { renderCart(); hideFab(); }
+  if (id==='pg-orders') loadOrders();
+  // Hide FAB on all pages except home
+  if (id!=='pg-home') hideFab();
+}
 
-        function initApp() {
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('appSection').classList.remove('hidden');
-            
-            if (currentUser.isStaff) {
-                document.getElementById('nav-admin').classList.remove('hidden');
-                document.getElementById('userAddressHeader').innerText = "Staff: " + currentUser.Name;
-                showTab('admin');
-            } else {
-                refreshUserProfile();
-                const hours = new Date().getHours();
-                document.getElementById('mealTypeHeader').innerText = hours < 11.5 ? "Lunch Window (Before 11:30 AM)" : "Dinner Window (After 11:30 AM)";
-                loadMenu();
-            }
-        }
+function hideFab() {
+  const fab=doc('cart-fab'); if(fab) fab.classList.remove('show');
+}
 
-        async function refreshUserProfile() {
-            const res = await apiCall('fetch_user_profile', { custId: currentUser.Cust_ID });
-            if (res.success) {
-                currentUser = res.user;
-                localStorage.setItem('hb_user', JSON.stringify(currentUser));
-                document.getElementById('userAddressHeader').innerText = currentUser.Address;
-                document.getElementById('walletDisplay').innerText = currentUser.Wallet_Balance;
-                document.getElementById('walletFullDisplay').innerText = currentUser.Wallet_Balance;
-                
-                // Update account fields
-                document.getElementById('accName').value = currentUser.Name;
-                document.getElementById('accEmail').value = currentUser.Email;
-                document.getElementById('accPhone').value = currentUser.Phone;
-                document.getElementById('accAddress').value = currentUser.Address;
-                
-                // Mess OFF fields
-                const start = currentUser.Mess_OFF_Start || '';
-                const end = currentUser.Mess_OFF_End || '';
-                document.getElementById('messOffStart').value = start;
-                document.getElementById('messOffEnd').value = end;
+function scrollTop(id) { doc(id).scrollTo({top:0,behavior:'smooth'}); }
 
-                const today = new Date().toISOString().split('T')[0];
-                const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+// ══════════════════════════════════════════════
+// API
+// ══════════════════════════════════════════════
+async function api(action, data={}) {
+  const r = await fetch(CFG.GAS, {
+    method:'POST', headers:{'Content-Type':'text/plain'},
+    body: JSON.stringify({ action, data, apiKey: CFG.KEY })
+  });
+  const res = await r.json();
+  if (!res.success) throw new Error(res.error || 'API error');
+  return res.data;
+}
 
-                if (!start) {
-                    document.getElementById('messOffType').value = 'None';
-                } else if (start === today && end === today) {
-                    document.getElementById('messOffType').value = 'Today';
-                } else if (start === tomorrowStr && end === tomorrowStr) {
-                    document.getElementById('messOffType').value = 'Tomorrow';
-                } else if (start === today && end === tomorrowStr) {
-                    document.getElementById('messOffType').value = 'Next2Days';
-                } else {
-                    document.getElementById('messOffType').value = 'Custom';
-                }
-                toggleMessOffDates();
-            }
-        }
+// ══════════════════════════════════════════════
+// AUTH — persists in localStorage
+// ══════════════════════════════════════════════
+const Auth = {
+  get:    () => { try { return JSON.parse(localStorage.getItem('hb_user')); } catch { return null; } },
+  set:    u  => localStorage.setItem('hb_user', JSON.stringify(u)),
+  clear:  () => { localStorage.removeItem('hb_user'); localStorage.removeItem('hb_sub'); },
+  logout: () => {
+    if (!confirm('Logout karna chahte hain?')) return;
+    Auth.clear(); Cart.clear();
+    // Reset all pages to right except auth
+    document.querySelectorAll('.pg').forEach(p => { p.classList.remove('here','left'); p.classList.add('right'); });
+    doc('pg-auth').classList.replace('right','here');
+    stack = ['pg-auth'];
+  }
+};
 
-        function toggleMessOffDates() {
-            const type = document.getElementById('messOffType').value;
-            const customDiv = document.getElementById('customMessOffDates');
-            customDiv.classList.toggle('hidden', type !== 'Custom');
-        }
+function switchTab(t, el) {
+  doc('f-login').classList.toggle('hide', t!=='login');
+  doc('f-signup').classList.toggle('hide', t!=='signup');
+  document.querySelectorAll('.atab').forEach(x=>x.classList.remove('act'));
+  el.classList.add('act');
+}
 
-        async function updateProfile() {
-            const type = document.getElementById('messOffType').value;
-            let start = "", end = "";
-            const today = new Date().toISOString().split('T')[0];
-            
-            if (type === 'Today') { start = today; end = today; }
-            else if (type === 'Tomorrow') { 
-                const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-                start = tomorrow.toISOString().split('T')[0]; end = start;
-            }
-            else if (type === 'Next2Days') {
-                start = today;
-                const next2 = new Date(); next2.setDate(next2.getDate() + 1);
-                end = next2.toISOString().split('T')[0];
-            }
-            else if (type === 'Custom') {
-                start = document.getElementById('messOffStart').value;
-                end = document.getElementById('messOffEnd').value;
-            }
+async function doLogin() {
+  const phone = doc('l-ph').value.trim(), pw = doc('l-pw').value;
+  if (!phone||!pw) return toast('Phone aur password daalein');
+  if (phone.length!==10) return toast('Valid 10-digit number');
+  const btn = doc('btn-login');
+  btn.innerHTML='<span class="spin"></span> Logging in...'; btn.disabled=true;
+  try {
+    const user = await api('login',{phone,password:pw});
+    Auth.set(user); await initApp();
+  } catch(e) { toast('❌ '+e.message); }
+  finally { btn.innerHTML='<i class="fa-solid fa-right-to-bracket"></i> Login'; btn.disabled=false; }
+}
 
-            const payload = {
-                custId: currentUser.Cust_ID,
-                name: document.getElementById('accName').value,
-                email: document.getElementById('accEmail').value,
-                phone: document.getElementById('accPhone').value,
-                address: document.getElementById('accAddress').value,
-                messOffStart: start,
-                messOffEnd: end
-            };
-            const res = await apiCall('update_user_profile', payload);
-            if (res.success) {
-                alert("Profile & Mess Status Updated!");
-                refreshUserProfile();
-            }
-        }
+async function doSignup() {
+  const nm=doc('s-nm').value.trim(),ph=doc('s-ph').value.trim(),
+        em=doc('s-em').value.trim(),ad=doc('s-ad').value.trim(),pw=doc('s-pw').value;
+  if (!nm||!ph||!ad||!pw) return toast('Saari fields bharein');
+  if (ph.length!==10) return toast('Valid 10-digit number');
+  if (pw.length<6) return toast('Password 6+ characters');
+  const btn=doc('btn-signup');
+  btn.innerHTML='<span class="spin"></span> Creating...'; btn.disabled=true;
+  try {
+    const user=await api('signup',{name:nm,phone:ph,email:em,address:ad,password:pw});
+    Auth.set(user); await initApp();
+  } catch(e) { toast('❌ '+e.message); }
+  finally { btn.innerHTML='<i class="fa-solid fa-user-plus"></i> Create Account'; btn.disabled=false; }
+}
 
-        async function loadMenu() {
-            const res = await apiCall('fetch_menu', {});
-            if (res.success) {
-                const container = document.getElementById('menuContainer');
-                container.innerHTML = res.menu.map(item => {
-                    const isToday = String(item.Date).toUpperCase() === 'TRUE' || item.Date === true;
-                    const firstPrice = item.Price_Options ? item.Price_Options.split(',')[0].split(':')[1] : '0';
-                    return `
-                        <div class="bg-white p-4 rounded-3xl card-shadow flex gap-4 items-center ${!isToday ? 'opacity-60' : ''}">
-                            <img src="${item.Image_URL || 'https://picsum.photos/seed/food/200'}" class="w-20 h-20 rounded-2xl object-cover">
-                            <div class="flex-1">
-                                <h4 class="font-bold">${item.Name}</h4>
-                                <p class="text-[10px] font-bold ${isToday ? 'text-green-500' : 'text-red-500'}">${isToday ? 'TODAY\'S MENU' : 'YESTERDAY\'S MENU'}</p>
-                                <div class="flex justify-between items-center mt-2">
-                                    <span class="font-bold text-red-500">₹${firstPrice}</span>
-                                    ${isToday ? 
-                                        `<button onclick="openOrderModal('${item.Item_ID}', '${item.Name}', '${item.Price_Options}')" class="bg-red-50 text-red-500 px-4 py-1 rounded-lg font-bold border border-red-100">ADD</button>` : 
-                                        `<span class="text-[10px] text-gray-400 font-bold">CLOSED</span>`
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
+async function initApp() {
+  const user=Auth.get(); if(!user) return;
+  // Check subscriber
+  try {
+    const sub=await api('checkSubscriber',{phone:user.phone});
+    localStorage.setItem('hb_sub',JSON.stringify(sub));
+    if(sub.isSubscriber) doc('sub-banner').classList.remove('hide');
+  } catch(e) {}
+  updateBadge();
+  // Slide to home
+  doc('pg-auth').classList.replace('here','left');
+  doc('pg-home').classList.remove('right','left'); doc('pg-home').classList.add('here');
+  stack=['pg-auth','pg-home'];
+  loadMenu();
+}
 
-        function openOrderModal(id, name, priceOptions) {
-            selectedItem = { id, name };
-            discount = 0;
-            document.getElementById('modalItemName').innerText = name;
-            document.getElementById('couponCode').value = '';
-            document.getElementById('orderNotes').value = '';
-            document.getElementById('couponMsg').classList.add('hidden');
-            
-            const variantContainer = document.getElementById('variantContainer');
-            variantContainer.innerHTML = '';
-            const options = priceOptions.split(',');
-            options.forEach((opt, index) => {
-                const [vName, vPrice] = opt.trim().split(':');
-                const btn = document.createElement('button');
-                btn.className = "variant-btn p-3 rounded-xl text-center font-bold";
-                btn.innerHTML = `${vName}<br><span class="text-xs text-gray-400">₹${vPrice}</span>`;
-                btn.onclick = () => {
-                    selectedVariant = vName;
-                    originalPrice = parseInt(vPrice);
-                    updateFinalPrice();
-                    document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                };
-                variantContainer.appendChild(btn);
-                if(index === 0) btn.click();
-            });
-            document.getElementById('orderModal').classList.remove('hidden');
-        }
+// ══════════════════════════════════════════════
+// CART
+// ══════════════════════════════════════════════
+const Cart = {
+  get:  () => { try{ return JSON.parse(localStorage.getItem('hb_cart'))||[]; }catch{ return []; } },
+  save: c  => { localStorage.setItem('hb_cart',JSON.stringify(c)); updateBadge(); },
+  clear:() => { localStorage.removeItem('hb_cart'); updateBadge(); },
+  add:  (item, variantLabel, variantPrice) => {
+    const cart=Cart.get();
+    const key=item.itemId+(variantLabel||'');
+    const idx=cart.findIndex(i=>i._key===key);
+    if(idx>=0) { cart[idx].qty++; }
+    else {
+      const price = variantPrice!==undefined ? variantPrice : item.price;
+      cart.push({ ...item, _key:key, qty:1, selectedVariant:variantLabel||'', price });
+    }
+    Cart.save(cart); toast('✅ Added to cart!');
+  },
+  qty: (key, delta) => {
+    let c=Cart.get(), i=c.findIndex(x=>x._key===key);
+    if(i>=0){ c[i].qty+=delta; if(c[i].qty<=0) c.splice(i,1); }
+    Cart.save(c);
+  }
+};
 
-        async function applyCoupon() {
-            const code = document.getElementById('couponCode').value;
-            const res = await apiCall('apply_coupon', { code, custId: currentUser.Cust_ID });
-            if (res.success) {
-                let calcDiscount = 0;
-                let discountPercent = Number(res.discount) || 0;
-                let maxDiscount = Number(res.max) || 0;
+function updateBadge() {
+  const n=Cart.get().reduce((s,i)=>s+i.qty,0);
+  const b=doc('cart-badge'); if(b){ b.textContent=n; b.classList.toggle('hide',n===0); }
+  // Floating cart FAB — only show when on home page
+  const fab=doc('cart-fab'), fabCount=doc('cart-fab-count');
+  const onHome = doc('pg-home') && doc('pg-home').classList.contains('here');
+  if(fab){
+    fab.classList.toggle('show', n>0 && onHome);
+    if(fabCount) fabCount.textContent=n+' item'+(n===1?'':'s');
+  }
+}
 
-                if (discountPercent > 0) {
-                    calcDiscount = (originalPrice * discountPercent) / 100;
-                    if (maxDiscount > 0) {
-                        calcDiscount = Math.min(calcDiscount, maxDiscount);
-                    }
-                } else if (maxDiscount > 0) {
-                    calcDiscount = maxDiscount; // Treat max as flat discount if % is 0
-                }
-                
-                discount = Math.round(calcDiscount);
-                updateFinalPrice();
-                document.getElementById('couponMsg').innerText = `Coupon Applied! ₹${discount} saved.`;
-                document.getElementById('couponMsg').className = "text-[10px] font-bold text-green-500";
-            } else {
-                document.getElementById('couponMsg').innerText = res.message;
-                document.getElementById('couponMsg').className = "text-[10px] font-bold text-red-500";
-            }
-            document.getElementById('couponMsg').classList.remove('hidden');
-        }
+// ══════════════════════════════════════════════
+// IMAGE URL — handles Drive, ibb.co, imgur, direct links
+// ══════════════════════════════════════════════
+function resolveImg(url) {
+  if(!url) return '';
+  url=String(url).trim().replace(/\/$/, '');
+  // Google Drive: /file/d/ID/view → /uc?export=view&id=ID
+  const driveMatch=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if(driveMatch) return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+  // Google Drive open link
+  const driveOpen=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if(url.includes('drive.google.com')&&driveOpen) return `https://drive.google.com/uc?export=view&id=${driveOpen[1]}`;
+  // ibb.co gallery page → warn and return empty (can't load HTML as image)
+  // Use direct link: https://i.ibb.co/XXXXX/name.jpg
+  if(/^https?:\/\/ibb\.co\/[^\/]+$/.test(url)) return ''; // gallery page, not an image
+  // i.ibb.co direct → works fine
+  if(url.includes('i.ibb.co')) return url;
+  // Imgur gallery → convert to direct
+  const imgurGallery=url.match(/^https?:\/\/imgur\.com\/([a-zA-Z0-9]+)$/);
+  if(imgurGallery) return `https://i.imgur.com/${imgurGallery[1]}.jpg`;
+  return url;
+}
 
-        function updateFinalPrice() {
-            const final = originalPrice - discount;
-            document.getElementById('modalTotal').innerText = final;
-            if(currentUser.Wallet_Balance < final) {
-                document.getElementById('walletPayBtn').classList.add('opacity-50', 'pointer-events-none');
-                document.getElementById('payInstructions').classList.remove('hidden');
-            } else {
-                document.getElementById('walletPayBtn').classList.remove('opacity-50', 'pointer-events-none');
-                document.getElementById('payInstructions').classList.add('hidden');
-            }
-        }
+// ══════════════════════════════════════════════
+// MENU
+// ══════════════════════════════════════════════
+let _menu=[]; // cache
 
-        function closeOrderModal() { document.getElementById('orderModal').classList.add('hidden'); }
+async function loadMenu() {
+  const list=doc('menu-list');
+  // Show cached instantly
+  if(_menu.length) { renderMenu(_menu); }
+  else { list.innerHTML='<div class="sk sk-lg"></div><div class="sk sk-lg"></div>'; }
 
-        async function confirmOrder(mode) {
-            const finalAmount = originalPrice - discount;
-            const payload = {
-                custId: currentUser.Cust_ID,
-                items: [{ id: selectedItem.id, name: selectedItem.name, variant: selectedVariant, qty: 1 }],
-                total: finalAmount,
-                paid: mode === 'Wallet' ? finalAmount : 0,
-                expected: mode === 'UPI' ? finalAmount : 0,
-                mode: mode,
-                pStatus: mode === 'Wallet' ? 'Paid' : 'Pending',
-                couponCode: discount > 0 ? document.getElementById('couponCode').value : null,
-                notes: document.getElementById('orderNotes').value
-            };
-            const res = await apiCall('place_order', payload);
-            if (res.success) {
-                // Hide modal and show success screen
-                document.getElementById('orderModal').classList.add('hidden');
-                document.getElementById('appSection').classList.add('hidden');
-                document.getElementById('successSection').classList.remove('hidden');
-                
-                if (mode === 'Wallet') {
-                    document.getElementById('whatsappStepContainer').classList.add('hidden');
-                } else {
-                    document.getElementById('whatsappStepContainer').classList.remove('hidden');
-                }
+  try {
+    const menu=await api('getMenu');
+    _menu=menu;
+    const ist=new Date(Date.now()+5.5*3600000);
+    const h=ist.getUTCHours()+ist.getUTCMinutes()/60;
+    const menuType=h<11.5?'morning':'evening';
+    doc('menu-lbl').textContent=h<11.5?'🌅 Breakfast / Lunch Menu':'🌙 Evening / Dinner Menu';
+    renderMenu(menu);
+    // Check order cutoff setting
+    try{
+      const cfg=await api('getOrderCutoff');
+      updateCutoffBanner(cfg, h, menuType);
+    }catch(e){ /* cutoff not configured — ignore */ }
+  } catch(e) {
+    if(!_menu.length) list.innerHTML=`<div class="empty"><span class="em">😕</span><h3>Load failed</h3><p>Internet check karein</p></div>`;
+  }
+}
 
-                const waMsg = `Mera Order ID: ${res.orderId}%0AAmount: ₹${finalAmount}%0APayment Mode: ${mode}`;
-                const waLink = `https://wa.me/917233992325?text=${waMsg}`;
-                document.getElementById('whatsappLink').href = waLink;
+function updateCutoffBanner(cfg, currentH, menuType){
+  const banner=doc('cutoff-banner');
+  const msgEl=doc('cutoff-msg');
+  const subEl=doc('cutoff-sub');
+  const placeBtn=doc('place-btn');
+  if(!cfg||!cfg.enabled){ banner.classList.add('hide'); if(placeBtn) placeBtn.disabled=false; return; }
+  // cutoffDay e.g. "11:30", cutoffNight e.g. "19:30"
+  const cutoffDay=cfg.cutoffDay||'11:30';
+  const cutoffNight=cfg.cutoffNight||'19:30';
+  const [dH,dM]=cutoffDay.split(':').map(Number);
+  const [nH,nM]=cutoffNight.split(':').map(Number);
+  const dayCutoff=dH+dM/60;
+  const nightCutoff=nH+nM/60;
+  let closed=false, msg='', sub='';
+  if(menuType==='morning'&&currentH>=dayCutoff){
+    closed=true; msg=`Orders closed for lunch`; sub=`Cutoff was ${cutoffDay} AM`;
+  } else if(menuType==='evening'&&currentH>=nightCutoff){
+    closed=true; msg=`Orders closed for dinner`; sub=`Cutoff was ${cutoffNight.replace('19:','7:')} PM`;
+  } else {
+    const timeStr=menuType==='morning'?`${cutoffDay} AM`:`${String(nH>12?nH-12:nH).padStart(2,'0')}:${String(nM).padStart(2,'0')} PM`;
+    msg=`Orders accepted till ${timeStr}`; sub=menuType==='morning'?'Lunch slot':'Dinner slot';
+    banner.style.background='linear-gradient(135deg,#2a9d8f,#1d7a6f)';
+  }
+  banner.classList.remove('hide');
+  msgEl.textContent=msg; subEl.textContent=sub;
+  if(placeBtn) placeBtn.disabled=closed;
+}
 
-                if (mode === 'UPI') {
-                    // Fix for PhonePe/UPI: Use a more robust deep link
-                    const upiUrl = `upi://pay?pa=azamgarh0751@oksbi&pn=HomeBite&am=${finalAmount}&cu=INR&tn=Order_${res.orderId}`;
-                    window.location.href = upiUrl;
-                }
-            }
-        }
+function renderMenu(menu) {
+  if(!menu.length) {
+    doc('menu-list').innerHTML=`<div class="empty"><span class="em">😴</span><h3>Abhi menu nahi hai</h3><p>Baad mein aayein</p></div>`;
+    return;
+  }
+  doc('menu-list').innerHTML=menu.map((item,idx) => {
+    const cart=Cart.get();
+    const imgSrc=resolveImg(item.imageUrl)||`https://picsum.photos/seed/${item.itemId}/400/172`;
+    const variants=Array.isArray(item.variants)?item.variants:[];
+    const varHtml = variants.length>=1 ? `
+      <div class="var-row" id="var-${idx}">
+        ${variants.map((v,vi)=>`<button class="var-pill${vi===0?' sel':''}" onclick="selVar(${idx},${vi},'${esc(v.label)}',${v.price})" data-vi="${vi}">${esc(v.label)} ₹${v.price}</button>`).join('')}
+      </div>` : '';
 
-        function openReviewModal(orderId) {
-            ratingOrderId = orderId;
-            currentRating = 0;
-            document.getElementById('reviewComment').value = '';
-            setRating(0);
-            document.getElementById('reviewModal').classList.remove('hidden');
-        }
+    // Default price: first variant or base price
+    const defPrice = variants.length>0 ? variants[0].price : item.price;
+    const defLabel = variants.length>0 ? variants[0].label : '';
+    const key = item.itemId+(defLabel||'');
+    const inCart = cart.find(i=>i._key===key);
+    const qty = inCart ? inCart.qty : 0;
 
-        function setRating(r) {
-            currentRating = r;
-            const stars = document.querySelectorAll('#starRating i');
-            stars.forEach((s, i) => {
-                if (i < r) s.classList.replace('text-gray-300', 'text-yellow-400');
-                else s.classList.replace('text-yellow-400', 'text-gray-300');
-            });
-        }
+    const ctrl = qty>0
+      ? `<div class="qty-ctl"><button class="q-btn" onclick="Cart.qty('${key}',-1);renderMenu(window._menu)">−</button><span class="q-n">${qty}</span><button class="q-btn" onclick="Cart.qty('${key}',1);renderMenu(window._menu)">+</button></div>`
+      : `<button class="add-btn" id="abtn-${idx}" onclick="addToCart(${idx},'${esc(item.itemId)}')">Add +</button>`;
 
-        function closeReviewModal() { document.getElementById('reviewModal').classList.add('hidden'); }
+    return `<div class="m-card">
+      <img class="m-img" src="${imgSrc}" alt="${esc(item.name)}" loading="lazy"
+           onerror="this.onerror=null;this.src='https://picsum.photos/seed/${idx}/400/172'">
+      <div class="m-body">
+        <div class="m-name">${esc(item.name)}</div>
+        <div class="m-cat">${esc(item.category)}${item.variant?` · ${esc(item.variant)}`:''}${variants.length>=1?' · '+variants.length+' size'+(variants.length>1?'s':''):''}</div>
+        ${varHtml}
+        <div class="m-foot">
+          <div class="m-price" id="price-${idx}">₹${defPrice}</div>
+          ${ctrl}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  window._menu=menu;
+}
 
-        async function submitReview() {
-            if (currentRating === 0) return alert("Please select a rating!");
-            const res = await apiCall('submit_review', {
-                orderId: ratingOrderId,
-                rating: currentRating,
-                comment: document.getElementById('reviewComment').value
-            });
-            if (res.success) {
-                alert("Thank you for your feedback!");
-                closeReviewModal();
-            }
-        }
+// Track selected variants per menu index
+const _selVars={};
+function selVar(idx, vi, label, price) {
+  _selVars[idx]={label,price};
+  doc('price-'+idx).textContent='₹'+price;
+  doc('var-'+idx).querySelectorAll('.var-pill').forEach((p,i)=>p.classList.toggle('sel',i===vi));
+}
 
-        async function loadOrders() {
-            const res = await apiCall('user_orders', { custId: currentUser.Cust_ID });
-            if (res.success) {
-                const container = document.getElementById('orderHistoryContainer');
-                container.innerHTML = res.orders.map(order => {
-                    const items = JSON.parse(order.Items_Details);
-                    const statusColor = order.Order_Status === 'Delivered' ? 'bg-green-100 text-green-600' : 
-                                      (order.Order_Status === 'Rejected' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600');
-                    return `
-                        <div class="bg-white p-4 rounded-2xl card-shadow">
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Order ID: #${order.Order_ID}</p>
-                                    <p class="font-bold text-sm">${items.map(i => `${i.name} (x${i.qty})`).join(', ')}</p>
-                                    ${order.Notes ? `<p class="text-[10px] text-red-500 font-bold mt-1 italic">Note: ${order.Notes}</p>` : ''}
-                                </div>
-                                <div class="text-right">
-                                    <span class="px-2 py-1 rounded-full text-[9px] font-bold ${statusColor}">
-                                        ${order.Order_Status}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-50">
-                                <div class="flex flex-col">
-                                    <span class="text-xs font-bold text-gray-700">₹${order.Total_Amount}</span>
-                                    <span class="text-[9px] text-gray-400 font-bold uppercase">${order.PStatus} • ${new Date(order.Timestamp).toLocaleDateString()}</span>
-                                </div>
-                                ${order.Order_Status === 'Delivered' ? 
-                                    `<button onclick="openReviewModal('${order.Order_ID}')" class="bg-red-50 text-red-500 px-3 py-1 rounded-lg text-[10px] font-bold">Rate Order</button>` : ''
-                                }
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
+function addToCart(idx, itemId) {
+  const item=_menu[idx]; if(!item) return;
+  const sv=_selVars[idx];
+  const variants=Array.isArray(item.variants)?item.variants:[];
+  const varLabel = sv ? sv.label : (variants.length>0 ? variants[0].label : '');
+  const varPrice = sv ? sv.price : (variants.length>0 ? variants[0].price : item.price);
+  Cart.add(item, varLabel, varPrice);
+  renderMenu(_menu);
+}
 
-        async function loadWalletHistory() {
-            const res = await apiCall('fetch_wallet_history', { custId: currentUser.Cust_ID });
-            if (res.success) {
-                const container = document.getElementById('walletHistoryContainer');
-                container.innerHTML = res.history.map(txn => `
-                    <div class="bg-white p-4 rounded-2xl card-shadow flex justify-between items-center">
-                        <div>
-                            <p class="font-bold text-sm">${txn.Reason}</p>
-                            <p class="text-[10px] text-gray-400">${new Date(txn.Timestamp).toLocaleString()}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold ${txn.Status === 'Pending' ? 'text-orange-500' : (txn.Type === 'Credit' ? 'text-green-500' : 'text-red-500')}">
-                                ${txn.Type === 'Credit' ? '+' : '-'}₹${txn.Amount}
-                            </p>
-                            <p class="text-[10px] text-gray-400 uppercase font-bold">
-                                ${txn.Status === 'Pending' ? 'Wait for Approval' : txn.Type}
-                            </p>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
+// ══════════════════════════════════════════════
+// CART PAGE
+// ══════════════════════════════════════════════
+let _coupon=null;
 
-        function openRechargeModal() { document.getElementById('rechargeModal').classList.remove('hidden'); }
-        function closeRechargeModal() { document.getElementById('rechargeModal').classList.add('hidden'); }
-        function setRechargeAmount(amt) { document.getElementById('rechargeAmount').value = amt; }
+function renderCart() {
+  const cart=Cart.get();
+  const isSub=getSub();
+  const list=doc('cart-list'), bill=doc('cart-bill'), dNote=doc('del-note'), btn=doc('place-btn');
 
-        function showTab(tab) {
-            document.querySelectorAll('#appSection > div').forEach(el => el.classList.add('hidden'));
-            document.getElementById(tab + 'Tab').classList.remove('hidden');
-            document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.replace('text-red-500', 'text-gray-400'));
-            const navBtn = document.getElementById('nav-' + tab);
-            if (navBtn) navBtn.classList.replace('text-gray-400', 'text-red-500');
-            
-            if(tab === 'orders') loadOrders();
-            if(tab === 'wallet') {
-                refreshUserProfile();
-                loadWalletHistory();
-            }
-            if(tab === 'account') refreshUserProfile();
-            if(tab === 'admin') loadAdminDashboard();
-        }
+  if(!cart.length) {
+    list.innerHTML=`<div class="empty"><span class="em">🛒</span><h3>Cart khaali hai</h3><p>Kuch items add karein</p></div>`;
+    bill.innerHTML=''; dNote.innerHTML=''; btn.classList.add('hide'); return;
+  }
+  btn.classList.remove('hide');
 
-        async function loadAdminDashboard() {
-            const res = await apiCall('admin_dashboard', {});
-            if (res.success) {
-                const container = document.getElementById('pendingRechargesContainer');
-                if (res.recharges.length === 0) {
-                    container.innerHTML = `<p class="text-center text-gray-400 text-xs py-4">No pending recharges</p>`;
-                    return;
-                }
-                container.innerHTML = res.recharges.map(req => `
-                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex justify-between items-center">
-                        <div>
-                            <p class="font-bold text-sm">User: ${req.Cust_ID}</p>
-                            <p class="text-lg font-bold text-blue-600">₹${req.Amount}</p>
-                            <p class="text-[10px] text-gray-400">${new Date(req.Timestamp).toLocaleString()}</p>
-                        </div>
-                        <button onclick="approveRecharge('${req.TXN_ID}')" class="bg-green-500 text-white px-4 py-2 rounded-xl font-bold text-xs">Approve</button>
-                    </div>
-                `).join('');
-            }
-        }
+  list.innerHTML=cart.map(item=>{
+    const img=resolveImg(item.imageUrl)||`https://picsum.photos/seed/${item.itemId}/56`;
+    return `<div class="c-item">
+      <img class="c-img" src="${img}" onerror="this.src='https://picsum.photos/56'" loading="lazy">
+      <div class="c-info">
+        <div class="c-name">${esc(item.name)}</div>
+        ${item.selectedVariant?`<div class="c-var">${esc(item.selectedVariant)}</div>`:''}
+        <div class="c-price">₹${item.price} each</div>
+      </div>
+      <div class="qty-ctl">
+        <button class="q-btn" onclick="Cart.qty('${item._key}',-1);renderCart()">−</button>
+        <span class="q-n">${item.qty}</span>
+        <button class="q-btn" onclick="Cart.qty('${item._key}',1);renderCart()">+</button>
+      </div>
+    </div>`;
+  }).join('');
 
-        async function approveRecharge(txnId) {
-            if (!confirm("Are you sure you want to approve this recharge?")) return;
-            const res = await apiCall('approve_recharge', { txnId });
-            if (res.success) {
-                alert("Recharge Approved!");
-                loadAdminDashboard();
-            }
-        }
+  const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const del=isSub?0:20;
+  const disc=_coupon?calcDisc(_coupon,sub):0;
+  const total=Math.max(0,sub-disc+del);
 
-        async function handleRecharge() {
-            const amt = document.getElementById('rechargeAmount').value;
-            if (!amt || amt <= 0) return alert("Please enter a valid amount!");
-            
-            const res = await apiCall('request_recharge', { custId: currentUser.Cust_ID, amount: amt });
-            if (res.success) {
-                // Hide modal and show recharge success screen
-                document.getElementById('rechargeModal').classList.add('hidden');
-                document.getElementById('appSection').classList.add('hidden');
-                document.getElementById('rechargeSuccessSection').classList.remove('hidden');
+  bill.innerHTML=`<div class="bill">
+    <div class="br"><span class="muted">Subtotal</span><span>₹${sub}</span></div>
+    ${disc>0?`<div class="br"><span class="muted green">🎟️ Discount (${_coupon.code})</span><span class="green">−₹${disc}</span></div>`:''}
+    <div class="br"><span class="muted">Delivery</span><span>${del===0?'<span class="green">FREE ✨</span>':'₹'+del}</span></div>
+    <div class="br tot"><span>Total</span><span>₹${total}</span></div>
+  </div>`;
 
-                const waMsg = `Mera Recharge Request ID: ${res.requestId}%0AAmount: ₹${amt}`;
-                const waLink = `https://wa.me/917233992325?text=${waMsg}`;
-                document.getElementById('rechargeWaLink').href = waLink;
+  dNote.innerHTML=isSub
+    ? `<div class="del-note">✨ You get <strong>Free Home Delivery</strong> as a subscriber!</div>`
+    : `<div class="del-note warn">🚚 ₹20 delivery charge. <strong><a href="#" onclick="joinTiffin();return false" style="color:inherit">Join monthly tiffin for FREE delivery</a></strong>.</div>`;
+}
 
-                // Fix for PhonePe/UPI: Use a more robust deep link
-                const upiUrl = `upi://pay?pa=azamgarh0751@oksbi&pn=HomeBite&am=${amt}&cu=INR&tn=Recharge_${res.requestId}`;
-                window.location.href = upiUrl;
-            }
-        }
+function calcDisc(coupon, sub) {
+  return coupon.discountType==='percent' ? Math.round(sub*coupon.discountValue/100) : Number(coupon.discountValue);
+}
 
-        window.onload = () => {
-            const saved = localStorage.getItem('hb_user');
-            if (saved) { currentUser = JSON.parse(saved); initApp(); }
-        };
-    </script>
+async function applyCoupon() {
+  const code=doc('cpn-inp').value.trim().toUpperCase();
+  const msg=doc('cpn-msg');
+  if(!code) return;
+  msg.textContent='Checking...'; msg.className='cpn-msg'; msg.classList.remove('hide');
+  try {
+    const user=Auth.get();
+    const c=await api('applyCoupon',{code,phone:user?.phone});
+    _coupon=c;
+    const cart=Cart.get(), sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
+    const disc=calcDisc(c,sub);
+    msg.textContent=`✅ ${c.code} applied! You save ₹${disc}`; msg.className='cpn-msg ok';
+    renderCart();
+  } catch(e) { _coupon=null; msg.textContent='❌ '+e.message; msg.className='cpn-msg err'; }
+}
+
+// WhatsApp message stored for deferred open
+let _waMsg='', _waPhone='';
+
+function openWhatsApp(){
+  // Try app first, show nothing else
+  window.location.href=`whatsapp://send?phone=${_waPhone}&text=${encodeURIComponent(_waMsg)}`;
+}
+
+async function placeOrder() {
+  const user=Auth.get(), cart=Cart.get();
+  if(!user?.address) { toast('Pehle address set karein'); return; }
+  if(!cart.length) { toast('Cart khaali hai!'); return; }
+
+  const isSub=getSub();
+  const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const del=isSub?0:20;
+  const disc=_coupon?calcDisc(_coupon,sub):0;
+  const total=Math.max(0,sub-disc+del);
+
+  const btn=doc('place-btn');
+  btn.innerHTML='<span class="spin"></span> Placing...'; btn.disabled=true;
+
+  try {
+    const res=await api('createOrder',{
+      userId:user.userId,name:user.name,phone:user.phone,address:user.address,
+      items:cart,totalAmount:sub,deliveryCharge:del,finalAmount:total,
+      couponCode:_coupon?.code||'',discount:disc,userType:isSub?'subscriber':'daily'
+    });
+
+    // Build WhatsApp message
+    let msg=`🍱 *Home Bite Order*\n`;
+    msg+=`📋 ID: *${res.orderId}*\n`;
+    msg+=`👤 ${user.name} | 📞 ${user.phone}\n`;
+    msg+=`📍 ${user.address}\n\n`;
+    msg+=`*Items:*\n`;
+    cart.forEach(i=>{ msg+=`• ${i.name}${i.selectedVariant?` (${i.selectedVariant})`:''} ×${i.qty} — ₹${i.price*i.qty}\n`; });
+    msg+=`\n`;
+    if(disc>0) msg+=`🎟️ Discount: −₹${disc}\n`;
+    msg+=`🚴 Delivery: ${del===0?'FREE':'₹'+del}\n`;
+    msg+=`✅ *Total: ₹${total}*\n\n`;
+    msg+=isSub
+      ? `✨ I am a *monthly subscriber*. Please deduct from my wallet. 🙏`
+      : `💳 Please share UPI/QR for payment. I'll send screenshot. 🙏`;
+
+    _waMsg=msg; _waPhone=CFG.WA;
+
+    Cart.clear(); _coupon=null; doc('cpn-inp').value=''; doc('cpn-msg').classList.add('hide');
+
+    nav('pg-success');
+    doc('pay-note').classList.toggle('hide', isSub);
+    // Hide WA button initially, show after 2.5s
+    const waBtnWrap=doc('wa-btn-wrap');
+    if(waBtnWrap){ waBtnWrap.style.display='none'; setTimeout(()=>{ waBtnWrap.style.display='block'; },2500); }
+
+  } catch(e) { toast('❌ '+e.message); }
+  finally { btn.innerHTML='<i class="fa-brands fa-whatsapp"></i> Place Order'; btn.disabled=false; }
+}
+
+// ══════════════════════════════════════════════
+// ORDERS
+// ══════════════════════════════════════════════
+let _orders=[];
+
+async function loadOrders() {
+  const el=doc('orders-list'), user=Auth.get();
+  if(!user) return;
+  if(_orders.length) renderOrders(_orders);
+  else el.innerHTML='<div class="sk sk-lg"></div><div class="sk sk-lg"></div>';
+  try {
+    _orders=await api('getUserOrders',{userId:user.userId});
+    renderOrders(_orders);
+  } catch(e) { if(!_orders.length) el.innerHTML=`<div class="empty"><span class="em">😕</span><h3>Load failed</h3></div>`; }
+}
+
+function renderOrders(orders) {
+  if(!orders.length) {
+    doc('orders-list').innerHTML=`<div class="empty"><span class="em">📋</span><h3>Koi orders nahi</h3><p>Pehla order daalein!</p></div>`;
+    return;
+  }
+  const sc={pending:'b-y',preparing:'b-o','out for delivery':'b-o',delivered:'b-g'};
+  doc('orders-list').innerHTML=orders.map(o=>{
+    let items=[]; try{ items=safeP(o.items); }catch{}
+    const txt=items.map(i=>`${i.name}${i.selectedVariant?` (${i.selectedVariant})`:''} ×${i.qty}`).join(', ');
+    return `<div class="ord-card">
+      <div class="ord-hd">
+        <div><div class="ord-id">${esc(o.orderId)}</div><div class="ord-dt">${esc(fmtDate(o.date))} · ${esc(fmtTime(o.time))}</div></div>
+        <span class="bdg ${sc[o.orderStatus]||'b-y'}">${esc(o.orderStatus)}</span>
+      </div>
+      <div class="ord-items">${esc(txt)}</div>
+      <div class="ord-ft">
+        <span class="ord-amt">₹${Number(o.finalAmount).toFixed(0)}</span>
+        <div style="display:flex;gap:6px">
+          <span class="bdg ${o.paymentStatus==='paid'?'b-g':'b-y'}">${esc(o.paymentStatus)}</span>
+          <button class="btn btn-sm btn-ghost" onclick="window.location.href='whatsapp://send?phone=${CFG.WA}'">Help</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
+// TIFFIN
+// ══════════════════════════════════════════════
+function joinTiffin() {
+  const user=Auth.get();
+  let msg=`Namaste! Monthly tiffin plan ke baare mein jaanna chahta/chahti hoon.\n\n🚚 *Free Home Delivery* + Save ₹200/month\n\n`;
+  if(user) msg+=`Name: ${user.name}\nPhone: ${user.phone}\nAddress: ${user.address}`;
+  window.location.href=`whatsapp://send?phone=${CFG.TIFFIN}&text=${encodeURIComponent(msg)}`;
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function doc(id) { return document.getElementById(id); }
+function esc(s) {
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(v){
+  if(!v) return '';
+  const s=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)||v instanceof Date){
+    const ist=new Date((v instanceof Date?v:new Date(s)).getTime()+5.5*60*60*1000);
+    if(!isNaN(ist.getTime())) return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
+  }
+  return s;
+}
+function fmtTime(v){
+  if(!v) return '';
+  const s=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)||v instanceof Date){
+    const ist=new Date((v instanceof Date?v:new Date(s)).getTime()+5.5*60*60*1000);
+    if(!isNaN(ist.getTime())){ let h=ist.getUTCHours(),m=ist.getUTCMinutes(); const p=h>=12?'PM':'AM'; h=h%12||12; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+p; }
+  }
+  return s.replace(/[\u00a0\u202f\u2009]/g,' ');
+}
+function toast(msg) {
+  const t=doc('toast'); t.textContent=msg; t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),3000);
+}
+function getSub() {
+  try{ return JSON.parse(localStorage.getItem('hb_sub'))?.isSubscriber||false; }catch{ return false; }
+}
+function safeP(v) {
+  if(Array.isArray(v)) return v;
+  if(typeof v==='object'&&v!==null) return v;
+  if(typeof v!=='string'||!v.trim()) return [];
+  try{ return JSON.parse(v); }catch{ return []; }
+}
+
+// ══════════════════════════════════════════════
+// STARTUP — restore session from localStorage
+// ══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', ()=>{
+  const user=Auth.get();
+  if(user) {
+    // Restore logged-in state — never log out on refresh
+    doc('pg-auth').classList.replace('here','left');
+    doc('pg-home').classList.remove('right','left'); doc('pg-home').classList.add('here');
+    stack=['pg-auth','pg-home'];
+    // Restore subscriber status
+    try {
+      const sub=JSON.parse(localStorage.getItem('hb_sub'));
+      if(sub?.isSubscriber) doc('sub-banner').classList.remove('hide');
+    } catch(e){}
+    updateBadge();
+    loadMenu();
+    // Refresh sub status silently
+    api('checkSubscriber',{phone:user.phone}).then(sub=>{
+      localStorage.setItem('hb_sub',JSON.stringify(sub));
+      if(sub.isSubscriber) doc('sub-banner').classList.remove('hide');
+    }).catch(()=>{});
+  }
+});
+
+// Pull-to-refresh: refresh menu when user pulls down on home
+let _pStart=0;
+doc('pg-home').addEventListener('touchstart', e=>{ _pStart=e.touches[0].clientY; }, {passive:true});
+doc('pg-home').addEventListener('touchend', e=>{
+  if(doc('pg-home').scrollTop===0 && e.changedTouches[0].clientY - _pStart > 80) loadMenu();
+}, {passive:true});
+</script>
 </body>
 </html>
