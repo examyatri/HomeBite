@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="format-detection" content="telephone=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Home Bite – Ghar ka Khana</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -23,7 +29,7 @@
   --ff:'Sora',sans-serif;--fb:'DM Sans',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:#f3f4f6}
+html,body{height:100%;overflow:hidden;background:#f3f4f6;-webkit-overflow-scrolling:touch}
 body{font-family:var(--fb);color:var(--dk);width:100%;max-width:520px;margin:0 auto;position:relative}
 
 /* ── PAGE SYSTEM ── */
@@ -573,7 +579,7 @@ const CFG = {
 const WA = {
   open(context, extra) {
     const msgs = {
-      forgot:     'Namaste! Home Bite password reset karna hai.\n\n' + (extra||'') + '\n\nKripya help karein.',
+      forgot:     'Namaste! 🙏 Home Bite password reset karna hai.\n\n' + (extra||'') + '\n\nKripya help karein.',
       tiffin:     extra || 'Namaste! Monthly tiffin plan ke baare mein jaanna chahta/chahti hoon.',
       support:    'Namaste! App mein help chahiye.\n\n' + (extra||'') + '\n\nKripya assist karein.',
       contact:    'Namaste! ' + (extra||'kuch information chahiye thi'),
@@ -581,11 +587,9 @@ const WA = {
       screenshot: extra || 'Namaste! Payment screenshot bhej raha/rahi hoon.',
     };
     const text = msgs[context] || extra || 'Namaste! Home Bite se contact kar raha/rahi hoon.';
-    const url  = 'https://wa.me/' + CFG.WA_NUM + '?text=' + encodeURIComponent(text);
-    try {
-      const win = window.open(url, '_blank');
-      if (!win) window.location.href = url;
-    } catch(e) { window.location.href = url; }
+    // Use location.href → always opens WhatsApp app directly (no Business error,
+    // no popup blocker, works from bfcache-restored pages too)
+    window.location.href = 'https://wa.me/' + CFG.WA_NUM + '?text=' + encodeURIComponent(text);
   }
 };
 
@@ -611,30 +615,82 @@ const Store = {
 };
 
 // =============================================
-// BLANK SCREEN GUARD
+// BLANK SCREEN GUARD — handles WhatsApp WebView
 // =============================================
 (function blankScreenGuard() {
-  const FLAG = 'hb_reload_attempt', MAX = 2;
-  const attempts = Store.get(FLAG, 0);
-  setTimeout(() => {
-    const authPg = document.getElementById('pg-auth');
-    const homePg = document.getElementById('pg-home');
-    const ok = (authPg && authPg.classList.contains('here')) || (homePg && homePg.classList.contains('here'));
-    if (!ok && attempts < MAX) { Store.set(FLAG, attempts + 1); window.location.reload(); }
-    else if (ok) Store.set(FLAG, 0);
-  }, 3000);
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      const pg = document.querySelector('.pg.here');
-      if (!pg || pg.offsetHeight === 0) {
-        document.body.style.display = 'none';
-        void document.body.offsetHeight;
-        document.body.style.display = '';
-      }
+  const FLAG = 'hb_reload_attempt', MAX = 3;
+
+  function isPageVisible() {
+    const pgs = document.querySelectorAll('.pg.here');
+    return pgs.length > 0 && Array.from(pgs).some(p => p.offsetHeight > 0);
+  }
+
+  function forceRepaint() {
+    // Force WebView to repaint — fixes blank white screen
+    document.documentElement.style.display = 'none';
+    void document.documentElement.offsetHeight;
+    document.documentElement.style.display = '';
+  }
+
+  function checkAndRecover() {
+    if (!isPageVisible()) {
+      forceRepaint();
+      // If still blank after repaint, trigger app startup again
+      setTimeout(() => {
+        if (!isPageVisible()) {
+          const attempts = Store.get(FLAG, 0);
+          if (attempts < MAX) {
+            Store.set(FLAG, attempts + 1);
+            window.location.reload();
+          } else {
+            // Max reloads reached — reset reload counter and just repaint
+            Store.set(FLAG, 0);
+            forceRepaint();
+          }
+        } else {
+          Store.set(FLAG, 0);
+        }
+      }, 500);
+    } else {
+      Store.set(FLAG, 0);
+    }
+  }
+
+  // Check after initial load
+  setTimeout(checkAndRecover, 1500);
+  // Also check after 4s in case first check was too early
+  setTimeout(checkAndRecover, 4000);
+
+  // Fix: page restored from bfcache (back from WhatsApp → site)
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      forceRepaint();
+      setTimeout(() => {
+        if (!isPageVisible()) {
+          // Re-run startup if page state is lost
+          if (typeof bootApp === 'function') bootApp();
+        } else {
+          updateBadge();
+          if (stack && stack[stack.length-1] === 'pg-home') loadMenu();
+        }
+      }, 300);
     }
   });
-  window.addEventListener('pageshow', (e) => {
-    if (e.persisted) { updateBadge(); if (stack[stack.length-1] === 'pg-home') loadMenu(); }
+
+  // Fix: returning from WhatsApp (app switch, not bfcache)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      setTimeout(() => {
+        if (!isPageVisible()) forceRepaint();
+      }, 200);
+    }
+  });
+
+  // Fix: focus event (some Android WebViews use this instead of visibilitychange)
+  window.addEventListener('focus', () => {
+    setTimeout(() => {
+      if (!isPageVisible()) forceRepaint();
+    }, 200);
   });
 })();
 
@@ -1208,7 +1264,7 @@ async function placeOrder() {
     if(disc>0) msg+=`🎟️ Discount: −₹${disc}\n`;
     msg+=`🚴 Delivery: ${del===0?'FREE':'₹'+del}\n✅ *Total: ₹${total}*\n\n`;
     msg+=isSub?`✨ I am a *monthly subscriber*. Please deduct from my wallet. 🙏`:`💳 Please share UPI/QR for payment. I'll send screenshot. 🙏`;
-    _waMsg=msg; _waPhone=CFG.WA;
+    _waMsg=msg; _waPhone=CFG.WA_NUM;
     Cart.clear(); _coupon=null; doc('cpn-inp').value=''; doc('cpn-msg').classList.add('hide');
     nav('pg-success');
     doc('pay-note').classList.toggle('hide', isSub);
@@ -1307,15 +1363,17 @@ function safeP(v) { if(Array.isArray(v)) return v; if(typeof v==='object'&&v!==n
 // ══════════════════════════════════════════════
 // STARTUP
 // ══════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', ()=>{
-  const user=Auth.get();
-  // Hide contact card by default; show only on home page
-
-  if(user) {
-    doc('pg-auth').classList.replace('here','left');
-    doc('pg-home').classList.remove('right','left'); doc('pg-home').classList.add('here');
-    stack=['pg-auth','pg-home'];
-    history.replaceState({page:'pg-home'},'','#pg-home');
+// Named boot function — can be re-called on bfcache restore
+function bootApp() {
+  const user = Auth.get();
+  if (user) {
+    // Show home page
+    document.querySelectorAll('.pg').forEach(p => p.classList.remove('here'));
+    doc('pg-auth').classList.add('left');
+    doc('pg-home').classList.remove('right','left');
+    doc('pg-home').classList.add('here');
+    stack = ['pg-auth','pg-home'];
+    try { history.replaceState({page:'pg-home'},'','#pg-home'); } catch(e){}
     updateBottomNav('pg-home');
     showAppUI();
     const sub0 = Store.get('hb_sub');
@@ -1323,25 +1381,29 @@ window.addEventListener('DOMContentLoaded', ()=>{
     updateBadge();
     loadMenu();
     api('checkSubscriber',{phone:user.phone}).then(sub=>{
-      Store.set('hb_sub', sub);
+      Store.set('hb_sub',sub);
       if(sub.isSubscriber) doc('sub-banner').classList.remove('hide');
     }).catch(()=>{});
   } else {
-    // Push initial state for back button to work from auth page
-    history.replaceState({page:'pg-auth'},'','#pg-auth');
+    doc('pg-auth').classList.remove('right','left');
+    doc('pg-auth').classList.add('here');
+    stack = ['pg-auth'];
+    try { history.replaceState({page:'pg-auth'},'','#pg-auth'); } catch(e){}
   }
-});
+}
 
-// Hide loader after DOM is ready
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const loader = document.getElementById('app-loader');
-    if (loader) {
-      loader.classList.add('hidden');
-      setTimeout(() => { loader.style.display = 'none'; }, 350);
-    }
-  }, 400);
-});
+window.addEventListener('DOMContentLoaded', bootApp);
+
+// Hide loader — called after bootApp() sets up correct page
+function hideLoader() {
+  const loader = document.getElementById('app-loader');
+  if (loader) {
+    loader.classList.add('hidden');
+    setTimeout(() => { if(loader.parentNode) loader.parentNode.removeChild(loader); }, 400);
+  }
+}
+// Hide loader after DOMContentLoaded + small delay for render
+window.addEventListener('DOMContentLoaded', () => { setTimeout(hideLoader, 700); });
 
 // Global error boundary
 window.addEventListener('error', (e) => { console.error('[HB]', e.message, e.lineno); });
