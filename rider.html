@@ -8,186 +8,120 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root{
-  --p:#e63946;--pd:#c1121f;--pl:#fde8ea;
-  --g:#2a9d8f;--gl:#e0f5f2;
-  --o:#f4a261;--y:#f59e0b;
-  --bg:#f4f6f9;--wh:#ffffff;
-  --card:#ffffff;
-  --tx:#1a1f2e;--mu:#6b7280;--lt:#e5e7eb;
-  --sh:0 1px 8px rgba(0,0,0,.08);--shl:0 4px 20px rgba(0,0,0,.12);
-  --r:14px;
+  --p:#e63946;--pd:#c1121f;
+  --g:#2a9d8f;--gl:#e8f5f3;
+  --o:#f4a261;--y:#ffd166;
+  --bg:#0a0f1e;--card:#131929;--card2:#1c2540;
+  --tx:#e8eaf6;--mu:#4a5568;
+  --sh:0 8px 32px rgba(0,0,0,.4);--r:16px;
   --ff:'Sora',sans-serif;--fb:'DM Sans',sans-serif;
-  --day:#d97706;--dayb:#fffbeb;--daybd:#fde68a;
-  --ngt:#4f46e5;--ngtb:#eef2ff;--ngtbd:#c7d2fe;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:480px;margin:0 auto;min-height:100vh}
 .hide{display:none!important}
-
-/* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 18px;border-radius:11px;font-family:var(--ff);font-weight:700;font-size:13px;border:none;cursor:pointer;transition:all .18s;touch-action:manipulation}
-.btn:active{transform:scale(.96)}
-.btn-p{background:var(--p);color:#fff;box-shadow:0 3px 12px rgba(230,57,70,.3)}
-.btn-ghost{background:rgba(0,0,0,.07);color:var(--tx)}
-.btn-sm{padding:7px 12px;font-size:12px;border-radius:9px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:12px;font-family:var(--ff);font-weight:700;font-size:13px;border:none;cursor:pointer;transition:all .18s}
+.btn:active{transform:scale(.95)}
+.btn-p{background:var(--p);color:#fff;box-shadow:0 4px 16px rgba(230,57,70,.4)}
+.btn-g{background:var(--g);color:#fff}
+.btn-ghost{background:rgba(255,255,255,.08);color:var(--tx)}
+.btn-sm{padding:8px 13px;font-size:12px;border-radius:10px}
 .btn-full{width:100%}
-
-/* ── INPUTS ── */
-.inp{width:100%;padding:13px 15px;background:var(--lt);border:2px solid transparent;border-radius:11px;font-family:var(--fb);font-size:14px;font-weight:500;color:var(--tx);outline:none;transition:border-color .18s}
-.inp:focus{border-color:var(--p);background:#fff}
+.inp{width:100%;padding:14px 16px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.08);border-radius:12px;font-family:var(--fb);font-size:14px;font-weight:500;color:var(--tx);outline:none;transition:border-color .18s}
+.inp:focus{border-color:var(--p);background:rgba(255,255,255,.09)}
 .inp::placeholder{color:var(--mu)}
 .pw-wrap{position:relative}
-.pw-wrap .inp{padding-right:44px}
-.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px;padding:4px}
-.creds-hint{font-size:11px;font-weight:700;color:var(--g);margin-bottom:10px;padding:7px 12px;background:var(--gl);border-radius:9px;display:none}
+.pw-wrap .inp{padding-right:46px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px;padding:4px;touch-action:manipulation}
+.creds-hint{font-size:11px;font-weight:700;color:#4ecdc4;margin-bottom:10px;padding:7px 12px;background:rgba(42,157,143,.15);border-radius:9px;display:none}
 .creds-hint.show{display:block}
-.fg{margin-bottom:12px}
-.lbl-field{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block}
-
-/* ── SEARCH BAR ── */
-.search-wrap{position:relative;margin:10px 14px 6px}
-.search-inp{width:100%;padding:11px 40px 11px 40px;background:#fff;border:2px solid var(--lt);border-radius:11px;font-family:var(--fb);font-size:14px;font-weight:500;color:var(--tx);outline:none;transition:border-color .18s}
-.search-inp:focus{border-color:var(--p)}
-.search-inp::placeholder{color:var(--mu)}
-.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:14px;pointer-events:none}
-.search-clear{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:var(--lt);border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:11px;color:var(--mu)}
-.search-clear.show{display:flex}
-
-/* ── BADGES ── */
-.bdg{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
-.b-g{background:var(--gl);color:var(--g)}.b-o{background:#fff3e0;color:#c45500}
-.b-y{background:#fffde7;color:var(--y)}.b-r{background:var(--pl);color:var(--p)}
-.b-bl{background:#e3f2fd;color:#1565c0}.b-gr{background:#f3f4f6;color:#6b7280}
-
-/* ── SPINNER / TOAST ── */
-.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
+.bdg{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.b-g{background:rgba(42,157,143,.2);color:#4ecdc4}.b-o{background:rgba(244,162,97,.2);color:var(--o)}
+.b-y{background:rgba(255,209,102,.2);color:var(--y)}.b-r{background:rgba(230,57,70,.2);color:#ff6b81}
+.b-bl{background:rgba(100,150,255,.2);color:#80aaff}
+.spin{width:17px;height:17px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--tx);color:#fff;padding:11px 20px;border-radius:30px;font-weight:700;font-size:13px;z-index:9999;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;font-family:var(--ff)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(255,255,255,.95);color:var(--bg);padding:12px 22px;border-radius:30px;font-weight:700;font-size:13px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;font-family:var(--ff)}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ══ AUTH ══ */
-#pg-auth{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 22px;background:linear-gradient(160deg,#fff5f5 0%,#f4f6f9 60%)}
-.a-logo{text-align:center;margin-bottom:30px}
-.a-em{font-size:56px;display:block;margin-bottom:10px}
-.a-logo h1{font-family:var(--ff);font-size:24px;font-weight:800;color:var(--p)}
-.a-logo p{color:var(--mu);font-size:13px;font-weight:500;margin-top:3px}
-.a-card{background:#fff;border-radius:20px;padding:24px 20px;width:100%;box-shadow:var(--shl)}
+/* ── AUTH ── */
+#pg-auth{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 22px}
+.a-logo{text-align:center;margin-bottom:36px}
+.a-em{font-size:60px;display:block;margin-bottom:12px}
+.a-logo h1{font-family:var(--ff);font-size:26px;font-weight:800;color:var(--p)}
+.a-logo p{color:var(--mu);font-size:13px;font-weight:500;margin-top:4px}
+.a-card{background:var(--card);border-radius:22px;padding:26px 22px;width:100%;box-shadow:var(--sh)}
+.fg{margin-bottom:13px}
+.lbl{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block}
 
-/* ══ APP ══ */
-#pg-app{display:none;min-height:100vh;padding-bottom:24px}
-
-/* ── TOP NAV ── */
-.rider-nav{background:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--lt);box-shadow:0 1px 6px rgba(0,0,0,.06)}
-.r-info h3{font-family:var(--ff);font-size:15px;font-weight:800;color:var(--tx)}
-.r-info p{font-size:11px;color:var(--mu);margin-top:1px}
-.dot{display:inline-block;width:6px;height:6px;background:var(--g);border-radius:50%;margin-right:4px;box-shadow:0 0 0 3px rgba(42,157,143,.2);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(42,157,143,.2)}50%{box-shadow:0 0 0 6px rgba(42,157,143,.07)}}
+/* ── APP ── */
+#pg-app{display:none;padding-bottom:24px}
+.rider-nav{background:var(--card);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(255,255,255,.05)}
+.r-info h3{font-family:var(--ff);font-size:16px;font-weight:800}
+.r-info p{font-size:11px;color:var(--mu);margin-top:2px}
+.dot{display:inline-block;width:7px;height:7px;background:#4ecdc4;border-radius:50%;margin-right:5px;box-shadow:0 0 0 3px rgba(78,205,196,.25);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(78,205,196,.25)}50%{box-shadow:0 0 0 7px rgba(78,205,196,.08)}}
 
 /* ── STATS ── */
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px 6px}
-.sp{background:#fff;border-radius:12px;padding:11px 8px;text-align:center;box-shadow:var(--sh)}
-.sp .n{font-family:var(--ff);font-size:20px;font-weight:800}
-.sp .l{font-size:10px;color:var(--mu);margin-top:1px;font-weight:600}
+.stats{display:flex;gap:10px;padding:14px 14px 6px}
+.sp{flex:1;background:var(--card);border-radius:14px;padding:13px 10px;text-align:center}
+.sp .n{font-family:var(--ff);font-size:22px;font-weight:800}
+.sp .l{font-size:11px;color:var(--mu);margin-top:2px}
 
-/* ── ROUTE BANNER ── */
-.route-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 14px 4px;background:linear-gradient(135deg,#1a73e8,#4285f4);border-radius:13px;padding:12px 16px;cursor:pointer;border:none;width:calc(100% - 28px);text-align:left;touch-action:manipulation}
-.route-banner:active{transform:scale(.98)}
-.rb-text h4{font-family:var(--ff);font-size:13px;font-weight:800;color:#fff;margin-bottom:2px}
-.rb-text p{font-size:11px;color:rgba(255,255,255,.85)}
-.rb-icon{width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+/* ── ORDERS ── */
+.ord-hdr{padding:14px 14px 6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.ord-hdr h3{font-family:var(--ff);font-size:18px;font-weight:800}
+.ord-count-badge{font-size:11px;color:var(--mu);font-weight:600;background:rgba(255,255,255,.07);padding:3px 9px;border-radius:10px}
+.o-card{background:var(--card);border-radius:var(--r);margin:0 14px 14px;overflow:hidden;box-shadow:var(--sh);border:1px solid rgba(255,255,255,.04)}
+.o-top{padding:14px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:flex-start}
+.o-id{font-family:var(--ff);font-size:13px;font-weight:700}
+.o-dt{font-size:11px;color:var(--mu);margin-top:3px}
+.o-type-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;margin-top:4px;display:inline-block}
+.tag-day{background:rgba(255,209,102,.15);color:var(--y)}
+.tag-night{background:rgba(100,150,255,.15);color:#80aaff}
+.cust{padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.05)}
+.cust-nm{font-family:var(--ff);font-size:16px;font-weight:800;margin-bottom:8px}
+.cust-addr{font-size:12px;color:var(--mu);margin-bottom:10px;line-height:1.5}
+.act-row{display:flex;gap:7px}
+.a-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;border:none;text-decoration:none;font-family:var(--ff)}
+.call{background:rgba(42,157,143,.2);color:#4ecdc4}
+.maps{background:rgba(100,150,255,.2);color:#80aaff}
+.wa{background:rgba(37,211,102,.2);color:#25d366}
+.items-sec{padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.05)}
+.items-sec h5{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.irow{display:flex;justify-content:space-between;font-size:13px;font-weight:600;padding:3px 0}
+.irow .pr{color:var(--mu)}
+.amt-sec{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center}
+.amt-lbl{font-size:12px;color:var(--mu)}
+.amt-val{font-family:var(--ff);font-size:20px;font-weight:800;color:var(--p)}
+.act-sec{padding:13px 14px;display:flex;gap:8px}
+.st-sel{flex:1;padding:10px 12px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:10px;color:var(--tx);font-family:var(--ff);font-weight:700;font-size:13px;outline:none;-webkit-appearance:none}
+.st-sel option{background:#1c2540;color:var(--tx)}
+.upd-btn{padding:10px 18px;background:var(--p);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;font-family:var(--ff)}
+.pdf-btn{padding:10px 13px;background:rgba(255,255,255,.08);color:var(--tx);border:none;border-radius:10px;font-size:13px;cursor:pointer}
+.empty{text-align:center;padding:56px 20px;color:var(--mu)}
+.empty span{font-size:54px;display:block;margin-bottom:14px}
+.empty p{font-weight:600;font-size:15px}
 
-/* ── TWO-TAB LAYOUT ── */
-.tab-bar{display:flex;background:#fff;margin:8px 14px;border-radius:13px;padding:3px;box-shadow:var(--sh);gap:3px}
-.tab-btn{flex:1;padding:10px;text-align:center;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;color:var(--mu);border:none;background:none;transition:all .18s;font-family:var(--ff);touch-action:manipulation;display:flex;align-items:center;justify-content:center;gap:6px}
-.tab-btn.act{background:var(--p);color:#fff;box-shadow:0 2px 8px rgba(230,57,70,.3)}
-.tab-count{background:rgba(255,255,255,.25);border-radius:10px;padding:1px 7px;font-size:11px;font-weight:800}
-.tab-btn:not(.act) .tab-count{background:var(--lt);color:var(--mu)}
-
-/* ── FILTER (for Delivered tab) ── */
-.filter-wrap{background:#fff;margin:8px 14px;border-radius:13px;box-shadow:var(--sh);overflow:hidden}
-.filter-toggle{width:100%;background:none;border:none;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:var(--ff);font-size:13px;font-weight:700;color:var(--tx);touch-action:manipulation}
-.filter-toggle .arr{transition:transform .2s;color:var(--mu);font-size:12px}
-.filter-toggle.open .arr{transform:rotate(180deg)}
-.filter-body{padding:0 14px 14px;border-top:1px solid var(--lt)}
-.filter-row{display:flex;gap:8px;align-items:center;margin-top:10px}
-.f-label{font-size:11px;font-weight:700;color:var(--mu);white-space:nowrap;min-width:40px}
-.f-select,.f-date{flex:1;background:var(--bg);border:1.5px solid var(--lt);border-radius:9px;color:var(--tx);font-family:var(--fb);font-weight:600;font-size:13px;padding:8px 10px;outline:none;-webkit-appearance:none}
+/* ── FILTERS ── */
+.filter-section{background:var(--card2);border-bottom:1px solid rgba(255,255,255,.06);padding:12px 14px}
+.filter-section-title{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.filter-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.filter-row:last-child{margin-bottom:0}
+.f-label{font-size:11px;font-weight:700;color:var(--mu);white-space:nowrap;min-width:42px}
+.f-select,.f-date{flex:1;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.1);border-radius:10px;color:var(--tx);font-family:var(--fb);font-weight:600;font-size:13px;padding:9px 11px;outline:none;-webkit-appearance:none}
 .f-select:focus,.f-date:focus{border-color:var(--p)}
-.f-clr{background:none;border:none;color:var(--mu);font-size:14px;cursor:pointer;padding:6px}
-.filter-acts{display:flex;gap:8px;margin-top:12px}
-.f-reset{background:var(--lt);color:var(--tx);border:none;border-radius:9px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--ff)}
+.f-select option{background:#1c2540;color:var(--tx)}
+.filter-actions{display:flex;gap:8px;margin-top:10px}
+.f-apply{flex:1;background:var(--p);color:#fff;border:none;border-radius:10px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--ff);display:flex;align-items:center;justify-content:center;gap:6px}
+.f-reset{background:rgba(255,255,255,.08);color:var(--tx);border:none;border-radius:10px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--ff)}
+.active-filter-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(230,57,70,.15);color:#ff8a93;border:1px solid rgba(230,57,70,.25);border-radius:8px;font-size:11px;font-weight:700;padding:3px 8px;margin-top:8px;flex-wrap:wrap}
+.active-filter-tag span{font-weight:800}
 
-/* ── GROUP HEADER ── */
-.group-hdr{display:flex;align-items:center;gap:9px;padding:14px 14px 6px}
-.group-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:20px;font-family:var(--ff);font-size:12px;font-weight:800}
-.pill-day{background:var(--dayb);color:var(--day);border:1.5px solid var(--daybd)}
-.pill-ngt{background:var(--ngtb);color:var(--ngt);border:1.5px solid var(--ngtbd)}
-.group-cnt{font-size:11px;font-weight:600;color:var(--mu)}
-.group-route-btn{margin-left:auto;background:var(--gl);color:var(--g);border:none;border-radius:8px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--ff);display:flex;align-items:center;gap:5px;touch-action:manipulation}
-
-/* ── ORDER CARD ── */
-.o-card{background:#fff;border-radius:13px;margin:0 14px 10px;box-shadow:var(--sh);overflow:hidden;border:1.5px solid var(--lt)}
-.o-card.done{opacity:.65;border-color:#e5e7eb}
-
-.oc-top{padding:10px 14px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0}
-.oc-id{font-family:var(--ff);font-size:10px;font-weight:700;color:var(--mu)}
-
-.oc-cust{padding:10px 14px 9px;display:flex;gap:10px;border-bottom:1px solid #f5f5f5}
-.oc-avatar{width:38px;height:38px;border-radius:10px;background:var(--pl);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;margin-top:1px}
-.oc-info{flex:1;min-width:0}
-.oc-name{font-family:var(--ff);font-size:14px;font-weight:800;color:var(--tx);margin-bottom:3px}
-.oc-phone{font-size:13px;font-weight:700;color:var(--p);text-decoration:none;display:inline-flex;align-items:center;gap:4px}
-.oc-addr{font-size:12px;color:var(--mu);margin-top:5px;line-height:1.45;word-break:break-word}
-.oc-maps-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#1a73e8;text-decoration:none;margin-top:5px;background:#e8f0fe;padding:3px 9px;border-radius:6px}
-
-.oc-items-row{padding:8px 14px;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.oc-items-txt{font-size:12px;color:var(--mu);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.oc-amt-block{text-align:right;flex-shrink:0}
-.oc-amt{font-family:var(--ff);font-size:15px;font-weight:800;color:var(--p)}
-.oc-pay-lbl{font-size:10px;font-weight:600;color:var(--mu);margin-top:1px}
-
-/* Action row */
-.oc-act{padding:8px 10px;display:flex;gap:6px;align-items:center}
-.ab{display:flex;align-items:center;justify-content:center;gap:4px;padding:9px 7px;border-radius:9px;font-weight:700;font-size:11px;cursor:pointer;border:none;text-decoration:none;font-family:var(--ff);touch-action:manipulation;flex:1}
-.ab:active{transform:scale(.95)}
-.ab-call{background:#e0faf6;color:#0d9488}
-.ab-maps{background:#e8f0fe;color:#1a73e8}
-.ab-wa{background:#dcfce7;color:#16a34a}
-/* ONE-TAP MARK DELIVERED BUTTON */
-.btn-deliver{flex:2;background:linear-gradient(135deg,var(--g),#21867a);color:#fff;border:none;border-radius:9px;padding:10px 8px;font-weight:800;font-size:12px;cursor:pointer;font-family:var(--ff);touch-action:manipulation;display:flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 3px 10px rgba(42,157,143,.3)}
-.btn-deliver:active{transform:scale(.95)}
-.btn-deliver.loading{opacity:.7;pointer-events:none}
-
-/* ── SECTION HDR ── */
-.ord-hdr{padding:10px 14px 4px;display:flex;align-items:center;justify-content:space-between}
-.ord-hdr h3{font-family:var(--ff);font-size:16px;font-weight:800}
-.ord-count-tag{font-size:11px;color:var(--mu);font-weight:600;background:var(--lt);padding:3px 9px;border-radius:8px}
-
-/* ── EMPTY ── */
-.empty{text-align:center;padding:48px 20px;color:var(--mu)}
-.empty span{font-size:46px;display:block;margin-bottom:12px}
-.empty p{font-weight:600;font-size:14px}
-
-/* ── ROUTE MODAL ── */
-.route-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
-.route-box{background:#fff;border-radius:24px 24px 0 0;padding:22px 20px 36px;width:100%;max-width:480px;animation:slideup .28s ease}
-@keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.route-box h3{font-family:var(--ff);font-size:16px;font-weight:800;margin-bottom:3px}
-.route-box .rm-desc{font-size:13px;color:var(--mu);margin-bottom:14px;line-height:1.5}
-.rm-stops{background:var(--bg);border-radius:11px;padding:10px 13px;margin-bottom:14px;max-height:200px;overflow-y:auto}
-.rs-item{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--lt)}
-.rs-item:last-child{border-bottom:none}
-.rs-num{width:22px;height:22px;border-radius:50%;background:var(--p);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.rs-info{flex:1;min-width:0}
-.rs-name{font-size:13px;font-weight:700;color:var(--tx)}
-.rs-addr{font-size:11px;color:var(--mu);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rm-btns{display:flex;gap:8px}
-.rm-open{flex:1;background:#1a73e8;color:#fff;border:none;border-radius:11px;padding:13px;font-family:var(--ff);font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
-.rm-cancel{background:var(--lt);color:var(--tx);border:none;border-radius:11px;padding:13px 16px;font-family:var(--ff);font-weight:700;font-size:14px;cursor:pointer}
-.rm-note{font-size:11px;color:var(--mu);text-align:center;margin-top:11px;line-height:1.5}
-
-/* PDF */
-@media print{#pg-auth,#pg-app,.toast{display:none!important}#print-content{display:block!important}}
+/* PDF PRINT */
+@media print{
+  #pg-auth,#pg-app,.toast{display:none!important}
+  #print-content{display:block!important}
+}
 </style>
 </head>
 <body>
@@ -200,123 +134,88 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:480px;
     <p>Delivery Partner Portal</p>
   </div>
   <div class="a-card">
+    <div class="fg"><label class="lbl">Rider Email</label><input id="r-em" class="inp" type="email" placeholder="rider@email.com"></div>
     <div id="rider-creds-hint" class="creds-hint">✅ Credentials filled from last session</div>
-    <div class="fg"><label class="lbl-field">Rider Email</label><input id="r-em" class="inp" type="email" placeholder="rider@email.com" inputmode="email"></div>
-    <div class="fg"><label class="lbl-field">Password</label>
-      <div class="pw-wrap">
-        <input id="r-pw" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-        <button type="button" class="pw-eye" onclick="togglePw('r-pw',this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button>
-      </div>
-    </div>
-    <button class="btn btn-p btn-full" id="login-btn" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login &amp; Start Delivery</button>
+    <div class="fg"><label class="lbl">Password</label><div class="pw-wrap"><input id="r-pw" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="pw-eye" onclick="togglePw('r-pw',this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button></div></div>
+    <button class="btn btn-p btn-full" id="login-btn" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login & Start Delivery</button>
   </div>
 </div>
 
 <!-- APP -->
 <div id="pg-app">
-
   <nav class="rider-nav">
     <div class="r-info">
       <h3 id="r-name">Rider</h3>
       <p><span class="dot"></span>Online · Ready for delivery</p>
     </div>
-    <div style="display:flex;gap:6px">
-      <button class="btn btn-ghost btn-sm" onclick="exportPDF()" title="Export PDF"><i class="fa-solid fa-file-pdf"></i></button>
-      <button class="btn btn-ghost btn-sm" onclick="loadOrders()" title="Refresh"><i class="fa-solid fa-rotate"></i></button>
-      <button class="btn btn-ghost btn-sm" onclick="doLogout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="exportPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </nav>
 
+  <!-- STATS (always shows total for all orders) -->
   <div class="stats">
     <div class="sp"><div class="n" id="s-total" style="color:var(--o)">0</div><div class="l">Total</div></div>
-    <div class="sp"><div class="n" id="s-pend" style="color:var(--y)">0</div><div class="l">Active</div></div>
-    <div class="sp"><div class="n" id="s-done" style="color:var(--g)">0</div><div class="l">Done</div></div>
+    <div class="sp"><div class="n" id="s-pend" style="color:var(--y)">0</div><div class="l">Pending</div></div>
+    <div class="sp"><div class="n" id="s-done" style="color:#4ecdc4">0</div><div class="l">Delivered</div></div>
   </div>
 
-  <!-- Route Map Banner (only on active tab) -->
-  <button class="route-banner" id="route-banner-btn" onclick="showRouteModal('all')">
-    <div class="rb-text">
-      <h4>🗺️ Plan Delivery Route</h4>
-      <p>Open all active stops in Google Maps — free navigation</p>
+  <!-- ── TWO-LEVEL FILTER SECTION ── -->
+  <div class="filter-section">
+    <div class="filter-section-title"><i class="fa-solid fa-filter"></i> Filter Orders</div>
+
+    <!-- Level 1: Date filter -->
+    <div class="filter-row">
+      <span class="f-label">📅 Date</span>
+      <input type="date" class="f-date" id="filter-date" onchange="applyFilters()">
+      <button class="f-reset" onclick="clearDate()" title="Clear date" style="padding:9px 11px">✕</button>
     </div>
-    <div class="rb-icon">📍</div>
-  </button>
 
-  <!-- Search Bar -->
-  <div class="search-wrap">
-    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-    <input class="search-inp" id="search-inp" type="text" placeholder="Search by name, mobile or address…" oninput="onSearch(this.value)">
-    <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
-  </div>
+    <!-- Level 2: Day / Night + Status -->
+    <div class="filter-row">
+      <span class="f-label">🕐 Slot</span>
+      <select class="f-select" id="filter-type" onchange="applyFilters()">
+        <option value="all">All Slots</option>
+        <option value="day">☀️ Day (Morning, before 11:30 AM)</option>
+        <option value="night">🌙 Night (Evening, 11:30 AM+)</option>
+      </select>
+    </div>
 
-  <!-- Two-Tab Layout -->
-  <div class="tab-bar">
-    <button class="tab-btn act" id="tab-active" onclick="switchTab('active')">
-      <i class="fa-solid fa-truck-fast"></i> Out for Delivery
-      <span class="tab-count" id="tab-active-count">0</span>
-    </button>
-    <button class="tab-btn" id="tab-delivered" onclick="switchTab('delivered')">
-      <i class="fa-solid fa-circle-check"></i> Delivered
-      <span class="tab-count" id="tab-delivered-count">0</span>
-    </button>
-  </div>
+    <div class="filter-row">
+      <span class="f-label">📋 Status</span>
+      <select class="f-select" id="filter-status" onchange="applyFilters()">
+        <option value="all">All Status</option>
+        <option value="active">Active (not delivered)</option>
+        <option value="pending">Pending</option>
+        <option value="preparing">Preparing</option>
+        <option value="out for delivery">Out for Delivery</option>
+        <option value="delivered">Delivered</option>
+      </select>
+    </div>
 
-  <!-- Delivered Tab Filters (hidden when on active tab) -->
-  <div class="filter-wrap hide" id="delivered-filters">
-    <button class="filter-toggle" id="ftbtn" onclick="toggleFilters()">
-      <span><i class="fa-solid fa-sliders" style="color:var(--p);margin-right:7px"></i>Filter Delivered Orders</span>
-      <i class="fa-solid fa-chevron-down arr"></i>
-    </button>
-    <div class="filter-body hide" id="fbody">
-      <div class="filter-row">
-        <span class="f-label">📅 Date</span>
-        <input type="date" class="f-date" id="filter-date" onchange="renderDelivered()">
-        <button class="f-clr" onclick="doc('filter-date').value='';renderDelivered()">✕</button>
-      </div>
-      <div class="filter-row">
-        <span class="f-label">🕐 Slot</span>
-        <select class="f-select" id="filter-slot" onchange="renderDelivered()">
-          <option value="all">All Slots</option>
-          <option value="day">☀️ Morning</option>
-          <option value="night">🌙 Evening</option>
-        </select>
-      </div>
-      <div class="filter-acts">
-        <button class="f-reset" onclick="doc('filter-date').value='';doc('filter-slot').value='all';renderDelivered()">Reset Filters</button>
-      </div>
+    <!-- Active filter tags & actions -->
+    <div id="active-filter-tags"></div>
+    <div class="filter-actions">
+      <button class="f-apply" onclick="applyFilters()"><i class="fa-solid fa-filter"></i> Apply Filter</button>
+      <button class="f-reset" onclick="resetFilters()"><i class="fa-solid fa-xmark"></i> Reset</button>
     </div>
   </div>
 
   <div class="ord-hdr">
-    <h3 id="section-title">Active Deliveries</h3>
-    <span class="ord-count-tag" id="ord-count-badge"></span>
+    <h3>Deliveries <span class="ord-count-badge" id="ord-count-badge"></span></h3>
+    <button class="btn btn-ghost btn-sm" onclick="loadOrders()"><i class="fa-solid fa-rotate"></i> Refresh</button>
   </div>
 
   <div id="orders-con">
     <div class="empty"><span>⏳</span><p>Loading orders...</p></div>
   </div>
-
 </div>
 
-<!-- Route Modal -->
-<div class="route-overlay hide" id="route-modal" onclick="closeRouteModal(event)">
-  <div class="route-box">
-    <h3 id="rm-title">📍 Delivery Route</h3>
-    <div class="rm-desc" id="rm-desc">Opening all active stops in Google Maps.</div>
-    <div class="rm-stops" id="rm-stops"></div>
-    <div class="rm-btns">
-      <button class="rm-cancel" onclick="closeRouteModal()">Cancel</button>
-      <button class="rm-open" onclick="openRouteInMaps()">
-        <i class="fa-solid fa-map-location-dot"></i> Open in Google Maps
-      </button>
-    </div>
-    <div class="rm-note">💡 Tap <strong>Optimise route</strong> inside Google Maps to auto-arrange stops for shortest path.</div>
-  </div>
-</div>
-
+<!-- Hidden print area -->
 <div id="print-content" style="display:none"></div>
-<div class="toast" id="toast"></div>
 
+<div class="toast" id="toast"></div>
 <script>
 const CFG={
   GAS:'https://script.google.com/macros/s/AKfycbwHq-D_E4_aD2W3R9TmaTk39pW87El0UCN89Vrjx4lUUhWRnMJbcsuUZLt1trwjkAq8Yg/exec',
@@ -328,47 +227,75 @@ async function api(action,data={}){
   const timer=setTimeout(()=>ctrl.abort(),20000);
   try{
     const r=await fetch(CFG.GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,data,apiKey:CFG.KEY}),signal:ctrl.signal});
-    clearTimeout(timer);const res=await r.json();
+    clearTimeout(timer);
+    const res=await r.json();
     if(!res.success) throw new Error(res.error||'API error');
     return res.data;
-  }catch(e){clearTimeout(timer);if(e.name==='AbortError') throw new Error('Request timed out.');throw e;}
+  }catch(e){
+    clearTimeout(timer);
+    if(e.name==='AbortError') throw new Error('Request timed out. Please retry.');
+    throw e;
+  }
 }
 
-// ══ AUTH ══
+// ── AUTH — Credentials-only localStorage, session in-memory ──
+// Only email+password saved for autofill. Rider data loaded fresh from sheet.
 let _rider=null;
 
-function togglePw(id,btn){
-  const inp=doc(id),icon=btn.querySelector('i');if(!inp) return;
-  if(inp.type==='password'){inp.type='text';icon.classList.replace('fa-eye','fa-eye-slash');}
-  else{inp.type='password';icon.classList.replace('fa-eye-slash','fa-eye');}
+// Password show/hide toggle
+function togglePw(inputId,btn){
+  const inp=doc(inputId), icon=btn.querySelector('i');
+  if(!inp) return;
+  if(inp.type==='password'){ inp.type='text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
+  else{ inp.type='password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
 }
 
+// WhatsApp opener — works from any app (WhatsApp, Telegram, Chrome)
+function openWA(phone,encodedMsg){
+  const url='https://wa.me/'+phone+(encodedMsg?'?text='+encodedMsg:'');
+  try{
+    const a=document.createElement('a'); a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }catch(e){ window.open(url,'_blank'); }
+}
+
+// Rider credentials store — ONLY email+password
 const RCreds={
-  save:(em,pw)=>{try{localStorage.setItem('hb_rider_creds',JSON.stringify({em,pw}));}catch{}},
-  get:()=>{try{return JSON.parse(localStorage.getItem('hb_rider_creds'));}catch{return null;}}
+  save:(em,pw)=>{ try{ localStorage.setItem('hb_rider_creds',JSON.stringify({em,pw})); }catch{} },
+  get:()=>{ try{ return JSON.parse(localStorage.getItem('hb_rider_creds')); }catch{ return null; } },
+  clear:()=>{ try{ localStorage.removeItem('hb_rider_creds'); }catch{} }
 };
 
 function autofillRiderCreds(){
   const c=RCreds.get();
   if(c&&c.em&&c.pw){
-    try{doc('r-em').value=c.em;doc('r-pw').value=c.pw;doc('rider-creds-hint').classList.add('show');}catch{}
+    try{
+      doc('r-em').value=c.em;
+      doc('r-pw').value=c.pw;
+      const hint=doc('rider-creds-hint');
+      if(hint) hint.classList.add('show');
+    }catch{}
   }
 }
 
 async function doLogin(){
-  const em=doc('r-em').value.trim(),pw=doc('r-pw').value;
+  const em=doc('r-em').value.trim(), pw=doc('r-pw').value;
   if(!em||!pw) return toast('Email aur password daalein');
   const btn=doc('login-btn');
-  btn.innerHTML='<span class="spin"></span> Logging in...';btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span> Logging in...'; btn.disabled=true;
   try{
+    // Always verify+load from sheet
     _rider=await api('riderLogin',{email:em,password:pw});
-    RCreds.save(em,pw);showApp();
-  }catch(e){toast('❌ '+e.message);}
-  finally{btn.innerHTML='<i class="fa-solid fa-right-to-bracket"></i> Login &amp; Start Delivery';btn.disabled=false;}
+    // Save ONLY credentials for autofill
+    RCreds.save(em,pw);
+    showApp();
+  }catch(e){ toast('❌ '+e.message); }
+  finally{ btn.innerHTML='<i class="fa-solid fa-right-to-bracket"></i> Login & Start Delivery'; btn.disabled=false; }
 }
 
 function doLogout(){
   if(!confirm('Logout?')) return;
+  // Clear session — NOT credentials (keep for autofill)
   _rider=null;
   doc('pg-app').style.display='none';
   doc('pg-auth').style.display='flex';
@@ -378,374 +305,464 @@ function doLogout(){
 function showApp(){
   doc('pg-auth').style.display='none';
   doc('pg-app').style.display='block';
-  doc('r-name').textContent='Hi, '+(_rider.name||'Rider')+' 👋';
+  doc('r-name').textContent='Hello, '+(_rider.name||'Rider');
   loadOrders();
 }
 
-// ══ ORDERS ══
-let _orders=[];        // all orders from server (filtered server-side)
-let _activeOrders=[];  // orderStatus === 'out for delivery' (approved)
-let _deliveredOrders=[];// orderStatus === 'delivered'
-let _currentTab='active'; // 'active' | 'delivered'
-let _searchQ='';
+// ── ORDERS ──
+let _orders=[];
+let _filteredOrders=[];
 
 async function loadOrders(){
   if(!_rider) return;
   doc('orders-con').innerHTML='<div class="empty"><span>⏳</span><p>Loading...</p></div>';
   try{
     _orders=await api('getRiderOrders',{riderId:_rider.riderId});
-    // Split into active (out for delivery) and delivered
-    _activeOrders=_orders.filter(o=>o.orderStatus==='out for delivery');
-    _deliveredOrders=_orders.filter(o=>o.orderStatus==='delivered')
-      .sort((a,b)=>{
-        const ta=Number(String(a.orderId).replace('HB-','').split('-')[0])||0;
-        const tb=Number(String(b.orderId).replace('HB-','').split('-')[0])||0;
-        return tb-ta; // newest first
-      });
-    updateStats();
-    updateTabCounts();
-    if(_currentTab==='active') renderActive();
-    else renderDelivered();
-  }catch(e){toast('❌ '+e.message);}
+    applyFilters();
+  }catch(e){ toast('❌ '+e.message); }
 }
 
-// ══ TAB SWITCHING ══
-function switchTab(tab){
-  _currentTab=tab;
-  _searchQ='';
-  doc('search-inp').value='';
-  doc('search-clear').classList.remove('show');
+// ══════════════════════════════════════════════════
+// TIME PARSING — determines if an order is Day or Night
+// Day   = morning menu = order time before 11:30 AM (hour < 11.5)
+// Night = evening menu = order time 11:30 AM onwards
+// o.time examples: "10:30 am", "11:45 AM", "07:15 PM", "12:00 pm"
+// ══════════════════════════════════════════════════
+function getOrderHour(timeStr){
+  if(!timeStr && timeStr !== 0) return -1;
 
-  doc('tab-active').classList.toggle('act',tab==='active');
-  doc('tab-delivered').classList.toggle('act',tab==='delivered');
-  doc('route-banner-btn').classList.toggle('hide',tab==='delivered');
-  doc('delivered-filters').classList.toggle('hide',tab==='active');
-
-  if(tab==='active'){
-    doc('section-title').textContent='Active Deliveries';
-    renderActive();
-  } else {
-    doc('section-title').textContent='Delivered Orders';
-    renderDelivered();
+  // Case 1: actual JS Date object
+  if(timeStr instanceof Date){
+    const ist=new Date(timeStr.getTime()+5.5*60*60*1000);
+    return ist.getUTCHours() + ist.getUTCMinutes()/60;
   }
+
+  const s=String(timeStr).replace(/[\u00a0\u202f\u2009\u200b]/g,' ').trim();
+
+  // Case 2: ISO datetime string — Sheets time-only cells serialize as
+  // "1899-12-30T04:30:00.000Z" (Excel epoch). Apply +5:30 to get IST hours.
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){
+    const ist=new Date(new Date(s).getTime()+5.5*60*60*1000);
+    if(!isNaN(ist.getTime())) return ist.getUTCHours() + ist.getUTCMinutes()/60;
+  }
+
+  // Case 3: "HH:MM am/pm" string (normal stored text)
+  const lower=s.toLowerCase();
+  const match=lower.match(/(\d{1,2}):(\d{2})\s*(am|pm)?/);
+  if(!match) return -1;
+  let h=parseInt(match[1]);
+  const m=parseInt(match[2]);
+  const period=match[3]||'';
+  if(period==='pm'&&h!==12) h+=12;
+  if(period==='am'&&h===12) h=0;
+  return h + m/60;
 }
 
-// ══ SEARCH ══
-function onSearch(q){
-  _searchQ=q.trim().toLowerCase();
-  doc('search-clear').classList.toggle('show',_searchQ.length>0);
-  if(_currentTab==='active') renderActive();
-  else renderDelivered();
-}
-function clearSearch(){
-  _searchQ='';
-  doc('search-inp').value='';
-  doc('search-clear').classList.remove('show');
-  if(_currentTab==='active') renderActive();
-  else renderDelivered();
-}
-function matchesSearch(o){
-  if(!_searchQ) return true;
-  return (
-    String(o.name||'').toLowerCase().includes(_searchQ)||
-    String(o.phone||'').replace(/\D/g,'').includes(_searchQ.replace(/\D/g,''))||
-    String(o.address||'').toLowerCase().includes(_searchQ)
-  );
+function isDayOrder(o){
+  // Day order = morning slot = placed before 11:30 AM
+  const h=getOrderHour(o.time);
+  if(h<0) return true; // fallback: treat unknown as day
+  return h < 11.5;
 }
 
-// ══ TIME / DATE HELPERS ══
-function getOrderHour(t){
-  if(!t&&t!==0) return -1;
-  if(t instanceof Date){const i=new Date(t.getTime()+5.5*3600000);return i.getUTCHours()+i.getUTCMinutes()/60;}
-  const s=String(t).replace(/[\u00a0\u202f\u2009\u200b]/g,' ').trim();
-  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){const i=new Date(new Date(s).getTime()+5.5*3600000);if(!isNaN(i.getTime())) return i.getUTCHours()+i.getUTCMinutes()/60;}
-  const m=s.toLowerCase().match(/(\d{1,2}):(\d{2})\s*(am|pm)?/);
-  if(!m) return -1;
-  let h=parseInt(m[1]);const mn=parseInt(m[2]),p=m[3]||'';
-  if(p==='pm'&&h!==12) h+=12;if(p==='am'&&h===12) h=0;
-  return h+mn/60;
-}
-function isDayOrder(o){const h=getOrderHour(o.time);return h<0?true:h<11.5;}
+// ══════════════════════════════════════════════════
+// DATE PARSING — converts any date format → "YYYY-MM-DD" for comparison
+// Handles ALL cases that can come from the API:
+//   1. JS Date object  (rare — only if parsed before JSON serialize)
+//   2. ISO string      "2026-04-03T18:30:00.000Z"  ← what JSON actually sends
+//   3. DD/MM/YYYY      "03/04/2026"                 ← en-IN locale string
+//   4. YYYY-MM-DD      "2026-04-03"                 ← passthrough
+// For ISO strings from Sheets: date cells stored as midnight UTC become
+// e.g. "2026-04-02T18:30:00.000Z" which is 2026-04-03 IST (+5:30)
+// We apply the +5:30 offset to get the correct IST date.
+// ══════════════════════════════════════════════════
+function orderDateToISO(dateStr){
+  if(!dateStr && dateStr !== 0) return '';
 
-function orderDateToISO(d){
-  if(!d&&d!==0) return '';
-  if(d instanceof Date){const i=new Date(d.getTime()+5.5*3600000);return `${i.getUTCFullYear()}-${String(i.getUTCMonth()+1).padStart(2,'0')}-${String(i.getUTCDate()).padStart(2,'0')}`;}
-  const s=String(d).trim();
+  // Case 1: actual JS Date object
+  if(dateStr instanceof Date){
+    const ist=new Date(dateStr.getTime()+5.5*60*60*1000);
+    return `${ist.getUTCFullYear()}-${String(ist.getUTCMonth()+1).padStart(2,'0')}-${String(ist.getUTCDate()).padStart(2,'0')}`;
+  }
+
+  const s=String(dateStr).trim();
+
+  // Case 4: already YYYY-MM-DD — passthrough
   if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){const i=new Date(new Date(s).getTime()+5.5*3600000);if(!isNaN(i.getTime())) return `${i.getUTCFullYear()}-${String(i.getUTCMonth()+1).padStart(2,'0')}-${String(i.getUTCDate()).padStart(2,'0')}`;}
-  const p=s.split('/');if(p.length===3&&p[2].trim().length===4) return `${p[2].trim()}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+
+  // Case 2: ISO datetime string e.g. "2026-04-03T18:30:00.000Z" or "2026-04-03T00:00:00.000Z"
+  // Apply +5:30 IST offset to get correct local date
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){
+    const ist=new Date(new Date(s).getTime()+5.5*60*60*1000);
+    if(!isNaN(ist.getTime()))
+      return `${ist.getUTCFullYear()}-${String(ist.getUTCMonth()+1).padStart(2,'0')}-${String(ist.getUTCDate()).padStart(2,'0')}`;
+  }
+
+  // Case 3: DD/MM/YYYY or D/M/YYYY (en-IN locale string stored as text)
+  const parts=s.split('/');
+  if(parts.length===3){
+    const dd=parts[0].padStart(2,'0');
+    const mm=parts[1].padStart(2,'0');
+    const yyyy=parts[2].trim();
+    if(yyyy.length===4) return `${yyyy}-${mm}-${dd}`;
+  }
+
   return '';
 }
 
-function fmtDate(v){
-  if(!v&&v!==0) return '';
-  const p=(raw)=>{const i=new Date(new Date(raw).getTime()+5.5*3600000);if(isNaN(i.getTime())) return null;return String(i.getUTCDate()).padStart(2,'0')+'/'+String(i.getUTCMonth()+1).padStart(2,'0')+'/'+i.getUTCFullYear();};
-  if(v instanceof Date) return p(v)||String(v);
-  const s=String(v).trim();
-  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return p(s)||s;
-  return s;
-}
-function fmtTime(v){
-  if(!v&&v!==0) return '';
-  const p=(raw)=>{const i=new Date(new Date(raw).getTime()+5.5*3600000);if(isNaN(i.getTime())) return null;let h=i.getUTCHours(),m=i.getUTCMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+ap;};
-  if(v instanceof Date) return p(v)||String(v);
-  const s=String(v).trim();
-  if(/^\d{4}-\d{2}-\d{2}T/.test(s)) return p(s)||s;
-  return s.replace(/[\u00a0\u202f\u2009]/g,' ');
-}
+// ══════════════════════════════════════════════════
+// APPLY FILTERS — two-level: date + slot + status
+// All three filters work together (AND logic)
+// ══════════════════════════════════════════════════
+function applyFilters(){
+  const dateVal=doc('filter-date').value;    // YYYY-MM-DD or empty
+  const typeVal=doc('filter-type').value;    // all | day | night
+  const stVal  =doc('filter-status').value;  // all | active | pending | preparing | out for delivery | delivered
 
-// ══ STATS & TAB COUNTS ══
-function updateStats(){
-  doc('s-total').textContent=_orders.length;
-  doc('s-pend').textContent=_activeOrders.length;
-  doc('s-done').textContent=_deliveredOrders.length;
-}
-function updateTabCounts(){
-  doc('tab-active-count').textContent=_activeOrders.length;
-  doc('tab-delivered-count').textContent=_deliveredOrders.length;
-}
-
-// ══ RENDER ACTIVE TAB — Morning/Evening groups ══
-function renderActive(){
-  const list=_activeOrders.filter(matchesSearch);
-  const b=doc('ord-count-badge');
-  if(b) b.textContent=list.length+' order'+(list.length!==1?'s':'');
-
-  if(!list.length){
-    doc('orders-con').innerHTML=`<div class="empty"><span>${_searchQ?'🔍':'🎉'}</span><p>${_searchQ?'No results for "'+esc(_searchQ)+'"':'All orders delivered!'}</p></div>`;
-    return;
-  }
-  const dayList=[...list.filter(o=>isDayOrder(o))].sort(sortOldest);
-  const ngtList=[...list.filter(o=>!isDayOrder(o))].sort(sortOldest);
-  let html='';
-  if(dayList.length){
-    html+=`<div class="group-hdr">
-      <div class="group-pill pill-day"><i class="fa-solid fa-sun"></i> Morning</div>
-      <span class="group-cnt">${dayList.length} order${dayList.length>1?'s':''}</span>
-      <button class="group-route-btn" onclick="showRouteModal('day')"><i class="fa-solid fa-route"></i> Route</button>
-    </div>`;
-    dayList.forEach(o=>{ html+=renderCard(o,false); });
-  }
-  if(ngtList.length){
-    html+=`<div class="group-hdr"${dayList.length?' style="margin-top:4px"':''}>
-      <div class="group-pill pill-ngt"><i class="fa-solid fa-moon"></i> Evening</div>
-      <span class="group-cnt">${ngtList.length} order${ngtList.length>1?'s':''}</span>
-      <button class="group-route-btn" onclick="showRouteModal('night')"><i class="fa-solid fa-route"></i> Route</button>
-    </div>`;
-    ngtList.forEach(o=>{ html+=renderCard(o,false); });
-  }
-  html+='<div style="height:20px"></div>';
-  doc('orders-con').innerHTML=html;
-}
-
-function sortOldest(a,b){
-  const ta=Number(String(a.orderId).replace('HB-','').split('-')[0])||0;
-  const tb=Number(String(b.orderId).replace('HB-','').split('-')[0])||0;
-  return ta-tb;
-}
-
-// ══ RENDER DELIVERED TAB — newest first, with filters ══
-function renderDelivered(){
-  const dv=doc('filter-date').value;
-  const tv=doc('filter-slot').value;
-  let list=_deliveredOrders.filter(o=>{
-    if(!matchesSearch(o)) return false;
-    if(dv&&orderDateToISO(o.date)!==dv) return false;
-    if(tv!=='all'){const d=isDayOrder(o);if(tv==='day'&&!d) return false;if(tv==='night'&&d) return false;}
+  _filteredOrders=_orders.filter(o=>{
+    // ── Level 1: Date filter ──
+    if(dateVal){
+      const oISO=orderDateToISO(o.date);
+      if(oISO!==dateVal) return false;
+    }
+    // ── Level 2a: Day/Night slot filter ──
+    if(typeVal!=='all'){
+      const dayOrder=isDayOrder(o);
+      if(typeVal==='day'  && !dayOrder) return false;
+      if(typeVal==='night' && dayOrder) return false;
+    }
+    // ── Level 2b: Status filter ──
+    if(stVal==='active'){
+      if(o.orderStatus==='delivered') return false;
+    } else if(stVal!=='all'){
+      if(o.orderStatus!==stVal) return false;
+    }
     return true;
   });
-  const b=doc('ord-count-badge');
-  if(b) b.textContent=list.length+' delivered';
+
+  updateStats();
+  renderActiveFilterTags(dateVal, typeVal, stVal);
+  renderOrders();
+}
+
+function clearDate(){
+  doc('filter-date').value='';
+  applyFilters();
+}
+
+function resetFilters(){
+  doc('filter-date').value='';
+  doc('filter-type').value='all';
+  doc('filter-status').value='all';
+  _filteredOrders=[..._orders];
+  updateStats();
+  renderActiveFilterTags('','all','all');
+  renderOrders();
+}
+
+// ── Show active filter summary tags ──
+function renderActiveFilterTags(dateVal, typeVal, stVal){
+  const tags=[];
+  if(dateVal) tags.push(`📅 ${dateVal}`);
+  if(typeVal!=='all') tags.push(typeVal==='day'?'☀️ Day Orders':'🌙 Night Orders');
+  if(stVal!=='all') tags.push(`Status: ${stVal}`);
+
+  const el=doc('active-filter-tags');
+  if(!tags.length){ el.innerHTML=''; return; }
+  el.innerHTML=`<div class="active-filter-tag">🔍 Filtering: <span>${tags.join(' &amp; ')}</span> · ${_filteredOrders.length} order${_filteredOrders.length!==1?'s':''} shown</div>`;
+}
+
+// ── Display helpers: format date/time for rendering ──
+// Handles: JS Date object, ISO datetime string, DD/MM/YYYY string
+function fmtDate(v){
+  if(!v && v!==0) return '';
+  const parseIST=(raw)=>{
+    const ist=new Date(new Date(raw).getTime()+5.5*60*60*1000);
+    if(isNaN(ist.getTime())) return null;
+    return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
+  };
+  if(v instanceof Date) return parseIST(v)||String(v);
+  const s=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)||/^\d{4}-\d{2}-\d{2}$/.test(s)){
+    return parseIST(s)||s;
+  }
+  return s; // already "DD/MM/YYYY" string
+}
+function fmtTime(v){
+  if(!v && v!==0) return '';
+  const parseIST=(raw)=>{
+    const ist=new Date(new Date(raw).getTime()+5.5*60*60*1000);
+    if(isNaN(ist.getTime())) return null;
+    let h=ist.getUTCHours(), mn=ist.getUTCMinutes();
+    const p=h>=12?'PM':'AM'; h=h%12||12;
+    return String(h).padStart(2,'0')+':'+String(mn).padStart(2,'0')+' '+p;
+  };
+  if(v instanceof Date) return parseIST(v)||String(v);
+  const s=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)) return parseIST(s)||s;
+  return s.replace(/[\u00a0\u202f\u2009]/g,' '); // plain "HH:MM am/pm" string
+}
+
+// ── Stats always show totals for all loaded orders ──
+function updateStats(){
+  doc('s-total').textContent=_orders.length;
+  doc('s-pend').textContent=_orders.filter(o=>o.orderStatus!=='delivered').length;
+  doc('s-done').textContent=_orders.filter(o=>o.orderStatus==='delivered').length;
+  const badge=doc('ord-count-badge');
+  if(badge){
+    if(_filteredOrders.length!==_orders.length){
+      badge.textContent=`${_filteredOrders.length} of ${_orders.length} shown`;
+    } else {
+      badge.textContent=`${_orders.length} total`;
+    }
+  }
+}
+
+// ── RENDER ORDERS ──
+function renderOrders(){
+  const list=_filteredOrders;
   if(!list.length){
-    doc('orders-con').innerHTML=`<div class="empty"><span>${_searchQ||dv||tv!=='all'?'🔍':'📭'}</span><p>${_searchQ||dv||tv!=='all'?'No results for filters':'No delivered orders yet'}</p></div>`;
+    const anyFilter=doc('filter-date').value||doc('filter-type').value!=='all'||doc('filter-status').value!=='all';
+    doc('orders-con').innerHTML=`<div class="empty"><span>${anyFilter?'🔍':'📭'}</span><p>${anyFilter?'No orders match this filter!':'No orders assigned yet'}</p></div>`;
     return;
   }
-  let html=list.map(o=>renderCard(o,true)).join('');
-  html+='<div style="height:20px"></div>';
-  doc('orders-con').innerHTML=html;
-}
-
-// ══ RENDER CARD ══
-function renderCard(o, isDone){
-  let items=[]; try{items=safeP(o.items);}catch{}
-  const mapsUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address)}`;
-  const waMsg=`Hello ${o.name}! Main aapka Home Bite order deliver karne aa raha hoon.\n\nOrder: ${o.orderId}\nAmount: \u20b9${o.finalAmount}`;
-  const waUrl='https://wa.me/91'+String(o.phone).replace(/\D/g,'')+'?text='+encodeURIComponent(waMsg);
-  const itemsSummary=items.slice(0,2).map(i=>`${i.name}${i.selectedVariant?` (${i.selectedVariant})`:''}×${i.qty}`).join(', ')+(items.length>2?` +${items.length-2}more`:'');
-  const payLbl=o.userType==='subscriber'?'👑 Wallet':isDone?'💰 Collected':'💰 Collect';
-
-  const actionRow=isDone
-    ? `<div class="oc-act">
-        <a href="tel:${esc(o.phone)}" class="ab ab-call"><i class="fa-solid fa-phone"></i>Call</a>
-        <a href="${mapsUrl}" target="_blank" rel="noopener" class="ab ab-maps"><i class="fa-solid fa-map-location-dot"></i>Maps</a>
-        <a href="${waUrl}" target="_blank" rel="noopener" class="ab ab-wa"><i class="fa-brands fa-whatsapp"></i>Chat</a>
-        <span class="ab" style="background:var(--gl);color:var(--g);pointer-events:none"><i class="fa-solid fa-circle-check"></i>Delivered</span>
-      </div>`
-    : `<div class="oc-act">
-        <a href="tel:${esc(o.phone)}" class="ab ab-call"><i class="fa-solid fa-phone"></i>Call</a>
-        <a href="${mapsUrl}" target="_blank" rel="noopener" class="ab ab-maps"><i class="fa-solid fa-map-location-dot"></i>Maps</a>
-        <a href="${waUrl}" target="_blank" rel="noopener" class="ab ab-wa"><i class="fa-brands fa-whatsapp"></i>Chat</a>
-        <button class="btn-deliver" id="bd-${esc(o.orderId)}" onclick="markDelivered('${esc(o.orderId)}',this)">
-          <i class="fa-solid fa-circle-check"></i> Mark Delivered
-        </button>
-      </div>`;
-
-  return `<div class="o-card${isDone?' done':''}" id="oc-${o.orderId.replace(/[^a-zA-Z0-9_-]/g,'')}">
-  <div class="oc-top">
-    <span class="oc-id">${esc(o.orderId)} &nbsp;·&nbsp; ${esc(fmtDate(o.date))} ${esc(fmtTime(o.time))}</span>
-    <span class="bdg ${isDone?'b-g':'b-bl'}">${isDone?'Delivered':'Out for Delivery'}</span>
-  </div>
-  <div class="oc-cust">
-    <div class="oc-avatar">👤</div>
-    <div class="oc-info">
-      <div class="oc-name">${esc(o.name)}</div>
-      <a href="tel:${esc(o.phone)}" class="oc-phone"><i class="fa-solid fa-phone"></i>${esc(o.phone)}</a>
-      <div class="oc-addr"><i class="fa-solid fa-location-dot" style="color:var(--p);font-size:10px;margin-right:3px"></i>${esc(o.address)}</div>
-      <a href="${mapsUrl}" target="_blank" rel="noopener" class="oc-maps-link"><i class="fa-solid fa-map-location-dot"></i> Google Maps</a>
-    </div>
-  </div>
-  <div class="oc-items-row">
-    <span class="oc-items-txt">🍱 ${esc(itemsSummary)||'—'}</span>
-    <div class="oc-amt-block">
-      <div class="oc-amt">₹${Number(o.finalAmount).toFixed(0)}</div>
-      <div class="oc-pay-lbl">${payLbl}</div>
-    </div>
-  </div>
-  ${actionRow}
-</div>`;
-}
-
-// ══ ONE-TAP MARK DELIVERED ══
-async function markDelivered(orderId, btn){
-  btn.classList.add('loading');
-  btn.innerHTML='<span class="spin"></span> Updating...';
-  try{
-    await api('updateOrderStatus',{orderId,status:'delivered',riderId:_rider.riderId});
-    toast('✅ Marked as Delivered!');
-    // Move order from active to delivered locally (no full reload needed)
-    const idx=_activeOrders.findIndex(o=>o.orderId===orderId);
-    if(idx>=0){
-      const o={..._activeOrders[idx],orderStatus:'delivered'};
-      _activeOrders.splice(idx,1);
-      _deliveredOrders.unshift(o); // newest first
-    }
-    // Also update _orders array
-    const gi=_orders.findIndex(o=>o.orderId===orderId);
-    if(gi>=0){_orders[gi].orderStatus='delivered';}
-    updateStats();
-    updateTabCounts();
-    // Animate card out then re-render
-    const card=doc('oc-'+orderId.replace(/[^a-zA-Z0-9_-]/g,''));
-    if(card){card.style.transition='opacity .3s,transform .3s';card.style.opacity='0';card.style.transform='translateX(30px)';setTimeout(()=>renderActive(),320);}
-    else renderActive();
-  }catch(e){
-    toast('❌ '+e.message);
-    btn.classList.remove('loading');
-    btn.innerHTML='<i class="fa-solid fa-circle-check"></i> Mark Delivered';
-  }
-}
-
-// ══ ROUTE MAP ══
-let _routeOrders=[];
-
-function showRouteModal(slot){
-  let src=_activeOrders; // only active (out for delivery) orders
-  if(slot==='day') src=src.filter(o=>isDayOrder(o));
-  else if(slot==='night') src=src.filter(o=>!isDayOrder(o));
-  if(!src.length){toast('No active orders for this slot');return;}
-  _routeOrders=[...src].sort(sortOldest);
-  const label=slot==='day'?'☀️ Morning Route':slot==='night'?'🌙 Evening Route':'🗺️ All Active Deliveries';
-  doc('rm-title').textContent=label;
-  doc('rm-desc').textContent=`${_routeOrders.length} stop${_routeOrders.length>1?'s':''} · Starting from your current location`;
-  doc('rm-stops').innerHTML=_routeOrders.map((o,i)=>`
-    <div class="rs-item">
-      <div class="rs-num">${i+1}</div>
-      <div class="rs-info">
-        <div class="rs-name">${esc(o.name)} <span style="color:var(--p);font-weight:800">₹${Number(o.finalAmount).toFixed(0)}</span></div>
-        <div class="rs-addr">${esc(o.address)}</div>
+  const sc={pending:'b-y',preparing:'b-o','out for delivery':'b-bl',delivered:'b-g'};
+  doc('orders-con').innerHTML=list.map((o,idx)=>{
+    const globalIdx=_orders.indexOf(o);
+    let items=[]; try{ items=safeP(o.items); }catch{}
+    const mapsUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address)}`;
+    const waMsg=`Hello ${o.name}! Main aapka Home Bite order deliver karne aa raha hoon.\n\nOrder: ${o.orderId}\nAmount: ₹${o.finalAmount}`;
+    // Day/Night label tag
+    const isDay=isDayOrder(o);
+    const typeTag=`<span class="o-type-tag ${isDay?'tag-day':'tag-night'}">${isDay?'☀️ Day':'🌙 Night'}</span>`;
+    return `
+    <div class="o-card" id="oc-${idx}">
+      <div class="o-top">
+        <div>
+          <div class="o-id">${esc(o.orderId)}</div>
+          <div class="o-dt">${esc(fmtDate(o.date))} · ${esc(fmtTime(o.time))}</div>
+          ${typeTag}
+        </div>
+        <span class="bdg ${sc[o.orderStatus]||'b-y'}">${esc(o.orderStatus)}</span>
       </div>
-    </div>`).join('');
-  doc('route-modal').classList.remove('hide');
+      <div class="cust">
+        <div class="cust-nm">${esc(o.name)}</div>
+        <div class="cust-addr"><i class="fa-solid fa-location-dot" style="color:var(--p);margin-right:5px"></i>${esc(o.address)}</div>
+        <div class="act-row">
+          <a href="tel:${esc(o.phone)}" class="a-btn call"><i class="fa-solid fa-phone"></i> ${esc(o.phone)}</a>
+          <a href="${mapsUrl}" target="_blank" class="a-btn maps"><i class="fa-solid fa-map-location-dot"></i> Maps</a>
+          <a href="${'https://wa.me/91'+String(o.phone).replace(/\D/g,'')+'?text='+encodeURIComponent(waMsg)}" target="_blank" class="a-btn wa" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <div class="items-sec">
+        <h5>Items — ordered on ${esc(fmtDate(o.date))} at ${esc(fmtTime(o.time))}</h5>
+        ${items.map(i=>`<div class="irow"><span>${esc(i.name)}${i.selectedVariant?` <span style="color:var(--mu)">(${esc(i.selectedVariant)})</span>`:''} <span style="color:var(--mu)">×${i.qty}</span></span><span class="pr">₹${Number(i.price)*i.qty}</span></div>`).join('')}
+      </div>
+      <div class="amt-sec">
+        <span class="amt-lbl">${o.userType==='subscriber'?'👑 Subscriber — Deduct from wallet':'💰 Collect cash/UPI'}</span>
+        <span class="amt-val">₹${Number(o.finalAmount).toFixed(0)}</span>
+      </div>
+      <div class="act-sec">
+        <select class="st-sel" id="sel-${idx}">
+          <option value="pending" ${o.orderStatus==='pending'?'selected':''}>Pending</option>
+          <option value="preparing" ${o.orderStatus==='preparing'?'selected':''}>Preparing</option>
+          <option value="out for delivery" ${o.orderStatus==='out for delivery'?'selected':''}>Out for Delivery</option>
+          <option value="delivered" ${o.orderStatus==='delivered'?'selected':''}>Delivered ✓</option>
+        </select>
+        <button class="upd-btn" onclick="updateStatus('${esc(o.orderId)}',${idx},${globalIdx})"><i class="fa-solid fa-check"></i></button>
+        <button class="pdf-btn" onclick="printOrder(${idx})" title="Print this order"><i class="fa-solid fa-print"></i></button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function closeRouteModal(e){
-  if(e&&e.target!==doc('route-modal')) return;
-  doc('route-modal').classList.add('hide');
-}
-
-function openRouteInMaps(){
-  if(!_routeOrders.length) return;
-  const MAX=9;
-  const stops=_routeOrders.slice(0,MAX).map(o=>encodeURIComponent(o.address.trim()));
-  const url='https://www.google.com/maps/dir/Current+Location/'+stops.join('/');
-  if(_routeOrders.length>MAX) toast(`Showing first ${MAX} of ${_routeOrders.length} stops (Maps limit)`);
-  doc('route-modal').classList.add('hide');
+// ── UPDATE STATUS ──
+async function updateStatus(orderId,filtIdx,globalIdx){
+  const status=doc('sel-'+filtIdx).value;
   try{
-    const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';
-    document.body.appendChild(a);a.click();document.body.removeChild(a);
-  }catch(e){window.open(url,'_blank');}
+    await api('updateOrderStatus',{orderId,status,riderId:_rider.riderId});
+    toast('✅ Status updated!');
+    if(globalIdx>=0){ _orders[globalIdx].orderStatus=status; _orders[globalIdx].riderId=_rider.riderId; }
+    if(_filteredOrders[filtIdx]){ _filteredOrders[filtIdx].orderStatus=status; _filteredOrders[filtIdx].riderId=_rider.riderId; }
+    updateStats(); renderOrders();
+  }catch(e){ toast('❌ '+e.message); }
 }
 
-// ══ FILTER TOGGLE (Delivered tab) ══
-function toggleFilters(){
-  const btn=doc('ftbtn'),body=doc('fbody');
-  btn.classList.toggle('open');body.classList.toggle('hide');
-}
-
-// ══ PDF EXPORT — individual ORDER TOTAL per card, NO grand total ══
+// ══════════════════════════════════════════════════
+// PDF EXPORT — exports ONLY the currently filtered orders
+// Includes which filters are active in the header
+// ══════════════════════════════════════════════════
 function exportPDF(){
-  // Export active orders (out for delivery) for current delivery sheet
-  const src=_activeOrders.length?_activeOrders:_orders.filter(o=>o.orderStatus!=='delivered');
-  if(!src.length){toast('No active orders to export');return;}
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Delivery Sheet</title>
-<style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;padding:16px;font-size:13px;color:#111;max-width:760px;margin:0 auto}
-h1{font-size:18px;color:#e63946;margin-bottom:3px}.sub{color:#999;font-size:11px;margin-bottom:12px}
-.ord{border:1px solid #e5e7eb;border-radius:8px;padding:11px;margin-bottom:12px;page-break-inside:avoid}
-.oh{display:flex;justify-content:space-between;margin-bottom:7px}
-.tt{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;display:inline-block}
-.td{background:#fffde7;color:#c67c00;border:1px solid #fde68a}.tn{background:#e3f2fd;color:#1565c0;border:1px solid #90caf9}
-.row{display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px}
-.sep{border-top:1px dashed #e5e7eb;margin:7px 0}.tot{font-size:15px;font-weight:800;color:#e63946}
-a{color:#2a9d8f}@media print{.np{display:none!important}}</style></head><body>
-<h1>🍱 Home Bite – Delivery Sheet</h1>
-<div class="sub">Rider: ${esc(_rider.name)} | ${new Date().toLocaleString('en-IN')} | ${src.length} order(s)</div>
-<button class="np" onclick="window.print()" style="background:#e63946;color:#fff;padding:8px 16px;border:none;border-radius:7px;font-weight:bold;cursor:pointer;margin-bottom:12px">🖨️ Print / Save PDF</button>
-${src.map((o,i)=>{
-  let items=[]; try{items=safeP(o.items);}catch{}
-  const mu=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address)}`;
-  const isDay=isDayOrder(o);
-  return `<div class="ord">
-<div class="oh"><div><b>#${i+1} · ${esc(o.orderId)}</b><br><span class="tt ${isDay?'td':'tn'}">${isDay?'☀️ Morning':'🌙 Evening'}</span></div></div>
-<div style="font-weight:700">${esc(o.name)}</div><div><a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>
-<div class="sep"></div>
-<div>${esc(o.address)}</div><a href="${mu}">📍 Google Maps</a>
-<div class="sep"></div>
-${items.map(it=>`<div class="row"><span>${esc(it.name)}${it.selectedVariant?` (${esc(it.selectedVariant)})`:''} ×${it.qty}</span><span>₹${Number(it.price)*it.qty}</span></div>`).join('')}
-${Number(o.deliveryCharge)>0?`<div class="row"><span style="color:#999">Delivery</span><span>₹${o.deliveryCharge}</span></div>`:''}
-${Number(o.discount)>0?`<div class="row"><span style="color:#2a9d8f">Discount</span><span>−₹${o.discount}</span></div>`:''}
-<div class="sep"></div>
-<div class="row"><span class="tot">ORDER TOTAL</span><span class="tot">₹${Number(o.finalAmount).toFixed(0)}</span></div>
-<div style="font-size:11px;color:#666;margin-top:5px">${o.userType==='subscriber'?'👑 Wallet':'💰 Collect'} | ${esc(fmtDate(o.date))} ${esc(fmtTime(o.time))}</div>
-</div>`; }).join('')}
-</body></html>`;
+  const toExport=_filteredOrders.length?_filteredOrders:_orders;
+  if(!toExport.length){ toast('No orders to export'); return; }
+
+  const dateVal=doc('filter-date').value;
+  const typeVal=doc('filter-type').value;
+  const stVal=doc('filter-status').value;
+
+  // Build filter description for PDF header
+  const filterParts=[];
+  if(dateVal) filterParts.push(`Date: ${dateVal}`);
+  else filterParts.push('Date: All');
+  if(typeVal==='day') filterParts.push('Slot: ☀️ Day (Morning)');
+  else if(typeVal==='night') filterParts.push('Slot: 🌙 Night (Evening)');
+  else filterParts.push('Slot: All');
+  if(stVal!=='all') filterParts.push(`Status: ${stVal}`);
+  const filterNote=filterParts.join(' | ')+` | ${toExport.length} order(s)`;
+
+  // Grand total of the exported orders
+  const grandTotal=toExport.reduce((s,o)=>s+Number(o.finalAmount||0),0);
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Delivery Sheet – ${dateVal||'All'}</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:Arial,sans-serif;padding:20px;font-size:13px;color:#111;max-width:800px;margin:0 auto}
+    h1{font-size:20px;color:#e63946;margin-bottom:4px}
+    .sub{color:#999;font-size:11px;margin-bottom:4px}
+    .filter-note{background:#fff3e0;border:1px solid #f4a261;border-radius:6px;padding:8px 12px;font-size:11px;font-weight:700;color:#c45500;margin-bottom:16px}
+    .summary{background:#fde8ea;border:1px solid #e63946;border-radius:8px;padding:10px 14px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+    .summary-lbl{font-size:12px;font-weight:700;color:#c1121f}
+    .summary-val{font-size:20px;font-weight:900;color:#e63946}
+    .ord{border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:16px;page-break-inside:avoid}
+    .ord-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:8px}
+    .oid{font-weight:800;font-size:14px}
+    .type-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;margin-top:3px;display:inline-block}
+    .tag-day{background:#fffde7;color:#c67c00;border:1px solid #ffd166}
+    .tag-night{background:#e3f2fd;color:#1565c0;border:1px solid #90caf9}
+    .bdg{padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;border:1px solid #e5e7eb}
+    .row{display:flex;justify-content:space-between;margin-bottom:5px;font-size:13px}
+    .lbl{color:#999;font-size:11px;font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
+    .sep{border-top:1px dashed #e5e7eb;margin:10px 0}
+    a{color:#2a9d8f}
+    .total{font-size:17px;font-weight:800;color:#e63946}
+    .no-print{display:block}
+    @media print{.no-print{display:none!important}body{padding:10px}}
+  </style></head><body>
+  <h1>🍱 Home Bite – Delivery Sheet</h1>
+  <div class="sub">Rider: ${esc(_rider.name)} &nbsp;|&nbsp; Generated: ${new Date().toLocaleString('en-IN')}</div>
+  <div class="filter-note">📋 Filter Applied: ${filterNote}</div>
+  <div class="summary">
+    <div><div class="summary-lbl">Total Orders Shown</div><div style="font-size:17px;font-weight:800">${toExport.length}</div></div>
+    <div style="text-align:right"><div class="summary-lbl">Total Collection</div><div class="summary-val">₹${grandTotal.toFixed(0)}</div></div>
+  </div>
+  <button class="no-print" onclick="window.print()" style="background:#e63946;color:#fff;padding:10px 20px;border:none;border-radius:8px;font-weight:bold;cursor:pointer;margin-bottom:16px;font-size:13px">🖨️ Print / Save as PDF</button>
+  ${toExport.map((o,i)=>{
+    let items=[]; try{ items=safeP(o.items); }catch{}
+    const mapsUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address)}`;
+    const isDay=isDayOrder(o);
+    return `<div class="ord">
+      <div class="ord-hd">
+        <div>
+          <div class="oid">#${i+1} · ${esc(o.orderId)}</div>
+          <span class="type-tag ${isDay?'tag-day':'tag-night'}">${isDay?'☀️ Day (Morning)':'🌙 Night (Evening)'}</span>
+        </div>
+        <span class="bdg">${esc(o.orderStatus)}</span>
+      </div>
+      <div class="lbl">Customer</div>
+      <div style="font-weight:700;margin-bottom:3px">${esc(o.name)}</div>
+      <div><a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>
+      <div class="sep"></div>
+      <div class="lbl">Delivery Address</div>
+      <div style="margin-bottom:4px">${esc(o.address)}</div>
+      <a href="${mapsUrl}">📍 Open in Google Maps</a>
+      <div class="sep"></div>
+      <div class="lbl">Items</div>
+      ${items.map(it=>`<div class="row"><span>${esc(it.name)}${it.selectedVariant?` (${esc(it.selectedVariant)})`:''} ×${it.qty}</span><span>₹${Number(it.price)*it.qty}</span></div>`).join('')}
+      ${Number(o.deliveryCharge)>0?`<div class="row"><span style="color:#999">Delivery charge</span><span>₹${o.deliveryCharge}</span></div>`:''}
+      ${Number(o.discount)>0?`<div class="row"><span style="color:#2a9d8f">Discount</span><span style="color:#2a9d8f">−₹${o.discount}</span></div>`:''}
+      <div class="sep"></div>
+      <div class="row"><span class="total">TOTAL</span><span class="total">₹${Number(o.finalAmount).toFixed(0)}</span></div>
+      <div style="margin-top:8px;font-size:12px;color:#666">${o.userType==='subscriber'?'👑 Subscriber – Deduct from wallet':'💰 Collect cash / UPI'}</div>
+      <div style="margin-top:6px;font-size:11px;color:#999">Date: ${esc(fmtDate(o.date))} · ${esc(fmtTime(o.time))}</div>
+    </div>`;
+  }).join('')}
+  </body></html>`;
+
   const win=window.open('','_blank');
-  if(!win){toast('Popup blocked!');return;}
-  win.document.write(html);win.document.close();
+  if(!win){ toast('Popup blocked! Allow popups.'); return; }
+  win.document.write(html);
+  win.document.close();
+}
+
+// ══════════════════════════════════════════════════
+// SINGLE ORDER PRINT — always prints the specific order
+// idx is the index in _filteredOrders (current visible list)
+// ══════════════════════════════════════════════════
+function printOrder(idx){
+  const o=_filteredOrders[idx];
+  if(!o){ toast('Order not found'); return; }
+  let items=[]; try{ items=safeP(o.items); }catch{}
+  const mapsUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address)}`;
+  const isDay=isDayOrder(o);
+
+  const win=window.open('','_blank');
+  if(!win){ toast('Popup blocked! Allow popups.'); return; }
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Order ${o.orderId}</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:Arial,sans-serif;padding:20px;max-width:380px;margin:0 auto;font-size:14px}
+    h1{font-size:20px;color:#e63946;margin-bottom:4px}
+    .sub{color:#999;font-size:11px;margin-bottom:18px}
+    .sec{margin-bottom:14px}
+    .lbl{font-size:10px;font-weight:bold;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+    .val{font-weight:700;font-size:15px}
+    .type-tag{font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;display:inline-block;margin-top:4px}
+    .tag-day{background:#fffde7;color:#c67c00;border:1px solid #ffd166}
+    .tag-night{background:#e3f2fd;color:#1565c0;border:1px solid #90caf9}
+    table{width:100%;border-collapse:collapse;margin:6px 0}
+    td{padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+    td:last-child{text-align:right;font-weight:700}
+    .tot{font-size:17px;font-weight:900;color:#e63946}
+    a{color:#2a9d8f}
+    @media print{button{display:none}}
+  </style></head><body>
+  <h1>🍱 Home Bite</h1>
+  <div class="sub">Delivery Receipt</div>
+  <div class="sec">
+    <div class="lbl">Order ID</div>
+    <div class="val">${esc(o.orderId)}</div>
+    <span class="type-tag ${isDay?'tag-day':'tag-night'}">${isDay?'☀️ Day (Morning)':'🌙 Night (Evening)'}</span>
+  </div>
+  <div class="sec"><div class="lbl">Date & Time</div><div class="val">${esc(fmtDate(o.date))} · ${esc(fmtTime(o.time))}</div></div>
+  <div class="sec"><div class="lbl">Customer</div><div class="val">${esc(o.name)}</div><a href="tel:${esc(o.phone)}" style="font-size:15px;font-weight:700">${esc(o.phone)}</a></div>
+  <div class="sec"><div class="lbl">Delivery Address</div><div class="val" style="font-size:14px">${esc(o.address)}</div><a href="${mapsUrl}" target="_blank">📍 Open in Google Maps</a></div>
+  <div class="sec"><div class="lbl">Items</div>
+    <table>
+      ${items.map(i=>`<tr><td>${esc(i.name)}${i.selectedVariant?` (${esc(i.selectedVariant)})`:''} × ${i.qty}</td><td>₹${Number(i.price)*i.qty}</td></tr>`).join('')}
+      ${Number(o.deliveryCharge)>0?`<tr><td style="color:#999">Delivery</td><td>₹${o.deliveryCharge}</td></tr>`:''}
+      ${Number(o.discount)>0?`<tr><td style="color:#2a9d8f">Discount</td><td style="color:#2a9d8f">−₹${o.discount}</td></tr>`:''}
+      <tr class="tot"><td>TOTAL</td><td>₹${Number(o.finalAmount).toFixed(0)}</td></tr>
+    </table>
+  </div>
+  <div class="sec"><div class="lbl">Payment</div><div class="val">${o.userType==='subscriber'?'👑 Subscriber – Deduct from wallet':'💰 Collect ₹'+Number(o.finalAmount).toFixed(0)+' (cash/UPI)'}</div></div>
+  <br>
+  <button onclick="window.print()" style="background:#e63946;color:#fff;padding:12px 24px;border:none;border-radius:8px;font-weight:bold;cursor:pointer;font-size:14px;width:100%">🖨️ Print / Save PDF</button>
+  </body></html>`);
+  win.document.close();
 }
 
 // ── UTILS ──
-function doc(id){return document.getElementById(id);}
-function esc(s){if(!s) return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function toast(msg){const t=doc('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
-function safeP(v){if(Array.isArray(v)) return v;if(typeof v==='object'&&v!==null) return v;if(!v||typeof v!=='string') return [];try{return JSON.parse(v);}catch{return [];}}
+function doc(id){ return document.getElementById(id); }
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg){ const t=doc('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),3000); }
+function safeP(v){ if(Array.isArray(v)) return v; if(typeof v==='object'&&v!==null) return v; if(!v||typeof v!=='string') return []; try{ return JSON.parse(v); }catch{ return []; } }
 
-// ── INIT ──
+// ── INIT — No auto-login, autofill credentials only ──
 window.addEventListener('DOMContentLoaded',()=>{
-  try{localStorage.removeItem('hb_rider');}catch{}
+  // Clean up any legacy hb_rider data from older versions
+  try{ localStorage.removeItem('hb_rider'); }catch{}
+  // Autofill saved credentials for convenience
   autofillRiderCreds();
+  // Default date = today (IST)
+  const istNow=new Date(new Date().getTime()+5.5*60*60*1000);
+  const yyyy=istNow.getUTCFullYear();
+  const mm=String(istNow.getUTCMonth()+1).padStart(2,'0');
+  const dd=String(istNow.getUTCDate()).padStart(2,'0');
+  doc('filter-date').value=`${yyyy}-${mm}-${dd}`;
 });
 
-setInterval(()=>{if(_rider&&!document.hidden) loadOrders();},90000);
+// Auto-refresh every 90s
+setInterval(()=>{ if(_rider && !document.hidden) loadOrders(); }, 90000);
 </script>
 </body>
 </html>

@@ -401,7 +401,7 @@ tr:hover td{background:#fafafa}
     <select id="mi-type" class="inp"><option value="morning">Morning (Before 11:30 AM)</option><option value="evening">Evening (After 11:30 AM)</option></select></div>
   <div class="fg"><label class="lbl">Availability</label>
     <select id="mi-avail" class="inp"><option value="TRUE">Available</option><option value="FALSE">Not Available</option></select></div>
-  <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-menu')">Cancel</button><button class="btn btn-p" id="menu-submit-btn" onclick="submitMenu()"><i class="fa-solid fa-check"></i> Save</button></div>
+  <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-menu')">Cancel</button><button class="btn btn-p" onclick="submitMenu()"><i class="fa-solid fa-check"></i> Save</button></div>
 </div></div>
 
 <!-- Coupon -->
@@ -646,12 +646,7 @@ function filterOrd(f,btn){
 
 function renderOrds(){
   const srch=(doc('ord-srch').value||'').toLowerCase();
-  // Compute today's date in IST so the Today filter always matches correctly
-  // regardless of the admin's browser timezone
-  const istNow = new Date(Date.now() + 5.5 * 60 * 60 * 1000);
-  const today = String(istNow.getUTCDate()).padStart(2,'0') + '/' +
-                String(istNow.getUTCMonth()+1).padStart(2,'0') + '/' +
-                istNow.getUTCFullYear();
+  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
   const sc={pending:'b-y',preparing:'b-o','out for delivery':'b-bl',delivered:'b-g',paid:'b-g'};
 
   let filtered=_ords.filter(o=>{
@@ -810,7 +805,7 @@ function renderMenu(){
     const vars=safeP(item.variants);
     const varStr=vars.length?vars.map(v=>`${v.label}:₹${v.price}`).join(', '):'—';
     return `<tr>
-      <td><img src="${esc(resolveImg(item.imageUrl))||'https://picsum.photos/seed/'+item.itemId+'/44'}" style="width:44px;height:44px;object-fit:cover;border-radius:8px" onerror="this.src='https://picsum.photos/44'"></td>
+      <td><img src="${esc(item.imageUrl)||'https://picsum.photos/seed/'+item.itemId+'/44'}" style="width:44px;height:44px;object-fit:cover;border-radius:8px" onerror="this.src='https://picsum.photos/44'"></td>
       <td style="font-weight:700">${esc(item.name)}</td>
       <td>${esc(item.category)}</td>
       <td><strong>₹${Number(item.price).toFixed(0)}</strong></td>
@@ -857,8 +852,7 @@ function renderVarRows(){
 }
 
 async function submitMenu(){
-  const _sbtn=doc('menu-submit-btn');
-  if(_sbtn){_sbtn.disabled=true; _sbtn.innerHTML='<span class="spin"></span> Saving...';}
+  const _sbtn=doc('menu-submit-btn'); if(_sbtn){_sbtn.disabled=true;}
   const itemId=doc('mi-id').value;
   const variants=_varRows.filter(v=>v.label&&v.price);
   const data={
@@ -866,13 +860,12 @@ async function submitMenu(){
     price:doc('mi-price').value||'0', variants,
     imageUrl:doc('mi-img').value.trim(), menuType:doc('mi-type').value, availability:doc('mi-avail').value
   };
-  if(!data.name) { if(_sbtn){_sbtn.disabled=false;_sbtn.innerHTML='<i class="fa-solid fa-check"></i> Save';} return toast('Item name required'); }
+  if(!data.name) return toast('Item name required');
   try{
     if(itemId){ await api('updateMenuItem',{itemId,...data}); toast('✅ Updated!'); }
     else{ await api('addMenuItem',data); toast('✅ Added!'); }
     closeMo('mo-menu'); loadMenu();
   }catch(e){ toast('❌ '+e.message); }
-  finally{ if(_sbtn){_sbtn.disabled=false; _sbtn.innerHTML='<i class="fa-solid fa-check"></i> Save';} }
 }
 
 async function delMenu(itemId,name){
@@ -1060,18 +1053,6 @@ async function saveCutoffSettings(){
 // ════════════════════════════════════════════════
 function doc(id){ return document.getElementById(id); }
 function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-// Normalize image URLs (Google Drive share links, ibb.co gallery links)
-function resolveImg(url){
-  if(!url) return '';
-  url=String(url).trim().replace(/\/$/,'');
-  const driveMatch=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if(driveMatch) return 'https://drive.google.com/uc?export=view&id='+driveMatch[1];
-  const driveOpen=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if(url.includes('drive.google.com')&&driveOpen) return 'https://drive.google.com/uc?export=view&id='+driveOpen[1];
-  // ibb.co gallery page links (not direct) can't be used as img src
-  if(/^https?:\/\/ibb\.co\/[^\/]+$/.test(url)) return '';
-  return url;
-}
 // Shared IST parser: any date/time value → IST-adjusted Date
 function toIST(v){
   if(!v) return null;
