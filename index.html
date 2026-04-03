@@ -33,6 +33,9 @@ body{font-family:var(--fb);color:var(--dk);width:100%;max-width:520px;margin:0 a
   transition:opacity .3s;
 }
 #app-loader.fade-out{opacity:0;pointer-events:none}
+/* Safety fallback: auto-hide loader after 6s if JS crashes before bootApp runs */
+@keyframes loaderAutoHide{0%,83%{opacity:1;pointer-events:auto}100%{opacity:0;pointer-events:none}}
+#app-loader{animation:loaderAutoHide 6s forwards}
 #app-loader .logo-mark{font-family:var(--ff);font-size:28px;font-weight:900;color:var(--p)}
 #app-loader .tagline{font-size:12px;color:var(--gr);font-weight:600;font-style:italic}
 #app-loader .loader-ring{
@@ -1129,9 +1132,9 @@ function updateCutoffBanner(cfg, currentH, menuType) {
   const [nH, nM] = (cfg.cutoffNight || '19:30').split(':').map(Number);
   const dayCutoff = dH + dM/60, nightCutoff = nH + nM/60;
   let closed = false;
-  if (menuType === 'morning' && currentH >= dayCutoff) { closed = true; msgEl.textContent = 'Orders closed for lunch'; subEl.textContent = `Cutoff was ${cfg.cutoffDay} AM`; }
-  else if (menuType === 'evening' && currentH >= nightCutoff) { closed = true; msgEl.textContent = 'Orders closed for dinner'; subEl.textContent = `Cutoff was ${cfg.cutoffNight} IST`; }
-  else { msgEl.textContent = 'Orders open'; subEl.textContent = menuType === 'morning' ? `Closes at ${cfg.cutoffDay} AM` : `Closes at ${cfg.cutoffNight} IST`; banner.style.background = 'linear-gradient(135deg,#2a9d8f,#1d7a6f)'; }
+  if (menuType === 'morning' && currentH >= dayCutoff) { closed = true; msgEl.textContent = '🔴 Closed'; subEl.textContent = `Closed at ${cfg.cutoffDay} AM IST`; banner.style.background = 'linear-gradient(135deg,#e63946,#c1121f)'; }
+  else if (menuType === 'evening' && currentH >= nightCutoff) { closed = true; msgEl.textContent = '🔴 Closed'; subEl.textContent = `Closed at ${cfg.cutoffNight} IST`; banner.style.background = 'linear-gradient(135deg,#e63946,#c1121f)'; }
+  else { msgEl.textContent = '🟢 Open'; subEl.textContent = menuType === 'morning' ? `Closes at ${cfg.cutoffDay} AM IST` : `Closes at ${cfg.cutoffNight} IST`; banner.style.background = 'linear-gradient(135deg,#2a9d8f,#1d7a6f)'; }
   banner.classList.remove('hide');
   if (placeBtn) placeBtn.disabled = closed;
 }
@@ -1318,12 +1321,12 @@ function renderOrders(orders) {
     const txt = items.map(i => `${i.name}${i.selectedVariant ? ` (${i.selectedVariant})` : ''} ×${i.qty}`).join(', ');
     return `<div class="ord-card">
       <div class="ord-hd">
-        <div><div class="ord-id">${esc(o.orderId)}</div><div class="ord-dt">${esc(fmtDate(o.date))} · ${esc(fmtTime(o.time))}</div></div>
+        <div><div class="ord-id">${esc(o.orderId)}</div><div class="ord-dt">${esc(fmtDate(o.createdAt||o.date))} · ${esc(fmtTime(o.createdAt||o.time))}</div></div>
         <span class="bdg ${sc[o.orderStatus] || 'b-y'}">${esc(o.orderStatus)}</span>
       </div>
       <div class="ord-items">${esc(txt)}</div>
       <div class="ord-ft">
-        <span class="ord-amt">₹${Number(o.finalAmount).toFixed(0)}</span>
+        <span class="ord-amt">₹${(Number(o.finalAmount)||0).toFixed(0)}</span>
         <div style="display:flex;gap:6px">
           <span class="bdg ${o.paymentStatus === 'paid' ? 'b-g' : 'b-y'}">${esc(o.paymentStatus)}</span>
           <button class="btn btn-sm btn-ghost" onclick="openWA('${CFG.WA}','')">Help</button>

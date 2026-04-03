@@ -468,9 +468,12 @@ function switchTab(tab){
 }
 
 // ══ SEARCH ══
-// onSearchInput: called on every keystroke — only updates the ✕ clear button visibility
+// onSearchInput: called on every keystroke — updates _searchQ and re-renders live
 function onSearchInput(q){
+  _searchQ = q.trim().toLowerCase();
   doc('search-clear').classList.toggle('show', q.length > 0);
+  if(_currentTab==='active') renderActive();
+  else renderDelivered();
 }
 // doSearch: triggered by Search button or Enter key — commits the query and re-renders
 function doSearch(){
@@ -656,7 +659,9 @@ function renderCard(o, isDone){
   let items=[]; try{items=safeP(o.items);}catch{}
   const mapsUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address)}`;
   const waMsg=`Hello ${o.name}! Main aapka Home Bite order deliver karne aa raha hoon.\n\nOrder: ${o.orderId}\nAmount: \u20b9${o.finalAmount}`;
-  const waUrl='https://wa.me/91'+String(o.phone).replace(/\D/g,'')+'?text='+encodeURIComponent(waMsg);
+  const rawPhone = String(o.phone).replace(/\D/g,'');
+  const waPhone = rawPhone.startsWith('91') && rawPhone.length === 12 ? rawPhone : '91' + rawPhone;
+  const waUrl='https://wa.me/'+waPhone+'?text='+encodeURIComponent(waMsg);
   const itemsSummary=items.slice(0,2).map(i=>`${i.name}${i.selectedVariant?` (${i.selectedVariant})`:''}×${i.qty}`).join(', ')+(items.length>2?` +${items.length-2}more`:'');
   const payLbl=o.userType==='subscriber'?'👑 Wallet':isDone?'💰 Collected':'💰 Collect';
 
@@ -678,7 +683,7 @@ function renderCard(o, isDone){
 
   return `<div class="o-card${isDone?' done':''}" id="oc-${o.orderId.replace(/[^a-zA-Z0-9_-]/g,'')}">
   <div class="oc-top">
-    <span class="oc-id">${esc(o.orderId)} &nbsp;·&nbsp; ${esc(fmtDate(o.date))} ${esc(fmtTime(o.time))}</span>
+    <span class="oc-id">${esc(o.orderId)} &nbsp;·&nbsp; ${esc(fmtDate(o.createdAt||o.date))} ${esc(fmtTime(o.createdAt||o.time))}</span>
     <span class="bdg ${isDone?'b-g':'b-bl'}">${isDone?'Delivered':'Out for Delivery'}</span>
   </div>
   <div class="oc-cust">
@@ -693,7 +698,7 @@ function renderCard(o, isDone){
   <div class="oc-items-row">
     <span class="oc-items-txt">🍱 ${esc(itemsSummary)||'—'}</span>
     <div class="oc-amt-block">
-      <div class="oc-amt">₹${Number(o.finalAmount).toFixed(0)}</div>
+      <div class="oc-amt">₹${(Number(o.finalAmount)||0).toFixed(0)}</div>
       <div class="oc-pay-lbl">${payLbl}</div>
     </div>
   </div>
@@ -747,7 +752,7 @@ function showRouteModal(slot){
     <div class="rs-item">
       <div class="rs-num">${i+1}</div>
       <div class="rs-info">
-        <div class="rs-name">${esc(o.name)} <span style="color:var(--p);font-weight:800">₹${Number(o.finalAmount).toFixed(0)}</span></div>
+        <div class="rs-name">${esc(o.name)} <span style="color:var(--p);font-weight:800">₹${(Number(o.finalAmount)||0).toFixed(0)}</span></div>
         <div class="rs-addr">${esc(o.address)}</div>
       </div>
     </div>`).join('');
@@ -814,8 +819,8 @@ ${items.map(it=>`<div class="row"><span>${esc(it.name)}${it.selectedVariant?` ($
 ${Number(o.deliveryCharge)>0?`<div class="row"><span style="color:#999">Delivery</span><span>₹${o.deliveryCharge}</span></div>`:''}
 ${Number(o.discount)>0?`<div class="row"><span style="color:#2a9d8f">Discount</span><span>−₹${o.discount}</span></div>`:''}
 <div class="sep"></div>
-<div class="row"><span class="tot">ORDER TOTAL</span><span class="tot">₹${Number(o.finalAmount).toFixed(0)}</span></div>
-<div style="font-size:11px;color:#666;margin-top:5px">${o.userType==='subscriber'?'👑 Wallet':'💰 Collect'} | ${esc(fmtDate(o.date))} ${esc(fmtTime(o.time))}</div>
+<div class="row"><span class="tot">ORDER TOTAL</span><span class="tot">₹${(Number(o.finalAmount)||0).toFixed(0)}</span></div>
+<div style="font-size:11px;color:#666;margin-top:5px">${o.userType==='subscriber'?'👑 Wallet':'💰 Collect'} | ${esc(fmtDate(o.createdAt||o.date))} ${esc(fmtTime(o.createdAt||o.time))}</div>
 </div>`; }).join('')}
 </body></html>`;
   const win=window.open('','_blank');
@@ -831,7 +836,6 @@ function safeP(v){if(Array.isArray(v)) return v;if(typeof v==='object'&&v!==null
 
 // ── INIT ──
 window.addEventListener('DOMContentLoaded',()=>{
-  try{localStorage.removeItem('hb_rider');}catch{}
   autofillRiderCreds();
 });
 
