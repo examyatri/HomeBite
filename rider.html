@@ -678,7 +678,7 @@ function renderCard(o, isDone){
 
   return `<div class="o-card${isDone?' done':''}" id="oc-${o.orderId.replace(/[^a-zA-Z0-9_-]/g,'')}">
   <div class="oc-top">
-    <span class="oc-id">${esc(o.orderId)} &nbsp;·&nbsp; ${esc(fmtDate(o.date))} ${esc(fmtTime(o.time))}</span>
+    <span class="oc-id">${esc(o.orderId)} &nbsp;·&nbsp; ${esc(fmtDate(o.createdAt||o.date))} ${esc(fmtTime(o.createdAt||o.time))}</span>
     <span class="bdg ${isDone?'b-g':'b-bl'}">${isDone?'Delivered':'Out for Delivery'}</span>
   </div>
   <div class="oc-cust">
@@ -815,7 +815,7 @@ ${Number(o.deliveryCharge)>0?`<div class="row"><span style="color:#999">Delivery
 ${Number(o.discount)>0?`<div class="row"><span style="color:#2a9d8f">Discount</span><span>−₹${o.discount}</span></div>`:''}
 <div class="sep"></div>
 <div class="row"><span class="tot">ORDER TOTAL</span><span class="tot">₹${Number(o.finalAmount).toFixed(0)}</span></div>
-<div style="font-size:11px;color:#666;margin-top:5px">${o.userType==='subscriber'?'👑 Wallet':'💰 Collect'} | ${esc(fmtDate(o.date))} ${esc(fmtTime(o.time))}</div>
+<div style="font-size:11px;color:#666;margin-top:5px">${o.userType==='subscriber'?'👑 Wallet':'💰 Collect'} | ${esc(fmtDate(o.createdAt||o.date))} ${esc(fmtTime(o.createdAt||o.time))}</div>
 </div>`; }).join('')}
 </body></html>`;
   const win=window.open('','_blank');
