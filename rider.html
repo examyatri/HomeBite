@@ -499,7 +499,7 @@ function renderOrders(){
         </div>
       </div>
       <div class="items-sec">
-        <h5>Items</h5>
+        <h5>Items — ordered on ${esc(fmtDate(o.date))} at ${esc(fmtTime(o.time))}</h5>
         ${items.map(i=>`<div class="irow"><span>${esc(i.name)}${i.selectedVariant?` <span style="color:var(--mu)">(${esc(i.selectedVariant)})</span>`:''} <span style="color:var(--mu)">×${i.qty}</span></span><span class="pr">₹${Number(i.price)*i.qty}</span></div>`).join('')}
       </div>
       <div class="amt-sec">

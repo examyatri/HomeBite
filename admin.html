@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Home Bite – Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -117,11 +117,22 @@ tr:hover td{background:#fafafa}
   .sb.open{transform:none}
   .sb-ov{display:block}
   .main{margin-left:0}
-  .ca{padding:14px}
-  .topbar{padding:14px 16px}
+  .ca{padding:12px}
+  .topbar{padding:12px 14px}
   .st-grid{grid-template-columns:1fr 1fr}
   #menu-toggle{display:block!important}
+  table{font-size:12px}
+  th,td{padding:8px 10px}
+  .mo-box{padding:18px;border-radius:16px}
 }
+@media(max-width:480px){
+  .st-grid{grid-template-columns:1fr 1fr}
+  .st-val{font-size:20px}
+  .fb{gap:5px}
+  .f-btn{padding:5px 10px;font-size:11px}
+}
+/* staff-hide: hidden for staff role */
+.staff-hide{display:none!important}
 </style>
 </head>
 <body>
@@ -129,8 +140,16 @@ tr:hover td{background:#fafafa}
 <!-- AUTH -->
 <div id="auth-pg">
   <div class="a-card">
-    <div class="a-logo"><h1>🍱 Home Bite</h1><p>Admin Control Center</p></div>
-    <div class="fg"><label class="lbl">Email</label><input id="a-em" class="inp" type="email" placeholder="admin@email.com"></div>
+    <div class="a-logo"><h1>🍱 Home Bite</h1><p id="auth-subtitle">Admin Control Center</p></div>
+    <div class="fg">
+      <label class="lbl">Login As</label>
+      <select id="a-role" class="inp" onchange="updateAuthUI()">
+        <option value="admin">Admin</option>
+        <option value="staff">Staff</option>
+      </select>
+    </div>
+    <div class="fg" id="a-em-fg"><label class="lbl">Email</label><input id="a-em" class="inp" type="email" placeholder="admin@email.com"></div>
+    <div class="fg" id="a-uid-fg" style="display:none"><label class="lbl">Staff Username</label><input id="a-uid" class="inp" type="text" placeholder="username"></div>
     <div class="fg"><label class="lbl">Password</label><input id="a-pw" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <button class="btn btn-p btn-full" id="login-btn" onclick="doLogin()"><i class="fa-solid fa-lock-open"></i> Access Dashboard</button>
   </div>
@@ -143,7 +162,7 @@ tr:hover td{background:#fafafa}
 
   <!-- SIDEBAR -->
   <aside class="sb" id="sidebar">
-    <div class="sb-logo"><h1>Home Bite</h1><p>Admin Panel</p></div>
+    <div class="sb-logo"><h1>Home Bite</h1><p id="sb-role-label">Admin Panel</p></div>
     <nav style="flex:1;padding:6px 0">
       <div class="sb-sec">Overview</div>
       <button class="ni act" id="ni-dashboard" onclick="showPg('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
@@ -155,10 +174,11 @@ tr:hover td{background:#fafafa}
       <div class="sb-sec">Users</div>
       <button class="ni" id="ni-subscribers" onclick="showPg('subscribers')"><i class="fa-solid fa-crown"></i> Subscribers</button>
       <button class="ni" id="ni-users" onclick="showPg('users')"><i class="fa-solid fa-users"></i> All Users</button>
-      <div class="sb-sec">Staff</div>
+      <div class="sb-sec">Delivery</div>
       <button class="ni" id="ni-riders" onclick="showPg('riders')"><i class="fa-solid fa-motorcycle"></i> Riders</button>
-      <div class="sb-sec">System</div>
-      <button class="ni" id="ni-settings" onclick="showPg('settings')"><i class="fa-solid fa-gear"></i> Settings</button>
+      <div class="sb-sec admin-only">Admin</div>
+      <button class="ni admin-only" id="ni-staff" onclick="showPg('staff')"><i class="fa-solid fa-id-badge"></i> Staff Members</button>
+      <button class="ni admin-only" id="ni-settings" onclick="showPg('settings')"><i class="fa-solid fa-gear"></i> Settings</button>
     </nav>
     <div class="sb-foot"><button class="btn btn-ghost btn-full" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button></div>
   </aside>
@@ -181,8 +201,8 @@ tr:hover td{background:#fafafa}
       <div class="pg-v act" id="pg-dashboard">
         <div class="st-grid" id="st-grid">
           <div class="st-card"><div class="st-ico">📦</div><div class="st-lbl">Today's Orders</div><div class="st-val" id="s-tod-ord">—</div></div>
-          <div class="st-card"><div class="st-ico">💰</div><div class="st-lbl">Today's Revenue</div><div class="st-val" id="s-tod-rev">—</div></div>
-          <div class="st-card"><div class="st-ico">📅</div><div class="st-lbl">Monthly Revenue</div><div class="st-val" id="s-mo-rev">—</div></div>
+          <div class="st-card revenue-card"><div class="st-ico">💰</div><div class="st-lbl">Today's Revenue</div><div class="st-val" id="s-tod-rev">—</div></div>
+          <div class="st-card revenue-card"><div class="st-ico">📅</div><div class="st-lbl">Monthly Revenue</div><div class="st-val" id="s-mo-rev">—</div></div>
           <div class="st-card"><div class="st-ico">🛒</div><div class="st-lbl">Total Orders</div><div class="st-val" id="s-tot-ord">—</div></div>
           <div class="st-card"><div class="st-ico">👥</div><div class="st-lbl">Total Users</div><div class="st-val" id="s-users">—</div></div>
           <div class="st-card"><div class="st-ico">👑</div><div class="st-lbl">Subscribers</div><div class="st-val" id="s-subs">—</div></div>
@@ -326,6 +346,15 @@ tr:hover td{background:#fafafa}
         </div>
       </div>
 
+      <!-- STAFF MANAGEMENT (Admin only) -->
+      <div class="pg-v" id="pg-staff">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn btn-p" onclick="openStaffModal()"><i class="fa-solid fa-plus"></i> Add Staff</button></div>
+        <div class="tc">
+          <div class="th"><h3>Staff Members</h3><span style="font-size:12px;color:var(--gr)">Staff can manage operations but cannot view revenue</span></div>
+          <div style="overflow-x:auto"><table><thead><tr><th>Username</th><th>Name</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody id="staff-tb"></tbody></table></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -402,6 +431,18 @@ tr:hover td{background:#fafafa}
   <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-rider')">Cancel</button><button class="btn btn-p" onclick="submitRider()"><i class="fa-solid fa-check"></i> Create</button></div>
 </div></div>
 
+<!-- Staff Modal -->
+<div class="mo hide" id="mo-staff"><div class="mo-box">
+  <div class="mo-t" id="mo-staff-t">Add Staff Member</div>
+  <input type="hidden" id="sf-orig-uid">
+  <div class="fg"><label class="lbl">Username *</label><input id="sf-uid" class="inp" type="text" placeholder="e.g. staff_raj"></div>
+  <div class="fg"><label class="lbl">Full Name *</label><input id="sf-nm" class="inp" type="text" placeholder="Staff full name"></div>
+  <div class="fg"><label class="lbl">Password *</label><input id="sf-pw" class="inp" type="password" placeholder="Min 6 characters"></div>
+  <div class="fg"><label class="lbl">Status</label>
+    <select id="sf-stat" class="inp"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+  <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-staff')">Cancel</button><button class="btn btn-p" onclick="submitStaff()"><i class="fa-solid fa-check"></i> Save</button></div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 <script>
 // ════════════════════════════════════════════════
@@ -419,30 +460,74 @@ async function api(action,data={}){
 }
 
 // ════════════════════════════════════════════════
-// AUTH — persists in sessionStorage
+// SESSION — localStorage (survives refresh)
 // ════════════════════════════════════════════════
+const Session={
+  get:()=>{ try{ return JSON.parse(localStorage.getItem('hb_admin')); }catch{ return null; } },
+  set:(s)=>localStorage.setItem('hb_admin',JSON.stringify(s)),
+  clear:()=>localStorage.removeItem('hb_admin'),
+  isAdmin:()=>{ const s=Session.get(); return s && s.role==='admin'; },
+  isStaff:()=>{ const s=Session.get(); return s && s.role==='staff'; }
+};
+
+// ════════════════════════════════════════════════
+// AUTH UI
+// ════════════════════════════════════════════════
+function updateAuthUI(){
+  const role=doc('a-role').value;
+  doc('a-em-fg').style.display=role==='admin'?'block':'none';
+  doc('a-uid-fg').style.display=role==='staff'?'block':'none';
+  doc('auth-subtitle').textContent=role==='admin'?'Admin Control Center':'Staff Portal';
+}
+
 async function doLogin(){
-  const em=doc('a-em').value.trim(),pw=doc('a-pw').value;
-  if(!em||!pw) return toast('Email and password required');
+  const role=doc('a-role').value;
+  const pw=doc('a-pw').value;
+  if(!pw) return toast('Password required');
   const btn=doc('login-btn');
   btn.innerHTML='<span class="spin"></span> Logging in...'; btn.disabled=true;
   try{
-    const admin=await api('adminLogin',{email:em,password:pw});
-    sessionStorage.setItem('hb_admin',JSON.stringify(admin));
-    showApp(admin);
+    if(role==='admin'){
+      const em=doc('a-em').value.trim();
+      if(!em) return toast('Email required');
+      const admin=await api('adminLogin',{email:em,password:pw});
+      Session.set({...admin,role:'admin'});
+      showApp(Session.get());
+    } else {
+      const uid=doc('a-uid').value.trim();
+      if(!uid) return toast('Username required');
+      const staff=await api('staffLogin',{username:uid,password:pw});
+      Session.set({...staff,role:'staff'});
+      showApp(Session.get());
+    }
   }catch(e){ toast('❌ '+e.message); }
   finally{ btn.innerHTML='<i class="fa-solid fa-lock-open"></i> Access Dashboard'; btn.disabled=false; }
 }
 
-function showApp(admin){
+function showApp(session){
   doc('auth-pg').classList.add('hide');
   doc('app').classList.remove('hide');
-  doc('admin-badge').textContent=admin.name||'Admin';
-  showPg('dashboard');
+  doc('admin-badge').textContent=(session.name||'User')+' · '+(session.role==='admin'?'Admin':'Staff');
+  doc('sb-role-label').textContent=session.role==='admin'?'Admin Panel':'Staff Panel';
+  applyRoleUI(session.role);
+  showPg(session.role==='admin'?'dashboard':'orders');
   if(window.innerWidth<=768){ doc('menu-toggle').style.display='block'; doc('sb-ov').classList.add('hide'); }
 }
 
-function doLogout(){ if(confirm('Logout?')){ sessionStorage.removeItem('hb_admin'); location.reload(); } }
+function applyRoleUI(role){
+  // Hide revenue cards for staff
+  document.querySelectorAll('.revenue-card').forEach(el=>{
+    el.style.display=role==='staff'?'none':'';
+  });
+  // Hide admin-only sidebar items for staff
+  document.querySelectorAll('.admin-only').forEach(el=>{
+    el.style.display=role==='staff'?'none':'';
+  });
+}
+
+function doLogout(){
+  if(confirm('Logout?')){ Session.clear(); location.reload(); }
+}
 
 // ════════════════════════════════════════════════
 // SIDEBAR (mobile)
@@ -454,7 +539,7 @@ function closeSb(){ doc('sidebar').classList.remove('open'); doc('sb-ov').classL
 // NAVIGATION
 // ════════════════════════════════════════════════
 let _curPg='dashboard';
-const _titles={dashboard:'Dashboard',orders:'Orders',bulk:'Bulk Orders',menu:'Menu Management',coupons:'Coupons',subscribers:'Subscribers',users:'All Users',riders:'Riders',settings:'Settings'};
+const _titles={dashboard:'Dashboard',orders:'Orders',bulk:'Bulk Orders',menu:'Menu Management',coupons:'Coupons',subscribers:'Subscribers',users:'All Users',riders:'Riders',staff:'Staff Members',settings:'Settings'};
 
 function showPg(name){
   document.querySelectorAll('.pg-v').forEach(p=>p.classList.remove('act'));
@@ -463,11 +548,11 @@ function showPg(name){
   const ni=doc('ni-'+name); if(ni) ni.classList.add('act');
   doc('pg-title').textContent=_titles[name]||name;
   _curPg=name; closeSb();
-  const loaders={dashboard:loadDash,orders:loadOrds,menu:loadMenu,coupons:loadCpns,subscribers:loadSubs,users:loadUsers,riders:loadRiders,bulk:initBulk,settings:loadSettings};
+  const loaders={dashboard:loadDash,orders:loadOrds,menu:loadMenu,coupons:loadCpns,subscribers:loadSubs,users:loadUsers,riders:loadRiders,bulk:initBulk,staff:loadStaff,settings:loadSettings};
   if(loaders[name]) loaders[name]();
 }
 
-function refreshCurrent(){ const m={dashboard:loadDash,orders:loadOrds,menu:loadMenu,coupons:loadCpns,subscribers:loadSubs,users:loadUsers,riders:loadRiders,bulk:initBulk,settings:loadSettings}; if(m[_curPg]) m[_curPg](); }
+function refreshCurrent(){ const m={dashboard:loadDash,orders:loadOrds,menu:loadMenu,coupons:loadCpns,subscribers:loadSubs,users:loadUsers,riders:loadRiders,bulk:initBulk,staff:loadStaff,settings:loadSettings}; if(m[_curPg]) m[_curPg](); }
 
 // ════════════════════════════════════════════════
 // DASHBOARD
@@ -948,13 +1033,59 @@ function safeP(v){ if(Array.isArray(v)) return v; if(typeof v==='object'&&v!==nu
 document.querySelectorAll('.mo').forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) m.classList.add('hide'); }); });
 
 // ════════════════════════════════════════════════
-// STARTUP
+// STAFF MANAGEMENT (Admin only)
+// ════════════════════════════════════════════════
+async function loadStaff(){
+  const tb=doc('staff-tb');
+  tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:28px;color:#999">Loading...</td></tr>';
+  try{
+    const staff=await api('getStaff');
+    tb.innerHTML=staff.length?staff.map(s=>`<tr>
+      <td><code style="font-weight:700">${esc(s.username)}</code></td>
+      <td style="font-weight:700">${esc(s.name)}</td>
+      <td><span class="bdg ${(s.status||'active')==='active'?'b-g':'b-r'}">${esc(s.status||'active')}</span></td>
+      <td style="font-size:12px;color:#999">${s.createdAt?new Date(s.createdAt).toLocaleDateString():''}</td>
+      <td>
+        <button class="btn btn-sm btn-ghost" onclick="editStaff('${esc(s.username)}','${esc(s.name)}','${esc(s.status||'active')}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-sm btn-red" style="margin-left:4px" onclick="delStaff('${esc(s.username)}')"><i class="fa-solid fa-trash"></i></button>
+      </td>
+    </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:28px;color:#999">No staff members yet</td></tr>';
+  }catch(e){ toast('Error: '+e.message); tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:28px;color:#f00">'+e.message+'</td></tr>'; }
+}
+
+function openStaffModal(){
+  doc('mo-staff-t').textContent='Add Staff Member';
+  doc('sf-orig-uid').value=''; doc('sf-uid').value=''; doc('sf-nm').value=''; doc('sf-pw').value=''; doc('sf-stat').value='active';
+  doc('sf-uid').disabled=false; doc('sf-pw').placeholder='Min 6 characters';
+  doc('mo-staff').classList.remove('hide');
+}
+function editStaff(uid,nm,stat){
+  doc('mo-staff-t').textContent='Edit Staff Member';
+  doc('sf-orig-uid').value=uid; doc('sf-uid').value=uid; doc('sf-nm').value=nm; doc('sf-stat').value=stat;
+  doc('sf-uid').disabled=true; doc('sf-pw').value=''; doc('sf-pw').placeholder='Leave blank to keep password';
+  doc('mo-staff').classList.remove('hide');
+}
+async function submitStaff(){
+  const origUid=doc('sf-orig-uid').value, uid=doc('sf-uid').value.trim(), nm=doc('sf-nm').value.trim(), pw=doc('sf-pw').value, stat=doc('sf-stat').value;
+  if(!nm) return toast('Name required');
+  if(!origUid && (!uid||pw.length<6)) return toast('Username and password (6+) required');
+  try{
+    if(origUid){ await api('updateStaff',{username:origUid,name:nm,status:stat,...(pw?{password:pw}:{})}); toast('✅ Updated!'); }
+    else{ await api('createStaff',{username:uid,name:nm,password:pw,status:stat}); toast('✅ Staff created!'); }
+    closeMo('mo-staff'); loadStaff();
+  }catch(e){ toast('❌ '+e.message); }
+}
+async function delStaff(username){
+  if(!confirm(`Delete staff "${username}"?`)) return;
+  try{ await api('deleteStaff',{username}); toast('✅ Deleted'); loadStaff(); }catch(e){ toast('❌ '+e.message); }
+}
+
+// ════════════════════════════════════════════════
+// STARTUP — restore from localStorage
 // ════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded',()=>{
-  const admin=sessionStorage.getItem('hb_admin');
-  if(admin){
-    showApp(JSON.parse(admin));
-  }
+  const session=Session.get();
+  if(session){ showApp(session); }
   if(window.innerWidth<=768){ doc('menu-toggle').style.display='block'; }
 });
 </script>
