@@ -1129,8 +1129,8 @@ function updateCutoffBanner(cfg, currentH, menuType) {
   const [nH, nM] = (cfg.cutoffNight || '19:30').split(':').map(Number);
   const dayCutoff = dH + dM/60, nightCutoff = nH + nM/60;
   let closed = false;
-  if (menuType === 'morning' && currentH >= dayCutoff) { closed = true; msgEl.textContent = 'Orders closed for lunch'; subEl.textContent = `Cutoff was ${cfg.cutoffDay} AM`; }
-  else if (menuType === 'evening' && currentH >= nightCutoff) { closed = true; msgEl.textContent = 'Orders closed for dinner'; subEl.textContent = `Cutoff was ${cfg.cutoffNight} IST`; }
+  if (menuType === 'morning' && currentH >= dayCutoff) { closed = true; msgEl.textContent = 'Orders closed for lunch'; subEl.textContent = `Cutoff was ${cfg.cutoffDay} AM`; banner.style.background = 'linear-gradient(135deg,#e63946,#c1121f)'; }
+  else if (menuType === 'evening' && currentH >= nightCutoff) { closed = true; msgEl.textContent = 'Orders closed for dinner'; subEl.textContent = `Cutoff was ${cfg.cutoffNight} IST`; banner.style.background = 'linear-gradient(135deg,#e63946,#c1121f)'; }
   else { msgEl.textContent = 'Orders open'; subEl.textContent = menuType === 'morning' ? `Closes at ${cfg.cutoffDay} AM` : `Closes at ${cfg.cutoffNight} IST`; banner.style.background = 'linear-gradient(135deg,#2a9d8f,#1d7a6f)'; }
   banner.classList.remove('hide');
   if (placeBtn) placeBtn.disabled = closed;
@@ -1339,6 +1339,7 @@ function renderOrders(orders) {
 function joinTiffin() {
   const user = Auth.get();
   let msg = 'Namaste! Monthly tiffin plan ke baare mein jaanna chahta/chahti hoon.\n\n🚚 *Free Home Delivery* + Save ₹200/month\n\n';
+  if (user) msg += `Name: ${user.name}\nPhone: ${user.phone}\nAddress: ${user.address}`;
   openWA(CFG.TIFFIN, msg);
 }
 
