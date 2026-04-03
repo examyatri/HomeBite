@@ -30,6 +30,11 @@ body{font-family:var(--fb);background:var(--lt);color:var(--dk)}
 .lbl{display:block;font-size:11px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
 .inp{width:100%;padding:12px 14px;background:var(--lt);border:2px solid transparent;border-radius:var(--r);font-family:var(--fb);font-size:14px;font-weight:500;color:var(--dk);outline:none;transition:border-color .18s}
 .inp:focus{border-color:var(--p);background:#fff}
+.pw-wrap{position:relative}
+.pw-wrap .inp{padding-right:42px}
+.pw-eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gr);font-size:14px;padding:4px}
+.creds-hint{font-size:11px;font-weight:700;color:var(--g);margin-bottom:10px;padding:6px 12px;background:var(--gl);border-radius:8px;display:none}
+.creds-hint.show{display:block}
 select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:34px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 18px;border-radius:10px;font-family:var(--ff);font-weight:700;font-size:13px;border:none;cursor:pointer;transition:all .18s}
 .btn:active{transform:scale(.97)}
@@ -150,7 +155,8 @@ tr:hover td{background:#fafafa}
     </div>
     <div class="fg" id="a-em-fg"><label class="lbl">Email</label><input id="a-em" class="inp" type="email" placeholder="admin@email.com"></div>
     <div class="fg" id="a-uid-fg" style="display:none"><label class="lbl">Staff Username</label><input id="a-uid" class="inp" type="text" placeholder="username"></div>
-    <div class="fg"><label class="lbl">Password</label><input id="a-pw" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div id="admin-creds-hint" class="creds-hint">✅ Credentials filled from last session</div>
+    <div class="fg"><label class="lbl">Password</label><div class="pw-wrap"><input id="a-pw" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="pw-eye" onclick="togglePw('a-pw',this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button></div></div>
     <button class="btn btn-p btn-full" id="login-btn" onclick="doLogin()"><i class="fa-solid fa-lock-open"></i> Access Dashboard</button>
   </div>
 </div>
@@ -445,22 +451,6 @@ tr:hover td{background:#fafafa}
 
 <div class="toast" id="toast"></div>
 <script>
-
-// Safe Storage wrapper
-const Store = {
-  get(key, fallback) {
-    if (fallback === undefined) fallback = null;
-    try {
-      const v = localStorage.getItem(key);
-      if (v === null || v === 'undefined') return fallback;
-      return JSON.parse(v);
-    } catch(e) { try { localStorage.removeItem(key); } catch(_) {} return fallback; }
-  },
-  set(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} },
-  remove(key) { try { localStorage.removeItem(key); } catch(e) {} },
-  clear() { try { localStorage.clear(); } catch(e) {} }
-};
-
 // ════════════════════════════════════════════════
 // CONFIG
 // ════════════════════════════════════════════════
@@ -485,15 +475,48 @@ async function api(action,data={}){
 }
 
 // ════════════════════════════════════════════════
-// SESSION — localStorage (survives refresh)
+// SESSION — In-memory only. NEVER persisted to localStorage.
+// Only role+id+password saved for autofill.
 // ════════════════════════════════════════════════
-const Session={
-  get:()=>{ try{ return JSON.parse(localStorage.getItem('hb_admin')); }catch{ return null; } },
-  set:(s)=>localStorage.setItem('hb_admin',JSON.stringify(s)),
-  clear:()=>localStorage.removeItem('hb_admin'),
-  isAdmin:()=>{ const s=Session.get(); return s && s.role==='admin'; },
-  isStaff:()=>{ const s=Session.get(); return s && s.role==='staff'; }
+let _adminSession=null;
+
+// Credentials store — ONLY role+identifier+password
+const ACreds={
+  save:(role,id,pw)=>{ try{ localStorage.setItem('hb_admin_creds',JSON.stringify({role,id,pw})); }catch{} },
+  get:()=>{ try{ return JSON.parse(localStorage.getItem('hb_admin_creds')); }catch{ return null; } }
 };
+
+const Session={
+  get:()=>_adminSession,
+  set:(s)=>{ _adminSession=s; },
+  clear:()=>{ _adminSession=null; },
+  isAdmin:()=>_adminSession && _adminSession.role==='admin',
+  isStaff:()=>_adminSession && _adminSession.role==='staff'
+};
+
+// Password show/hide toggle
+function togglePw(inputId,btn){
+  const inp=doc(inputId), icon=btn.querySelector('i');
+  if(!inp) return;
+  if(inp.type==='password'){ inp.type='text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
+  else{ inp.type='password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+}
+
+// Autofill login form from saved creds
+function autofillAdminCreds(){
+  const c=ACreds.get();
+  if(!c) return;
+  try{
+    if(c.role){ doc('a-role').value=c.role; updateAuthUI(); }
+    if(c.id){
+      if(c.role==='admin') doc('a-em').value=c.id;
+      else doc('a-uid').value=c.id;
+    }
+    if(c.pw) doc('a-pw').value=c.pw;
+    const hint=doc('admin-creds-hint');
+    if(hint) hint.classList.add('show');
+  }catch{}
+}
 
 // ════════════════════════════════════════════════
 // AUTH UI
@@ -515,14 +538,17 @@ async function doLogin(){
     if(role==='admin'){
       const em=doc('a-em').value.trim();
       if(!em) return toast('Email required');
+      // Always verify+load from sheet
       const admin=await api('adminLogin',{email:em,password:pw});
-      Session.set({...admin,role:'admin'});
+      Session.set({...admin,role:'admin'}); // in-memory only
+      ACreds.save('admin',em,pw); // save ONLY for autofill
       showApp(Session.get());
     } else {
       const uid=doc('a-uid').value.trim();
       if(!uid) return toast('Username required');
       const staff=await api('staffLogin',{username:uid,password:pw});
-      Session.set({...staff,role:'staff'});
+      Session.set({...staff,role:'staff'}); // in-memory only
+      ACreds.save('staff',uid,pw); // save ONLY for autofill
       showApp(Session.get());
     }
   }catch(e){ toast('❌ '+e.message); }
@@ -551,7 +577,12 @@ function applyRoleUI(role){
 }
 
 function doLogout(){
-  if(confirm('Logout?')){ Session.clear(); location.reload(); }
+  if(!confirm('Logout?')) return;
+  Session.clear();
+  doc('app').classList.add('hide');
+  doc('auth-pg').classList.remove('hide');
+  // Autofill for next login
+  autofillAdminCreds();
 }
 
 // ════════════════════════════════════════════════
@@ -1109,16 +1140,15 @@ async function delStaff(username){
 }
 
 // ════════════════════════════════════════════════
-// STARTUP — restore from localStorage
+// STARTUP — No auto-login. Autofill credentials only.
 // ════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded',()=>{
-  const session=Session.get();
-  if(session){ showApp(session); }
+  // Clean up any legacy hb_admin data from older versions
+  try{ localStorage.removeItem('hb_admin'); }catch{}
+  // Show login screen — autofill saved credentials
+  autofillAdminCreds();
   if(window.innerWidth<=768){ doc('menu-toggle').style.display='block'; }
 });
-
-window.addEventListener('error', (e) => { console.error('[Admin]', e.message); });
-window.addEventListener('unhandledrejection', (e) => { e.preventDefault(); });
 </script>
 </body>
 </html>

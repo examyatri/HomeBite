@@ -3,22 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<meta name="format-detection" content="telephone=no">
+<title>Home Bite – Ghar ka Khana</title>
+<meta name="theme-color" content="#e63946">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Home Bite – Ghar ka Khana</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* -- LOADER shown immediately until JS boots -- */
-#app-loader{position:fixed;inset:0;background:#f3f4f6;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .3s}
-#app-loader.hidden{opacity:0;pointer-events:none}
-.ld-logo{font-family:'Sora',sans-serif;font-size:28px;font-weight:900;color:#e63946;margin-bottom:12px}
-.ld-sub{font-size:13px;color:#6b7280;font-weight:600;margin-bottom:28px;font-style:italic}
-.ld-spin{width:36px;height:36px;border:3px solid #fde8ea;border-top-color:#e63946;border-radius:50%;animation:sp .8s linear infinite}
 :root{
   --p:#e63946;--pd:#c1121f;--pl:#fde8ea;
   --g:#2a9d8f;--gl:#e8f5f3;
@@ -27,14 +19,31 @@
   --sh:0 2px 16px rgba(0,0,0,.08);--shl:0 8px 32px rgba(0,0,0,.12);
   --r:14px;--rl:22px;
   --ff:'Sora',sans-serif;--fb:'DM Sans',sans-serif;
+  --bnav-h:64px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:#f3f4f6;-webkit-overflow-scrolling:touch}
-body{font-family:var(--fb);color:var(--dk);width:100%;max-width:520px;margin:0 auto;position:relative}
+html{height:100%;overflow:hidden}
+body{font-family:var(--fb);color:var(--dk);width:100%;max-width:520px;margin:0 auto;
+     position:relative;height:100%;overflow:hidden;background:#f3f4f6}
+
+/* ── FULL-SCREEN LOADER (shown while app boots) ── */
+#app-loader{
+  position:fixed;inset:0;background:#fff;z-index:99999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  transition:opacity .3s;
+}
+#app-loader.fade-out{opacity:0;pointer-events:none}
+#app-loader .logo-mark{font-family:var(--ff);font-size:28px;font-weight:900;color:var(--p)}
+#app-loader .tagline{font-size:12px;color:var(--gr);font-weight:600;font-style:italic}
+#app-loader .loader-ring{
+  width:36px;height:36px;border:3px solid var(--pl);border-top-color:var(--p);
+  border-radius:50%;animation:sp .8s linear infinite;
+}
 
 /* ── PAGE SYSTEM ── */
 .pg{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;background:#f3f4f6;
-    transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;will-change:transform;display:flex;flex-direction:column;-webkit-overflow-scrolling:touch}
+    transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .28s;
+    will-change:transform;display:flex;flex-direction:column;-webkit-overflow-scrolling:touch}
 .pg.right{transform:translateX(100%);opacity:0;pointer-events:none}
 .pg.left{transform:translateX(-100%);opacity:0;pointer-events:none}
 .pg.here{transform:none;opacity:1;pointer-events:all}
@@ -48,10 +57,12 @@ h1,h2,h3,h4{font-family:var(--ff)}
 .btn:active{transform:scale(.96)}
 .btn-p{background:var(--p);color:#fff;width:100%;box-shadow:0 4px 16px rgba(230,57,70,.3)}
 .btn-p:hover{background:var(--pd)}
+.btn-p:disabled{background:#ccc;box-shadow:none;cursor:not-allowed;transform:none}
 .btn-g{background:var(--g);color:#fff;width:100%}
 .btn-dk{background:var(--dk);color:#fff;width:100%}
 .btn-out{background:transparent;border:2px solid var(--p);color:var(--p);width:100%}
 .btn-ghost{background:rgba(0,0,0,.06);color:var(--dk);border:none}
+.btn-danger{background:#fff1f2;color:var(--p);border:2px solid var(--pl);width:100%}
 .btn-sm{padding:8px 14px;font-size:12px;border-radius:10px}
 .inp{width:100%;padding:14px 16px;background:var(--lt);border:2px solid transparent;border-radius:var(--r);
      font-family:var(--fb);font-size:15px;font-weight:500;color:var(--dk);outline:none;transition:border-color .18s;-webkit-appearance:none}
@@ -66,7 +77,7 @@ textarea.inp{resize:vertical;min-height:72px}
 .fg{margin-bottom:14px}
 .spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;display:inline-block}
 @keyframes sp{to{transform:rotate(360deg)}}
-.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(16px);
+.toast{position:fixed;bottom:calc(var(--bnav-h) + 14px);left:50%;transform:translateX(-50%) translateY(16px);
        background:var(--dk);color:#fff;padding:12px 22px;border-radius:30px;font-weight:600;
        font-size:13px;z-index:9999;opacity:0;transition:all .28s;pointer-events:none;
        white-space:nowrap;max-width:88%;font-family:var(--ff)}
@@ -75,33 +86,28 @@ textarea.inp{resize:vertical;min-height:72px}
 .sk-lg{height:196px;margin-bottom:14px;border-radius:var(--rl)}
 @keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* ── CONTACT CARD ── */
-
-/* ── ABOUT MODAL ── */
+/* ── MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;
-  display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);
-  animation:fadein .2s ease}
+  display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);animation:fadein .2s ease}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
 .modal-box{background:#fff;border-radius:26px 26px 0 0;padding:28px 22px 40px;width:100%;max-width:520px;
   animation:slideup .3s cubic-bezier(.4,0,.2,1);position:relative;max-height:90vh;overflow-y:auto}
 @keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-close{position:absolute;top:14px;right:16px;width:34px;height:34px;border-radius:50%;
-  background:#f3f4f6;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:16px;color:#6b7280}
+  background:#f3f4f6;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#6b7280}
 .modal-emoji{font-size:52px;text-align:center;margin-bottom:10px}
 .modal-title{font-family:var(--ff);font-size:22px;font-weight:800;text-align:center;color:var(--dk);margin-bottom:16px}
 .modal-body p{font-size:15px;line-height:1.7;color:#374151;padding:8px 0;border-bottom:1px solid #f3f4f6}
 .modal-body p:last-child{border-bottom:none}
 
-/* ── BOTTOM NAV — always fixed at bottom, never scrolls ── */
+/* ── BOTTOM NAV ── */
 .bnav{
   position:fixed;bottom:0;left:50%;transform:translateX(-50%);
   width:100%;max-width:520px;
   background:#fff;border-top:1px solid #e5e7eb;
   padding:6px 0 env(safe-area-inset-bottom,8px);
   display:flex;justify-content:space-around;
-  z-index:500;
-  box-shadow:0 -2px 16px rgba(0,0,0,.08);
+  z-index:500;box-shadow:0 -2px 16px rgba(0,0,0,.08);
 }
 .bn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;
     cursor:pointer;padding:4px 6px;touch-action:manipulation;min-width:52px;flex:1}
@@ -109,34 +115,28 @@ textarea.inp{resize:vertical;min-height:72px}
 .bn span{font-size:10px;font-weight:700;color:var(--gr);font-family:var(--ff)}
 .bn.act i,.bn.act span{color:var(--p)}
 
-/* ── CONTACT CARD — fixed above bnav ── */
-
-/* ── PULL-TO-REFRESH indicator — fixed, outside scroll ── */
+/* ── PTR INDICATOR ── */
 .ptr-indicator{
-  position:fixed;
-  top:56px;left:50%;transform:translateX(-50%) translateY(-64px);
+  position:fixed;top:56px;left:50%;transform:translateX(-50%) translateY(-64px);
   background:#fff;border-radius:50%;width:44px;height:44px;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 16px rgba(0,0,0,.14);
-  transition:opacity .2s;
-  opacity:0;z-index:300;
-  pointer-events:none;
+  box-shadow:0 4px 16px rgba(0,0,0,.14);transition:opacity .2s;
+  opacity:0;z-index:300;pointer-events:none;
 }
 .ptr-indicator.visible{opacity:1}
 .ptr-indicator i{font-size:18px;color:var(--p);transition:transform .3s}
 .ptr-indicator.ready i{transform:rotate(180deg);color:var(--g)}
 .ptr-indicator.loading i{animation:sp .7s linear infinite}
 
-/* ── HOME page body — bottom padding = bnav + contact card + buffer ── */
-#pg-home .pg-body{padding-bottom:80px}
+/* ── PAGE BODY ── */
 .pg-body{padding-bottom:80px}
+#pg-home .pg-body{padding-bottom:80px}
 
-/* ══ PAGE 1: AUTH ══ */
+/* ══ AUTH PAGE ══ */
 #pg-auth{background:linear-gradient(170deg,#fff5f5 0%,#fff 65%)}
 .auth-brand{text-align:center;padding:24px 20px 0;display:flex;flex-direction:column;align-items:center}
 .auth-logo-n{font-family:var(--ff);font-size:32px;font-weight:900;color:var(--p);letter-spacing:-1px}
 .auth-logo-t{font-size:13px;color:var(--gr);font-weight:600;font-style:italic;margin-top:2px}
-.bnav.hide{display:none!important}
 .auth-hero{padding:clamp(36px,8vw,60px) 26px 28px}
 .auth-hero .em{font-size:clamp(52px,14vw,72px);display:block;margin-bottom:16px;animation:bob .7s ease}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
@@ -153,7 +153,7 @@ textarea.inp{resize:vertical;min-height:72px}
 .btn-forgot:hover{background:#f0fdf4}
 .btn-forgot i{margin-right:5px}
 
-/* ══ PAGE HEADER NAV ══ */
+/* ══ PAGE HEADER ══ */
 .tnav{position:sticky;top:0;z-index:80;background:#fff;padding:13px 16px;
       display:flex;align-items:center;gap:12px;box-shadow:0 1px 8px rgba(0,0,0,.06);flex-shrink:0}
 .bk-btn{width:38px;height:38px;border-radius:12px;background:var(--lt);border:none;cursor:pointer;
@@ -161,7 +161,7 @@ textarea.inp{resize:vertical;min-height:72px}
         flex-shrink:0;touch-action:manipulation}
 .pg-title{font-family:var(--ff);font-size:17px;font-weight:800;flex:1}
 
-/* ══ PAGE 2: HOME ══ */
+/* ══ HOME ══ */
 .home-top{position:sticky;top:0;z-index:80;background:#fff;padding:13px 16px;
           display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 8px rgba(0,0,0,.06)}
 .logo-n{font-family:var(--ff);font-size:21px;font-weight:800;color:var(--p)}
@@ -201,7 +201,7 @@ textarea.inp{resize:vertical;min-height:72px}
 .q-btn{width:34px;height:34px;border-radius:10px;background:#fff;border:none;cursor:pointer;font-size:16px;font-weight:800;color:var(--p);box-shadow:0 1px 6px rgba(0,0,0,.08);touch-action:manipulation;display:flex;align-items:center;justify-content:center}
 .q-n{font-size:15px;font-weight:800;min-width:18px;text-align:center;font-family:var(--ff)}
 
-/* ══ PAGE 3: CART ══ */
+/* ══ CART ══ */
 .c-item{background:#fff;border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 8px rgba(0,0,0,.05);margin-bottom:10px}
 .c-img{width:56px;height:56px;border-radius:12px;object-fit:cover;background:var(--lt);flex-shrink:0}
 .c-info{flex:1;min-width:0}
@@ -220,7 +220,7 @@ textarea.inp{resize:vertical;min-height:72px}
 .cpn-msg{font-size:12px;font-weight:600;margin-top:7px;padding:7px 12px;border-radius:10px}
 .cpn-msg.ok{background:var(--gl);color:var(--g)}.cpn-msg.err{background:var(--pl);color:var(--p)}
 
-/* ══ PAGE 4: SUCCESS ══ */
+/* ══ SUCCESS ══ */
 .suc-wrap{padding:clamp(40px,10vw,60px) 22px 36px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center}
 .suc-ico{width:96px;height:96px;background:var(--gl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:44px;margin-bottom:22px;animation:pop .4s ease}
 @keyframes pop{0%{transform:scale(0)}80%{transform:scale(1.1)}100%{transform:scale(1)}}
@@ -231,7 +231,7 @@ textarea.inp{resize:vertical;min-height:72px}
 .dt-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--lt);font-size:14px;font-weight:600}
 .dt-row:last-child{border-bottom:none}
 
-/* ══ PAGE 5: ORDERS ══ */
+/* ══ ORDERS ══ */
 .ord-card{background:#fff;border-radius:var(--rl);padding:16px;box-shadow:var(--sh);margin-bottom:12px}
 .ord-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .ord-id{font-family:var(--ff);font-size:13px;font-weight:700}
@@ -240,7 +240,7 @@ textarea.inp{resize:vertical;min-height:72px}
 .ord-ft{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--lt)}
 .ord-amt{font-family:var(--ff);font-size:16px;font-weight:800}
 
-/* ══ PAGE 6: ACCOUNT ══ */
+/* ══ ACCOUNT ══ */
 .acct-hero{background:linear-gradient(135deg,var(--p),var(--pd));padding:clamp(28px,7vw,44px) 20px clamp(40px,10vw,60px);text-align:center;position:relative}
 .acct-avatar{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.25);
              display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 12px;border:3px solid rgba(255,255,255,.5)}
@@ -250,16 +250,6 @@ textarea.inp{resize:vertical;min-height:72px}
               color:#fff;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;margin-top:8px}
 .acct-card{background:#fff;border-radius:var(--rl);padding:18px;box-shadow:var(--sh);margin-bottom:14px}
 .acct-card-title{font-family:var(--ff);font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.acct-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--lt);cursor:pointer}
-.acct-row:last-child{border-bottom:none}
-.acct-row-ico{width:38px;height:38px;border-radius:12px;background:var(--lt);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.acct-row-text{flex:1}
-.acct-row-label{font-size:13px;font-weight:700}
-.acct-row-sub{font-size:11px;color:var(--gr);margin-top:2px}
-.acct-row-arrow{color:var(--gr);font-size:12px}
-
-/* ══ EDIT FIELDS ══ */
-.edit-section{background:var(--lt);border-radius:var(--r);padding:14px;margin-top:8px}
 .save-msg{font-size:12px;font-weight:600;margin-top:8px;padding:8px 12px;border-radius:10px;display:none}
 .save-msg.ok{background:var(--gl);color:var(--g);display:block}
 .save-msg.err{background:var(--pl);color:var(--p);display:block}
@@ -270,8 +260,8 @@ textarea.inp{resize:vertical;min-height:72px}
 .empty h3{font-family:var(--ff);font-size:18px;font-weight:700;margin-bottom:6px}
 .empty p{color:var(--gr);font-size:13px}
 
-/* ══ FLOATING CART BUTTON ══ */
-.cart-fab{display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+/* ══ FLOATING CART BTN ══ */
+.cart-fab{display:none;position:fixed;bottom:calc(var(--bnav-h) + 10px);left:50%;transform:translateX(-50%);
   background:var(--p);color:#fff;border:none;border-radius:50px;padding:13px 26px;
   font-family:var(--ff);font-size:15px;font-weight:800;cursor:pointer;
   box-shadow:0 6px 24px rgba(230,57,70,.45);z-index:900;
@@ -282,14 +272,17 @@ textarea.inp{resize:vertical;min-height:72px}
 @keyframes fabIn{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 
-/* -- LOGOUT BUTTON -- */
-.btn-logout{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
-  padding:15px;background:#fff5f5;color:var(--p);border:2px solid #fde8ea;border-radius:var(--r);
-  font-family:var(--ff);font-weight:700;font-size:14px;cursor:pointer;margin-top:6px;
-  transition:background .18s;touch-action:manipulation}
-.btn-logout:hover{background:var(--pl)}
-.btn-logout:active{transform:scale(.97)}
-/* ── RESPONSIVE ── */
+/* ── PASSWORD TOGGLE ── */
+.pw-wrap{position:relative}
+.pw-wrap .inp{padding-right:46px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gr);font-size:15px;padding:4px;touch-action:manipulation}
+.creds-hint{font-size:11px;font-weight:700;color:var(--g);margin-bottom:10px;padding:7px 12px;background:var(--gl);border-radius:9px;display:none}
+.creds-hint.show{display:block}
+
+/* ── WA button ── */
+.btn-wa{background:#25d366!important;color:#fff!important}
+.btn-wa:hover{background:#1ebe5d!important}
+
 @media(min-width:400px){
   .m-img{height:190px}
   .auth-hero{padding:64px 32px 32px}
@@ -298,14 +291,14 @@ textarea.inp{resize:vertical;min-height:72px}
 </head>
 <body>
 
-<!-- Full-screen loader until JS is ready -->
+<!-- ══ FULL-SCREEN BOOT LOADER ══ -->
 <div id="app-loader">
-  <div class="ld-logo">Home Bite</div>
-  <div class="ld-sub">Ghar ka khana ♥</div>
-  <div class="ld-spin"></div>
+  <div class="logo-mark">Home Bite</div>
+  <div class="tagline">Ghar ka khana ♥</div>
+  <div class="loader-ring"></div>
 </div>
 
-<!-- Pull-to-refresh indicator — fixed globally, above home-top -->
+<!-- Pull-to-refresh indicator -->
 <div class="ptr-indicator" id="ptr-ind"><i class="fa-solid fa-arrow-rotate-right"></i></div>
 
 <!-- ═══ PAGE 1: AUTH ═══ -->
@@ -326,12 +319,16 @@ textarea.inp{resize:vertical;min-height:72px}
     </div>
     <!-- LOGIN -->
     <div id="f-login">
+      <div id="creds-hint" class="creds-hint">✅ Credentials filled from last session</div>
       <div class="fg"><label class="lbl">Phone Number</label>
         <input id="l-ph" class="inp" type="tel" maxlength="10" placeholder="10-digit mobile number" inputmode="numeric"></div>
       <div class="fg"><label class="lbl">Password</label>
-        <input id="l-pw" class="inp" type="password" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div class="pw-wrap">
+          <input id="l-pw" class="inp" type="password" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()">
+          <button type="button" class="pw-eye" onclick="togglePw('l-pw',this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button>
+        </div></div>
       <button class="btn btn-p" id="btn-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
-      <button class="btn-forgot" onclick="WA.open('forgot','Page: Login | Phone: '+(document.getElementById('l-ph').value.trim()||'not entered'))">
+      <button class="btn-forgot" onclick="forgotPassword()">
         <i class="fa-brands fa-whatsapp"></i> Forgot Password? Get help on WhatsApp
       </button>
     </div>
@@ -346,7 +343,10 @@ textarea.inp{resize:vertical;min-height:72px}
       <div class="fg"><label class="lbl">Delivery Address</label>
         <textarea id="s-ad" class="inp" rows="2" placeholder="House no, Street, Area, City"></textarea></div>
       <div class="fg"><label class="lbl">Create Password</label>
-        <input id="s-pw" class="inp" type="password" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')doSignup()"></div>
+        <div class="pw-wrap">
+          <input id="s-pw" class="inp" type="password" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')doSignup()">
+          <button type="button" class="pw-eye" onclick="togglePw('s-pw',this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button>
+        </div></div>
       <button class="btn btn-p" id="btn-signup" onclick="doSignup()"><i class="fa-solid fa-user-plus"></i> Create Account</button>
     </div>
   </div>
@@ -354,7 +354,6 @@ textarea.inp{resize:vertical;min-height:72px}
 
 <!-- ═══ PAGE 2: HOME / MENU ═══ -->
 <div class="pg right" id="pg-home" style="overflow:hidden;display:flex;flex-direction:column;">
-  <!-- Pull-to-refresh indicator (fixed, outside scroll) -->
   <div class="home-top">
     <div><div class="logo-n">Home Bite</div><div class="logo-t">Ghar ka khana ♥</div></div>
     <div class="t-acts">
@@ -366,7 +365,6 @@ textarea.inp{resize:vertical;min-height:72px}
       </button>
     </div>
   </div>
-  <!-- Scrollable content area — this is what scrolls, not pg-home -->
   <div id="home-scroll" style="flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
     <div class="pg-body" style="padding-top:14px;">
       <div id="sub-banner" class="sub-ban hide">
@@ -433,7 +431,7 @@ textarea.inp{resize:vertical;min-height:72px}
       </div>
     </div>
     <div id="wa-btn-wrap" class="hide" style="width:100%;margin-bottom:12px">
-      <button class="btn btn-g" id="wa-open-btn" onclick="openWhatsApp()" style="background:#25d366;font-size:15px;gap:10px">
+      <button class="btn btn-wa" id="wa-open-btn" onclick="openWhatsApp()" style="font-size:15px;gap:10px">
         <i class="fa-brands fa-whatsapp" style="font-size:18px"></i> Open WhatsApp &amp; Send Screenshot
       </button>
     </div>
@@ -459,7 +457,6 @@ textarea.inp{resize:vertical;min-height:72px}
     <button class="bk-btn" onclick="back()"><i class="fa-solid fa-arrow-left"></i></button>
     <span class="pg-title">My Account</span>
   </div>
-  <!-- Hero -->
   <div class="acct-hero" id="acct-hero">
     <div class="acct-avatar" id="acct-avatar">👤</div>
     <div class="acct-name" id="acct-name">—</div>
@@ -495,8 +492,8 @@ textarea.inp{resize:vertical;min-height:72px}
     <!-- Change Password -->
     <div class="acct-card">
       <div class="acct-card-title"><i class="fa-solid fa-lock" style="color:#f4a261"></i> Change Password</div>
-      <div class="fg"><input id="acct-pw-cur" class="inp" type="password" placeholder="Current password"></div>
-      <div class="fg" style="margin-bottom:8px"><input id="acct-pw-new" class="inp" type="password" placeholder="New password (min 6 chars)"></div>
+      <div class="fg"><div class="pw-wrap"><input id="acct-pw-cur" class="inp" type="password" placeholder="Current password"><button type="button" class="pw-eye" onclick="togglePw('acct-pw-cur',this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button></div></div>
+      <div class="fg" style="margin-bottom:8px"><div class="pw-wrap"><input id="acct-pw-new" class="inp" type="password" placeholder="New password (min 6 chars)"><button type="button" class="pw-eye" onclick="togglePw('acct-pw-new',this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button></div></div>
       <button class="btn btn-dk" style="font-size:13px;padding:11px 18px" onclick="savePassword()">
         <i class="fa-solid fa-key"></i> Update Password
       </button>
@@ -507,7 +504,7 @@ textarea.inp{resize:vertical;min-height:72px}
     <div class="acct-card">
       <div class="acct-card-title"><i class="fa-solid fa-crown" style="color:var(--o)"></i> Monthly Tiffin Plan</div>
       <div id="acct-sub-info" style="font-size:13px;color:var(--gr);margin-bottom:12px">Loading...</div>
-      <button class="btn" style="background:linear-gradient(135deg,#f4a261,#e76f51);color:#fff;font-size:13px;padding:11px 18px" onclick="joinTiffin()">
+      <button class="btn btn-wa" style="font-size:13px;padding:11px 18px" onclick="joinTiffin()">
         <i class="fa-brands fa-whatsapp"></i> Join / Enquire on WhatsApp
       </button>
     </div>
@@ -518,30 +515,28 @@ textarea.inp{resize:vertical;min-height:72px}
       <div style="font-size:13px;color:var(--gr)">App version, our story &amp; more</div>
     </div>
 
-    <!-- Logout -->
-    <button class="btn-logout" onclick="Auth.logout()">
+    <!-- Logout — Visible, prominent -->
+    <button class="btn btn-danger" onclick="doLogout()" style="margin-top:4px">
       <i class="fa-solid fa-right-from-bracket"></i> Logout
     </button>
     <div style="height:16px"></div>
   </div>
 </div>
 
-<!-- ═══ FIXED BOTTOM UI (outside all scrolling pages) ═══ -->
+<!-- ═══ FIXED UI (outside scroll pages) ═══ -->
 <button class="cart-fab" id="cart-fab" onclick="nav('pg-cart')">
   <i class="fa-solid fa-bag-shopping"></i>
   <span>View Cart</span>
   <span class="cart-fab-count" id="cart-fab-count">0</span>
 </button>
 
-<!-- Contact card removed -->
-
-<!-- Bottom Nav — always fixed -->
+<!-- Bottom Nav -->
 <nav class="bnav hide" id="bottom-nav">
   <button class="bn act" id="bn-home" onclick="goHome()"><i class="fa-solid fa-house"></i><span>Home</span></button>
   <button class="bn" id="bn-cart" onclick="nav('pg-cart')"><i class="fa-solid fa-bag-shopping"></i><span>Cart</span></button>
   <button class="bn" id="bn-orders" onclick="nav('pg-orders')"><i class="fa-solid fa-receipt"></i><span>Orders</span></button>
   <button class="bn" id="bn-account" onclick="nav('pg-account')"><i class="fa-solid fa-user"></i><span>Account</span></button>
-  <button class="bn" onclick="WA.open('contact')"><i class="fa-brands fa-whatsapp" style="color:#25D366"></i><span style="color:#25D366">Contact</span></button>
+  <button class="bn" onclick="openWhatsAppContact()"><i class="fa-brands fa-whatsapp" style="color:#25D366"></i><span style="color:#25D366">Contact</span></button>
 </nav>
 
 <!-- About Modal -->
@@ -563,308 +558,120 @@ textarea.inp{resize:vertical;min-height:72px}
 </div>
 
 <div class="toast" id="toast"></div>
+
 <script>
 // ══════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════
 const CFG = {
-  GAS:  'https://script.google.com/macros/s/AKfycbwHq-D_E4_aD2W3R9TmaTk39pW87El0UCN89Vrjx4lUUhWRnMJbcsuUZLt1trwjkAq8Yg/exec',
-  KEY:  'HB_SECURE_API_KEY_2026',
-  WA_NUM: '919889760350'
+  GAS:    'https://script.google.com/macros/s/AKfycbwHq-D_E4_aD2W3R9TmaTk39pW87El0UCN89Vrjx4lUUhWRnMJbcsuUZLt1trwjkAq8Yg/exec',
+  KEY:    'HB_SECURE_API_KEY_2026',
+  WA:     '919889760350',
+  TIFFIN: '919454871263'
 };
 
-// =============================================
-// WHATSAPP -- universal wa.me deep link
-// =============================================
-const WA = {
-  open(context, extra) {
-    const msgs = {
-      forgot:     'Namaste! 🙏 Home Bite password reset karna hai.\n\n' + (extra||'') + '\n\nKripya help karein.',
-      tiffin:     extra || 'Namaste! Monthly tiffin plan ke baare mein jaanna chahta/chahti hoon.',
-      support:    'Namaste! App mein help chahiye.\n\n' + (extra||'') + '\n\nKripya assist karein.',
-      contact:    'Namaste! ' + (extra||'kuch information chahiye thi'),
-      order:      extra || 'Namaste! Order enquiry hai.',
-      screenshot: extra || 'Namaste! Payment screenshot bhej raha/rahi hoon.',
-    };
-    const text = msgs[context] || extra || 'Namaste! Home Bite se contact kar raha/rahi hoon.';
-    // Use location.href → always opens WhatsApp app directly (no Business error,
-    // no popup blocker, works from bfcache-restored pages too)
-    window.location.href = 'https://wa.me/' + CFG.WA_NUM + '?text=' + encodeURIComponent(text);
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function doc(id) { return document.getElementById(id); }
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toast(msg, dur) {
+  const t = doc('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('on'), dur || 3000);
+}
+function safeP(v) {
+  if (Array.isArray(v)) return v;
+  if (typeof v === 'object' && v !== null) return v;
+  if (typeof v !== 'string' || !v.trim()) return [];
+  try { return JSON.parse(v); } catch { return []; }
+}
+function getSub() {
+  try { return JSON.parse(localStorage.getItem('hb_sub'))?.isSubscriber || false; } catch { return false; }
+}
+function fmtDate(v) {
+  if (!v) return '';
+  const s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s) || v instanceof Date) {
+    const ist = new Date((v instanceof Date ? v : new Date(s)).getTime() + 5.5*60*60*1000);
+    if (!isNaN(ist.getTime()))
+      return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
   }
-};
+  return s;
+}
+function fmtTime(v) {
+  if (!v) return '';
+  const s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s) || v instanceof Date) {
+    const ist = new Date((v instanceof Date ? v : new Date(s)).getTime() + 5.5*60*60*1000);
+    if (!isNaN(ist.getTime())) {
+      let h = ist.getUTCHours(), m = ist.getUTCMinutes(), p = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+p;
+    }
+  }
+  return s.replace(/[\u00a0\u202f\u2009]/g,' ');
+}
 
-// =============================================
-// SAFE STORAGE -- prevents blank screen from
-//                 corrupted localStorage
-// =============================================
+// ══════════════════════════════════════════════
+// SAFE STORAGE — never throws
+// ══════════════════════════════════════════════
 const Store = {
-  get(key, fallback) {
-    if (fallback === undefined) fallback = null;
-    try {
-      const v = localStorage.getItem(key);
-      if (v === null || v === 'undefined') return fallback;
-      return JSON.parse(v);
-    } catch(e) {
-      try { localStorage.removeItem(key); } catch(_) {}
-      return fallback;
-    }
+  get(key) {
+    try { return localStorage.getItem(key); } catch { return null; }
   },
-  set(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} },
-  remove(key)   { try { localStorage.removeItem(key); } catch(e) {} },
-  clear()       { try { localStorage.clear(); } catch(e) {} try { sessionStorage.clear(); } catch(e) {} }
+  set(key, val) {
+    try { localStorage.setItem(key, val); return true; } catch { return false; }
+  },
+  remove(key) {
+    try { localStorage.removeItem(key); } catch {}
+  },
+  getJSON(key) {
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; }
+  },
+  setJSON(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch { return false; }
+  }
 };
 
-// =============================================
-// BLANK SCREEN GUARD — handles WhatsApp WebView
-// =============================================
-(function blankScreenGuard() {
-  const FLAG = 'hb_reload_attempt', MAX = 3;
-
-  function isPageVisible() {
-    const pgs = document.querySelectorAll('.pg.here');
-    return pgs.length > 0 && Array.from(pgs).some(p => p.offsetHeight > 0);
-  }
-
-  function forceRepaint() {
-    // Force WebView to repaint — fixes blank white screen
-    document.documentElement.style.display = 'none';
-    void document.documentElement.offsetHeight;
-    document.documentElement.style.display = '';
-  }
-
-  function checkAndRecover() {
-    if (!isPageVisible()) {
-      forceRepaint();
-      // If still blank after repaint, trigger app startup again
-      setTimeout(() => {
-        if (!isPageVisible()) {
-          const attempts = Store.get(FLAG, 0);
-          if (attempts < MAX) {
-            Store.set(FLAG, attempts + 1);
-            window.location.reload();
-          } else {
-            // Max reloads reached — reset reload counter and just repaint
-            Store.set(FLAG, 0);
-            forceRepaint();
-          }
-        } else {
-          Store.set(FLAG, 0);
-        }
-      }, 500);
-    } else {
-      Store.set(FLAG, 0);
-    }
-  }
-
-  // Check after initial load
-  setTimeout(checkAndRecover, 1500);
-  // Also check after 4s in case first check was too early
-  setTimeout(checkAndRecover, 4000);
-
-  // Fix: page restored from bfcache (back from WhatsApp → site)
-  window.addEventListener('pageshow', (e) => {
-    if (e.persisted) {
-      forceRepaint();
-      setTimeout(() => {
-        if (!isPageVisible()) {
-          // Re-run startup if page state is lost
-          if (typeof bootApp === 'function') bootApp();
-        } else {
-          updateBadge();
-          if (stack && stack[stack.length-1] === 'pg-home') loadMenu();
-        }
-      }, 300);
-    }
-  });
-
-  // Fix: returning from WhatsApp (app switch, not bfcache)
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      setTimeout(() => {
-        if (!isPageVisible()) forceRepaint();
-      }, 200);
-    }
-  });
-
-  // Fix: focus event (some Android WebViews use this instead of visibilitychange)
-  window.addEventListener('focus', () => {
-    setTimeout(() => {
-      if (!isPageVisible()) forceRepaint();
-    }, 200);
-  });
-})();
-
 // ══════════════════════════════════════════════
-// PAGE ROUTER — hardware back button aware
+// WHATSAPP — always uses wa.me, never wa.business
+// Opens with location.href for better app-opening
+// on Android WebView / WhatsApp browser
 // ══════════════════════════════════════════════
-let stack = ['pg-auth'];
-let _nativeBack = false;
-
-function nav(id) {
-  const cur = stack[stack.length-1];
-  if (cur === id) return;
-  doc(cur).classList.replace('here','left');
-  doc(id).classList.remove('right','left');
-  doc(id).classList.add('here');
-  stack.push(id);
-  // Push history state so phone back button works
-  history.pushState({ page: id }, '', '#'+id);
-  onEnter(id);
-  updateBottomNav(id);
-}
-
-function back() {
-  if (stack.length < 2) return;
-  _nativeBack = true;
-  _goBack();
-  history.back(); // keep browser history in sync, flag prevents double _goBack
-}
-
-function _goBack() {
-  if (stack.length < 2) return;
-  const cur  = stack.pop();
-  const prev = stack[stack.length-1];
-  doc(cur).classList.replace('here','right');
-  doc(prev).classList.remove('left');
-  doc(prev).classList.add('here');
-  updateBottomNav(prev);
-}
-
-// Hardware/browser back button
-// _nativeBack flag prevents double-fire when back() calls _goBack() + history.back()
-window.addEventListener('popstate', (e) => {
-  if (_nativeBack) { _nativeBack = false; return; }
-  // This is a true browser back (swipe gesture / hardware button)
-  if (stack.length >= 2) {
-    _goBack();
-  } else {
-    history.pushState({ page: stack[0] }, '', '#'+stack[0]);
-  }
-});
-
-function updateBottomNav(id) {
-  ['home','cart','orders','account'].forEach(n => {
-    const b = doc('bn-'+n);
-    if (b) b.classList.toggle('act', id==='pg-'+n);
-  });
-}
-
-function onEnter(id) {
-  if (id==='pg-home')    { loadMenu(); updateBadge(); }
-  if (id==='pg-cart')    { renderCart(); hideFab(); }
-  if (id==='pg-orders')  { loadOrders(); }
-  if (id==='pg-account') { renderAccount(); }
-  if (id==='pg-success') { hideFab(); }
-  if (id!=='pg-home')    { hideFab(); }
-}
-
-function hideFab() { const fab=doc('cart-fab'); if(fab) fab.classList.remove('show'); }
-function scrollTop(id) {
-  // For home page, scroll the inner scroll container
-  const el = id==='pg-home' ? doc('home-scroll') : doc(id);
-  if(el) el.scrollTo({top:0,behavior:'smooth'});
-}
-
-function goHome() {
-  const cur = stack[stack.length-1];
-  if (cur === 'pg-home') {
-    // Already on home, just scroll to top
-    scrollTop('pg-home');
-  } else {
-    // Navigate to home
-    nav('pg-home');
+function openWA(phone, msg) {
+  // Build clean wa.me URL
+  const url = 'https://wa.me/' + phone + (msg ? '?text=' + encodeURIComponent(msg) : '');
+  // Use location.href for WhatsApp-opened browsers (avoids "can't open link" popup)
+  // For normal browsers we use _blank
+  try {
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch(e) {
+    window.open(url, '_blank');
   }
 }
-
-// openWhatsAppContact replaced by WA.open in bnav
-
-function showAppUI() {
-  var nav = doc('bottom-nav');
-  if (nav) nav.classList.remove('hide');
-}
-
-function hideAppUI() {
-  var nav = doc('bottom-nav');
-  if (nav) nav.classList.add('hide');
-}
-
-// ══════════════════════════════════════════════
-// ABOUT MODAL
-// ══════════════════════════════════════════════
-function showAbout() {
-  const m = doc('about-modal');
-  m.classList.remove('hide');
-  document.body.style.overflow = 'hidden';
-}
-function hideAbout(e) {
-  if (e && e.target !== doc('about-modal')) return;
-  const m = doc('about-modal');
-  m.classList.add('hide');
-  document.body.style.overflow = '';
-}
-
-// ══════════════════════════════════════════════
-// PULL-TO-REFRESH on Home
-// ══════════════════════════════════════════════
-(function setupPTR(){
-  let startY=0, pulling=false, triggered=false, threshold=80;
-
-  // Only listen on the scrollable content div inside pg-home
-  function getScrollEl() { return doc('home-scroll'); }
-
-  document.addEventListener('touchstart', e=>{
-    const pg = doc('pg-home');
-    if(!pg || !pg.classList.contains('here')) return;
-    const el = getScrollEl(); if(!el) return;
-    if(el.scrollTop > 2) return;
-    startY = e.touches[0].clientY;
-    pulling = true;
-    triggered = false;
-  }, {passive:true});
-
-  document.addEventListener('touchmove', e=>{
-    if(!pulling) return;
-    const el = getScrollEl();
-    if(!el || el.scrollTop > 2) { pulling=false; resetPTR(); return; }
-    const dist = e.touches[0].clientY - startY;
-    if(dist <= 0) { pulling=false; resetPTR(); return; }
-    const i = doc('ptr-ind'); if(!i) return;
-    const pull = Math.min(dist * 0.55, 60);
-    i.style.transform = `translateX(-50%) translateY(${pull - 64}px)`;
-    i.classList.toggle('visible', dist > 18);
-    i.classList.toggle('ready', dist >= threshold);
-    triggered = dist >= threshold;
-  }, {passive:true});
-
-  document.addEventListener('touchend', ()=>{
-    if(!pulling) return;
-    pulling = false;
-    const i = doc('ptr-ind'); if(!i) return;
-    if(triggered){
-      i.style.transform = 'translateX(-50%) translateY(10px)';
-      i.classList.add('loading'); i.classList.remove('ready');
-      loadMenu().finally(()=>{ resetPTR(); triggered=false; });
-    } else {
-      resetPTR();
-    }
-  }, {passive:true});
-
-  function resetPTR(){
-    const i = doc('ptr-ind'); if(!i) return;
-    i.style.transform = 'translateX(-50%) translateY(-64px)';
-    i.classList.remove('visible','ready','loading');
-  }
-})();
 
 // ══════════════════════════════════════════════
 // API
 // ══════════════════════════════════════════════
-async function api(action, data={}) {
+async function api(action, data = {}) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 20000); // 20s timeout
+  const timer = setTimeout(() => controller.abort(), 20000);
   try {
     const r = await fetch(CFG.GAS, {
-      method:'POST', headers:{'Content-Type':'text/plain'},
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action, data, apiKey: CFG.KEY }),
       signal: controller.signal
     });
@@ -880,89 +687,305 @@ async function api(action, data={}) {
 }
 
 // ══════════════════════════════════════════════
-// AUTH — persists in localStorage
+// PAGE ROUTER
 // ══════════════════════════════════════════════
-const Auth = {
-  get:    ()  => Store.get('hb_user'),
-  set:    u   => Store.set('hb_user', u),
+let stack = ['pg-auth'];
+let _navLock = false;
 
-  logout() {
-    if (!confirm('Logout karna chahte hain?')) return;
-    Store.clear(); Cart.clear();
-    document.querySelectorAll('.pg').forEach(p => { p.classList.remove('here','left'); p.classList.add('right'); });
-    doc('pg-auth').classList.replace('right','here');
-    stack = ['pg-auth'];
-    history.replaceState({ page:'pg-auth' }, '', '#pg-auth');
-    ['l-ph','l-pw','s-nm','s-ph','s-em','s-pw'].forEach(id => { const el = doc(id); if (el) el.value = ''; });
-    const sa = doc('s-ad'); if (sa) sa.value = '';
-    hideAppUI();
-    toast('Logged out successfully');
+function nav(id) {
+  if (_navLock) return;
+  const cur = stack[stack.length - 1];
+  if (cur === id) return;
+  doc(cur).classList.replace('here', 'left');
+  const pg = doc(id);
+  pg.classList.remove('right', 'left');
+  pg.classList.add('here');
+  stack.push(id);
+  history.pushState({ page: id, depth: stack.length }, '', '#' + id);
+  onEnter(id);
+  updateBottomNav(id);
+}
+
+function back() {
+  if (stack.length < 2) return;
+  _navLock = true;
+  _goBack();
+  history.back();
+  setTimeout(() => { _navLock = false; }, 350);
+}
+
+function _goBack() {
+  if (stack.length < 2) return;
+  const cur  = stack.pop();
+  const prev = stack[stack.length - 1];
+  doc(cur).classList.replace('here', 'right');
+  doc(prev).classList.remove('left');
+  doc(prev).classList.add('here');
+  updateBottomNav(prev);
+}
+
+window.addEventListener('popstate', (e) => {
+  if (_navLock) return;
+  if (stack.length >= 2) {
+    _goBack();
+  } else {
+    history.pushState({ page: stack[0] }, '', '#' + stack[0]);
   }
+});
+
+function updateBottomNav(id) {
+  ['home','cart','orders','account'].forEach(n => {
+    const b = doc('bn-' + n);
+    if (b) b.classList.toggle('act', id === 'pg-' + n);
+  });
+}
+
+function onEnter(id) {
+  if (id === 'pg-home')    { loadMenu(); updateBadge(); }
+  if (id === 'pg-cart')    { renderCart(); hideFab(); }
+  if (id === 'pg-orders')  { loadOrders(); }
+  if (id === 'pg-account') { renderAccount(); }
+  if (id === 'pg-success') { hideFab(); }
+  if (id !== 'pg-home')    { hideFab(); }
+}
+
+function hideFab() {
+  const fab = doc('cart-fab');
+  if (fab) fab.classList.remove('show');
+}
+
+function goHome() {
+  const cur = stack[stack.length - 1];
+  if (cur === 'pg-home') {
+    const el = doc('home-scroll');
+    if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    nav('pg-home');
+  }
+}
+
+function showAppUI() {
+  const n = doc('bottom-nav');
+  if (n) n.classList.remove('hide');
+}
+function hideAppUI() {
+  const n = doc('bottom-nav');
+  if (n) n.classList.add('hide');
+}
+
+// ══════════════════════════════════════════════
+// ABOUT MODAL
+// ══════════════════════════════════════════════
+function showAbout() {
+  doc('about-modal').classList.remove('hide');
+}
+function hideAbout(e) {
+  if (e && e.target !== doc('about-modal')) return;
+  doc('about-modal').classList.add('hide');
+}
+
+// ══════════════════════════════════════════════
+// PULL-TO-REFRESH
+// ══════════════════════════════════════════════
+(function setupPTR() {
+  let startY = 0, pulling = false, triggered = false;
+  const threshold = 80;
+
+  document.addEventListener('touchstart', e => {
+    const pg = doc('pg-home');
+    if (!pg || !pg.classList.contains('here')) return;
+    const el = doc('home-scroll');
+    if (!el || el.scrollTop > 2) return;
+    startY = e.touches[0].clientY;
+    pulling = true;
+    triggered = false;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (!pulling) return;
+    const el = doc('home-scroll');
+    if (!el || el.scrollTop > 2) { pulling = false; resetPTR(); return; }
+    const dist = e.touches[0].clientY - startY;
+    if (dist <= 0) { pulling = false; resetPTR(); return; }
+    const i = doc('ptr-ind'); if (!i) return;
+    const pull = Math.min(dist * 0.55, 60);
+    i.style.transform = `translateX(-50%) translateY(${pull - 64}px)`;
+    i.classList.toggle('visible', dist > 18);
+    i.classList.toggle('ready', dist >= threshold);
+    triggered = dist >= threshold;
+  }, { passive: true });
+
+  document.addEventListener('touchend', () => {
+    if (!pulling) return;
+    pulling = false;
+    const i = doc('ptr-ind'); if (!i) return;
+    if (triggered) {
+      i.style.transform = 'translateX(-50%) translateY(10px)';
+      i.classList.add('loading'); i.classList.remove('ready');
+      loadMenu().finally(() => { resetPTR(); triggered = false; });
+    } else {
+      resetPTR();
+    }
+  }, { passive: true });
+
+  function resetPTR() {
+    const i = doc('ptr-ind'); if (!i) return;
+    i.style.transform = 'translateX(-50%) translateY(-64px)';
+    i.classList.remove('visible','ready','loading');
+  }
+})();
+
+// ══════════════════════════════════════════════
+// AUTH — Credentials-only localStorage, session in-memory
+// Only phone+password saved. All other data loaded fresh from sheet.
+// ══════════════════════════════════════════════
+
+// In-memory session only — NEVER persisted to localStorage
+let _session = null;
+
+// Credentials storage — ONLY phone + password autofill
+const Creds = {
+  save: (phone, pw) => Store.setJSON('hb_creds', { phone, pw }),
+  get:  ()         => Store.getJSON('hb_creds'),
+  clear: ()        => Store.remove('hb_creds')
 };
 
+// Compatibility shim — Auth.get() returns in-memory session
+const Auth = {
+  get:   () => _session,
+  set:   u  => { _session = u; },
+  clear: () => { _session = null; Store.remove('hb_sub'); }
+};
+
+// Password show/hide toggle
+function togglePw(inputId, btn) {
+  const inp = doc(inputId);
+  const icon = btn.querySelector('i');
+  if (!inp) return;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+    inp.type = 'password';
+    icon.classList.replace('fa-eye-slash', 'fa-eye');
+  }
+}
+
+// Autofill login form from saved creds
+function autofillCreds() {
+  const creds = Creds.get();
+  if (creds && creds.phone && creds.pw) {
+    try {
+      doc('l-ph').value = creds.phone;
+      doc('l-pw').value = creds.pw;
+      const hint = doc('creds-hint');
+      if (hint) hint.classList.add('show');
+    } catch {}
+  }
+}
+
+function doLogout() {
+  if (!confirm('Logout karna chahte hain?')) return;
+  Auth.clear();
+  Cart.clear();
+  _coupon = null;
+  // Reset all pages to default state
+  document.querySelectorAll('.pg').forEach(p => {
+    p.classList.remove('here', 'left');
+    p.classList.add('right');
+  });
+  doc('pg-auth').classList.remove('right');
+  doc('pg-auth').classList.add('here');
+  stack = ['pg-auth'];
+  history.replaceState({ page: 'pg-auth' }, '', location.pathname);
+  hideAppUI();
+  hideFab();
+  // Autofill creds for next login
+  autofillCreds();
+}
+
 function switchTab(t, el) {
-  doc('f-login').classList.toggle('hide', t!=='login');
-  doc('f-signup').classList.toggle('hide', t!=='signup');
-  document.querySelectorAll('.atab').forEach(x=>x.classList.remove('act'));
+  doc('f-login').classList.toggle('hide', t !== 'login');
+  doc('f-signup').classList.toggle('hide', t !== 'signup');
+  document.querySelectorAll('.atab').forEach(x => x.classList.remove('act'));
   el.classList.add('act');
 }
 
-// forgotPassword handled inline via WA.open
+function forgotPassword() {
+  const phone = doc('l-ph').value.trim();
+  let msg = 'Namaste! 🙏 Mujhe apna Home Bite password reset karna hai.\n\n';
+  msg += phone
+    ? `📱 Mera registered mobile number: *${phone}*\n\n`
+    : '📱 Mera registered mobile number: (please fill in above)\n\n';
+  msg += 'Kripya mujhe naya password set karne mein help karein. 🙏';
+  openWA(CFG.WA, msg);
+}
 
 async function doLogin() {
   const phone = doc('l-ph').value.trim(), pw = doc('l-pw').value;
-  if (!phone||!pw) return toast('Phone aur password daalein');
-  if (phone.length!==10) return toast('Valid 10-digit number');
+  if (!phone || !pw) return toast('Phone aur password daalein');
+  if (phone.length !== 10) return toast('Valid 10-digit number');
   const btn = doc('btn-login');
-  btn.innerHTML='<span class="spin"></span> Logging in...'; btn.disabled=true;
+  btn.innerHTML = '<span class="spin"></span> Logging in...'; btn.disabled = true;
   try {
-    const user = await api('login',{phone,password:pw});
-    Auth.set(user); await initApp();
-  } catch(e) { toast('❌ '+e.message); }
-  finally { btn.innerHTML='<i class="fa-solid fa-right-to-bracket"></i> Login'; btn.disabled=false; }
+    // Verify + load ALL user data fresh from sheet on every login
+    const user = await api('login', { phone, password: pw });
+    Auth.set(user); // in-memory only
+    // Save ONLY phone+password for autofill — nothing else
+    Creds.save(phone, pw);
+    await initApp();
+  } catch(e) { toast('❌ ' + e.message); }
+  finally { btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Login'; btn.disabled = false; }
 }
 
 async function doSignup() {
-  const nm=doc('s-nm').value.trim(),ph=doc('s-ph').value.trim(),
-        em=doc('s-em').value.trim(),ad=doc('s-ad').value.trim(),pw=doc('s-pw').value;
-  if (!nm||!ph||!ad||!pw) return toast('Saari fields bharein');
-  if (ph.length!==10) return toast('Valid 10-digit number');
-  if (pw.length<6) return toast('Password 6+ characters');
-  const btn=doc('btn-signup');
-  btn.innerHTML='<span class="spin"></span> Creating...'; btn.disabled=true;
+  const nm = doc('s-nm').value.trim(), ph = doc('s-ph').value.trim(),
+        em = doc('s-em').value.trim(), ad = doc('s-ad').value.trim(), pw = doc('s-pw').value;
+  if (!nm || !ph || !ad || !pw) return toast('Saari fields bharein');
+  if (ph.length !== 10) return toast('Valid 10-digit number');
+  if (pw.length < 6) return toast('Password 6+ characters');
+  const btn = doc('btn-signup');
+  btn.innerHTML = '<span class="spin"></span> Creating...'; btn.disabled = true;
   try {
-    const user=await api('signup',{name:nm,phone:ph,email:em,address:ad,password:pw});
-    Auth.set(user); await initApp();
-  } catch(e) { toast('❌ '+e.message); }
-  finally { btn.innerHTML='<i class="fa-solid fa-user-plus"></i> Create Account'; btn.disabled=false; }
+    const user = await api('signup', { name: nm, phone: ph, email: em, address: ad, password: pw });
+    Auth.set(user); // in-memory only
+    // Save ONLY phone+password for autofill
+    Creds.save(ph, pw);
+    await initApp();
+  } catch(e) { toast('❌ ' + e.message); }
+  finally { btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account'; btn.disabled = false; }
 }
 
 async function initApp() {
-  const user=Auth.get(); if(!user) return;
-  try {
-    const sub=await api('checkSubscriber',{phone:user.phone});
-    Store.set('hb_sub', sub);
-    if(sub.isSubscriber) doc('sub-banner').classList.remove('hide');
-  } catch(e) {}
+  const user = Auth.get(); if (!user) return;
+  // Check subscriber status in background
+  api('checkSubscriber', { phone: user.phone }).then(sub => {
+    Store.setJSON('hb_sub', sub);
+    if (sub.isSubscriber) doc('sub-banner').classList.remove('hide');
+  }).catch(() => {});
+  // Apply cached sub immediately
+  const cachedSub = Store.getJSON('hb_sub');
+  if (cachedSub?.isSubscriber) doc('sub-banner').classList.remove('hide');
   updateBadge();
-  doc('pg-auth').classList.replace('here','left');
-  doc('pg-home').classList.remove('right','left'); doc('pg-home').classList.add('here');
-  stack=['pg-auth','pg-home'];
-  history.replaceState({page:'pg-auth'},'','#pg-auth');
-  history.pushState({page:'pg-home'},'','#pg-home');
+  // Navigate to home
+  doc('pg-auth').classList.replace('here', 'left');
+  doc('pg-home').classList.remove('right', 'left');
+  doc('pg-home').classList.add('here');
+  stack = ['pg-auth', 'pg-home'];
+  history.replaceState({ page: 'pg-auth' }, '', location.pathname);
+  history.pushState({ page: 'pg-home' }, '', '#pg-home');
   updateBottomNav('pg-home');
   showAppUI();
   loadMenu();
 }
 
 // ══════════════════════════════════════════════
-// ACCOUNT PAGE
+// ACCOUNT
 // ══════════════════════════════════════════════
 function renderAccount() {
-  const user = Auth.get();
-  if (!user) return;
+  const user = Auth.get(); if (!user) return;
   doc('acct-name').textContent = user.name || '—';
-  doc('acct-phone').textContent = '📞 '+( user.phone || '—');
+  doc('acct-phone').textContent = '📞 ' + (user.phone || '—');
   doc('acct-address').value = user.address || '';
   doc('acct-email').value = user.email || '';
   const isSub = getSub();
@@ -970,55 +993,46 @@ function renderAccount() {
   doc('acct-sub-info').textContent = isSub
     ? '✅ You are an active subscriber with free home delivery!'
     : 'You are not subscribed yet. Join for free delivery + savings.';
-  // Clear msg fields
-  ['addr-msg','email-msg','pw-msg'].forEach(id=>{ doc(id).className='save-msg'; doc(id).textContent=''; });
-  doc('acct-pw-cur').value=''; doc('acct-pw-new').value='';
+  ['addr-msg','email-msg','pw-msg'].forEach(id => {
+    doc(id).className = 'save-msg'; doc(id).textContent = '';
+  });
+  doc('acct-pw-cur').value = ''; doc('acct-pw-new').value = '';
 }
 
 async function saveAddress() {
-  const user = Auth.get();
-  const address = doc('acct-address').value.trim();
-  const msg = doc('addr-msg');
-  if (!address) { msg.textContent='Please enter address'; msg.className='save-msg err'; return; }
+  const user = Auth.get(), address = doc('acct-address').value.trim(), msg = doc('addr-msg');
+  if (!address) { msg.textContent = 'Please enter address'; msg.className = 'save-msg err'; return; }
   try {
     await api('updateProfile', { userId: user.userId, address });
-    user.address = address;
-    Auth.set(user);
+    user.address = address; Auth.set(user);
     msg.textContent = '✅ Address updated!'; msg.className = 'save-msg ok';
-    setTimeout(()=>{ msg.className='save-msg'; }, 3000);
-  } catch(e) { msg.textContent = '❌ '+e.message; msg.className = 'save-msg err'; }
+    setTimeout(() => { msg.className = 'save-msg'; }, 3000);
+  } catch(e) { msg.textContent = '❌ ' + e.message; msg.className = 'save-msg err'; }
 }
 
 async function saveEmail() {
-  const user = Auth.get();
-  const email = doc('acct-email').value.trim();
-  const msg = doc('email-msg');
-  if (!email) { msg.textContent='Please enter email'; msg.className='save-msg err'; return; }
+  const user = Auth.get(), email = doc('acct-email').value.trim(), msg = doc('email-msg');
+  if (!email) { msg.textContent = 'Please enter email'; msg.className = 'save-msg err'; return; }
   try {
     await api('updateProfile', { userId: user.userId, email });
-    user.email = email;
-    Auth.set(user);
+    user.email = email; Auth.set(user);
     msg.textContent = '✅ Email updated!'; msg.className = 'save-msg ok';
-    setTimeout(()=>{ msg.className='save-msg'; }, 3000);
-  } catch(e) { msg.textContent = '❌ '+e.message; msg.className = 'save-msg err'; }
+    setTimeout(() => { msg.className = 'save-msg'; }, 3000);
+  } catch(e) { msg.textContent = '❌ ' + e.message; msg.className = 'save-msg err'; }
 }
 
 async function savePassword() {
-  const user = Auth.get();
-  const curPw = doc('acct-pw-cur').value;
-  const newPw = doc('acct-pw-new').value;
-  const msg = doc('pw-msg');
-  if (!curPw || !newPw) { msg.textContent='Both fields required'; msg.className='save-msg err'; return; }
-  if (newPw.length < 6) { msg.textContent='New password must be 6+ chars'; msg.className='save-msg err'; return; }
-  // Verify current password by attempting login
+  const user = Auth.get(), curPw = doc('acct-pw-cur').value, newPw = doc('acct-pw-new').value, msg = doc('pw-msg');
+  if (!curPw || !newPw) { msg.textContent = 'Both fields required'; msg.className = 'save-msg err'; return; }
+  if (newPw.length < 6) { msg.textContent = 'New password must be 6+ chars'; msg.className = 'save-msg err'; return; }
   try {
     await api('login', { phone: user.phone, password: curPw });
     await api('updateProfile', { userId: user.userId, newPassword: newPw });
     msg.textContent = '✅ Password updated!'; msg.className = 'save-msg ok';
-    doc('acct-pw-cur').value=''; doc('acct-pw-new').value='';
-    setTimeout(()=>{ msg.className='save-msg'; }, 3000);
+    doc('acct-pw-cur').value = ''; doc('acct-pw-new').value = '';
+    setTimeout(() => { msg.className = 'save-msg'; }, 3000);
   } catch(e) {
-    msg.textContent = e.message.includes('Incorrect') ? '❌ Current password is wrong' : '❌ '+e.message;
+    msg.textContent = e.message.includes('Incorrect') ? '❌ Current password is wrong' : '❌ ' + e.message;
     msg.className = 'save-msg err';
   }
 }
@@ -1027,81 +1041,77 @@ async function savePassword() {
 // CART
 // ══════════════════════════════════════════════
 const Cart = {
-  get:  () => Store.get('hb_cart', []),
-  save: c  => { Store.set('hb_cart', c); updateBadge(); },
-  clear:() => { Store.remove('hb_cart'); updateBadge(); },
+  get:   ()  => Store.getJSON('hb_cart') || [],
+  save:  c   => { Store.setJSON('hb_cart', c); updateBadge(); },
+  clear: ()  => { Store.remove('hb_cart'); updateBadge(); },
   add:  (item, variantLabel, variantPrice) => {
-    const cart=Cart.get();
-    const key=(item.itemId+(variantLabel||'')).replace(/['\\/]/g,'_');
-    const idx=cart.findIndex(i=>i._key===key);
-    if(idx>=0) { cart[idx].qty++; }
+    const cart = Cart.get();
+    const key = (item.itemId + (variantLabel || '')).replace(/['\\/]/g,'_');
+    const idx = cart.findIndex(i => i._key === key);
+    if (idx >= 0) { cart[idx].qty++; }
     else {
-      const price = variantPrice!==undefined ? variantPrice : item.price;
-      cart.push({ ...item, _key:key, qty:1, selectedVariant:variantLabel||'', price });
+      const price = variantPrice !== undefined ? variantPrice : item.price;
+      cart.push({ ...item, _key: key, qty: 1, selectedVariant: variantLabel || '', price });
     }
     Cart.save(cart); toast('✅ Added to cart!');
   },
   qty: (key, delta) => {
-    let c=Cart.get(), i=c.findIndex(x=>x._key===key);
-    if(i>=0){ c[i].qty+=delta; if(c[i].qty<=0) c.splice(i,1); }
+    const c = Cart.get(), i = c.findIndex(x => x._key === key);
+    if (i >= 0) { c[i].qty += delta; if (c[i].qty <= 0) c.splice(i, 1); }
     Cart.save(c);
   }
 };
 
 function updateBadge() {
   try {
-    const n=Cart.get().reduce((s,i)=>s+i.qty,0);
-    const b=doc('cart-badge'); if(b){ b.textContent=n; b.classList.toggle('hide',n===0); }
-    const fab=doc('cart-fab'), fabCount=doc('cart-fab-count');
-    const onHome = doc('pg-home') && doc('pg-home').classList.contains('here');
-    if(fab){
-      fab.classList.toggle('show', n>0 && onHome);
-      if(fabCount) fabCount.textContent=n+' item'+(n===1?'':'s');
+    const n = Cart.get().reduce((s, i) => s + i.qty, 0);
+    const b = doc('cart-badge');
+    if (b) { b.textContent = n; b.classList.toggle('hide', n === 0); }
+    const fab = doc('cart-fab'), fabCount = doc('cart-fab-count');
+    const onHome = doc('pg-home')?.classList.contains('here');
+    if (fab) {
+      fab.classList.toggle('show', n > 0 && !!onHome);
+      if (fabCount) fabCount.textContent = n + ' item' + (n === 1 ? '' : 's');
     }
-    // Update nav cart badge
-    const cb=doc('bn-cart'); if(cb) cb.style.position='relative';
-  } catch(err) {}
+  } catch {}
 }
 
 // ══════════════════════════════════════════════
 // IMAGE URL
 // ══════════════════════════════════════════════
 function resolveImg(url) {
-  if(!url) return '';
-  url=String(url).trim().replace(/\/$/, '');
-  const driveMatch=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if(driveMatch) return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
-  const driveOpen=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if(url.includes('drive.google.com')&&driveOpen) return `https://drive.google.com/uc?export=view&id=${driveOpen[1]}`;
-  if(/^https?:\/\/ibb\.co\/[^\/]+$/.test(url)) return '';
+  if (!url) return '';
+  url = String(url).trim().replace(/\/$/, '');
+  const driveMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (driveMatch) return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+  const driveOpen = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (url.includes('drive.google.com') && driveOpen) return `https://drive.google.com/uc?export=view&id=${driveOpen[1]}`;
+  if (/^https?:\/\/ibb\.co\/[^\/]+$/.test(url)) return '';
   return url;
 }
 
 // ══════════════════════════════════════════════
 // MENU
 // ══════════════════════════════════════════════
-let _menu=[];
+let _menu = [];
 
 async function loadMenu() {
-  const list=doc('menu-list');
-  // Always show skeleton and fetch fresh from server
-  list.innerHTML='<div class="sk sk-lg"></div><div class="sk sk-lg"></div>';
+  const list = doc('menu-list');
+  list.innerHTML = '<div class="sk sk-lg"></div><div class="sk sk-lg"></div>';
   try {
-    const menu=await api('getMenu');
-    _menu=menu;
-    const ist=new Date(Date.now()+5.5*3600000);
-    const h=ist.getUTCHours()+ist.getUTCMinutes()/60;
-    const nowDateStr = String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
-    const nowHr=ist.getUTCHours(), nowMin=ist.getUTCMinutes(), ampm=nowHr>=12?'PM':'AM';
-    const hr12=nowHr%12||12;
-    doc('menu-lbl').textContent=(h<11.5?'🌅 Breakfast / Lunch Menu':'🌙 Evening / Dinner Menu')+' · '+nowDateStr;
+    const menu = await api('getMenu');
+    _menu = menu;
+    const ist = new Date(Date.now() + 5.5 * 3600000);
+    const h = ist.getUTCHours() + ist.getUTCMinutes() / 60;
+    const d = String(ist.getUTCDate()).padStart(2,'0'), mo = String(ist.getUTCMonth()+1).padStart(2,'0'), y = ist.getUTCFullYear();
+    doc('menu-lbl').textContent = (h < 11.5 ? '🌅 Breakfast / Lunch Menu' : '🌙 Evening / Dinner Menu') + ' · ' + d+'/'+mo+'/'+y;
     renderMenu(menu);
-    try{
-      const cfg=await api('getOrderCutoff');
-      updateCutoffBanner(cfg, h, h<11.5?'morning':'evening');
-    }catch(e){}
+    try {
+      const cfg = await api('getOrderCutoff');
+      updateCutoffBanner(cfg, h, h < 11.5 ? 'morning' : 'evening');
+    } catch {}
   } catch(e) {
-    list.innerHTML=`<div class="empty">
+    list.innerHTML = `<div class="empty">
       <span class="em">😕</span>
       <h3>Menu load failed</h3>
       <p style="color:#888;font-size:13px;margin-bottom:12px">Internet check karein aur retry karein</p>
@@ -1112,47 +1122,47 @@ async function loadMenu() {
   }
 }
 
-function updateCutoffBanner(cfg, currentH, menuType){
-  const banner=doc('cutoff-banner'), msgEl=doc('cutoff-msg'), subEl=doc('cutoff-sub'), placeBtn=doc('place-btn');
-  if(!cfg||!cfg.enabled){ banner.classList.add('hide'); if(placeBtn) placeBtn.disabled=false; return; }
-  const [dH,dM]=(cfg.cutoffDay||'11:30').split(':').map(Number);
-  const [nH,nM]=(cfg.cutoffNight||'19:30').split(':').map(Number);
-  const dayCutoff=dH+dM/60, nightCutoff=nH+nM/60;
-  let closed=false, msg='', sub='';
-  if(menuType==='morning'&&currentH>=dayCutoff){ closed=true; msg=`Orders closed for lunch`; sub=`Cutoff was ${cfg.cutoffDay} AM`; }
-  else if(menuType==='evening'&&currentH>=nightCutoff){ closed=true; msg=`Orders closed for dinner`; sub=`Cutoff was ${cfg.cutoffNight} IST`; }
-  else { msg=`Orders open`; sub=menuType==='morning'?`Closes at ${cfg.cutoffDay} AM`:`Closes at ${cfg.cutoffNight} IST`; banner.style.background='linear-gradient(135deg,#2a9d8f,#1d7a6f)'; }
-  banner.classList.remove('hide'); msgEl.textContent=msg; subEl.textContent=sub;
-  if(placeBtn) placeBtn.disabled=closed;
+function updateCutoffBanner(cfg, currentH, menuType) {
+  const banner = doc('cutoff-banner'), msgEl = doc('cutoff-msg'), subEl = doc('cutoff-sub'), placeBtn = doc('place-btn');
+  if (!cfg || !cfg.enabled) { banner.classList.add('hide'); if (placeBtn) placeBtn.disabled = false; return; }
+  const [dH, dM] = (cfg.cutoffDay || '11:30').split(':').map(Number);
+  const [nH, nM] = (cfg.cutoffNight || '19:30').split(':').map(Number);
+  const dayCutoff = dH + dM/60, nightCutoff = nH + nM/60;
+  let closed = false;
+  if (menuType === 'morning' && currentH >= dayCutoff) { closed = true; msgEl.textContent = 'Orders closed for lunch'; subEl.textContent = `Cutoff was ${cfg.cutoffDay} AM`; }
+  else if (menuType === 'evening' && currentH >= nightCutoff) { closed = true; msgEl.textContent = 'Orders closed for dinner'; subEl.textContent = `Cutoff was ${cfg.cutoffNight} IST`; }
+  else { msgEl.textContent = 'Orders open'; subEl.textContent = menuType === 'morning' ? `Closes at ${cfg.cutoffDay} AM` : `Closes at ${cfg.cutoffNight} IST`; banner.style.background = 'linear-gradient(135deg,#2a9d8f,#1d7a6f)'; }
+  banner.classList.remove('hide');
+  if (placeBtn) placeBtn.disabled = closed;
 }
 
 function renderMenu(menu) {
-  if(!menu.length) {
-    doc('menu-list').innerHTML=`<div class="empty"><span class="em">😴</span><h3>Abhi menu nahi hai</h3><p>Baad mein aayein</p></div>`;
+  if (!menu.length) {
+    doc('menu-list').innerHTML = `<div class="empty"><span class="em">😴</span><h3>Abhi menu nahi hai</h3><p>Baad mein aayein</p></div>`;
     return;
   }
-  doc('menu-list').innerHTML=menu.map((item,idx) => {
-    const cart=Cart.get();
-    const imgSrc=resolveImg(item.imageUrl)||`https://picsum.photos/seed/${item.itemId}/400/172`;
-    const variants=Array.isArray(item.variants)?item.variants:[];
-    const varHtml = variants.length>=1 ? `
+  doc('menu-list').innerHTML = menu.map((item, idx) => {
+    const cart = Cart.get();
+    const imgSrc = resolveImg(item.imageUrl) || `https://picsum.photos/seed/${item.itemId}/400/172`;
+    const variants = Array.isArray(item.variants) ? item.variants : [];
+    const varHtml = variants.length >= 1 ? `
       <div class="var-row" id="var-${idx}">
-        ${variants.map((v,vi)=>`<button class="var-pill${vi===0?' sel':''}" onclick="selVar(${idx},${vi},'${esc(v.label)}',${v.price})" data-vi="${vi}">${esc(v.label)} ₹${v.price}</button>`).join('')}
+        ${variants.map((v,vi) => `<button class="var-pill${vi===0?' sel':''}" onclick="selVar(${idx},${vi},'${esc(v.label)}',${v.price})" data-vi="${vi}">${esc(v.label)} ₹${v.price}</button>`).join('')}
       </div>` : '';
-    const defPrice = variants.length>0 ? variants[0].price : item.price;
-    const defLabel = variants.length>0 ? variants[0].label : '';
-    const key = (item.itemId+(defLabel||'')).replace(/['\\/]/g,'_');
-    const inCart = cart.find(i=>i._key===key);
+    const defPrice = variants.length > 0 ? variants[0].price : item.price;
+    const defLabel = variants.length > 0 ? variants[0].label : '';
+    const key = (item.itemId + (defLabel || '')).replace(/['\\/]/g, '_');
+    const inCart = cart.find(i => i._key === key);
     const qty = inCart ? inCart.qty : 0;
-    const ctrl = qty>0
+    const ctrl = qty > 0
       ? `<div class="qty-ctl"><button class="q-btn" onclick="Cart.qty('${key}',-1);renderMenu(_menu)">−</button><span class="q-n">${qty}</span><button class="q-btn" onclick="Cart.qty('${key}',1);renderMenu(_menu)">+</button></div>`
-      : `<button class="add-btn" id="abtn-${idx}" onclick="addToCart(${idx},'${esc(item.itemId)}')">Add +</button>`;
+      : `<button class="add-btn" onclick="addToCart(${idx},'${esc(item.itemId)}')">Add +</button>`;
     return `<div class="m-card">
       <img class="m-img" src="${imgSrc}" alt="${esc(item.name)}" loading="lazy"
            onerror="this.onerror=null;this.src='https://picsum.photos/seed/${idx}/400/172'">
       <div class="m-body">
         <div class="m-name">${esc(item.name)}</div>
-        <div class="m-cat">${esc(item.category)}${variants.length>=1?' · '+variants.length+' size'+(variants.length>1?'s':''):''}</div>
+        <div class="m-cat">${esc(item.category)}${variants.length >= 1 ? ' · '+variants.length+' size'+(variants.length>1?'s':'') : ''}</div>
         ${varHtml}
         <div class="m-foot">
           <div class="m-price" id="price-${idx}">₹${defPrice}</div>
@@ -1163,18 +1173,18 @@ function renderMenu(menu) {
   }).join('');
 }
 
-const _selVars={};
+const _selVars = {};
 function selVar(idx, vi, label, price) {
-  _selVars[idx]={label,price};
-  doc('price-'+idx).textContent='₹'+price;
-  doc('var-'+idx).querySelectorAll('.var-pill').forEach((p,i)=>p.classList.toggle('sel',i===vi));
+  _selVars[idx] = { label, price };
+  doc('price-' + idx).textContent = '₹' + price;
+  doc('var-' + idx).querySelectorAll('.var-pill').forEach((p, i) => p.classList.toggle('sel', i === vi));
 }
 function addToCart(idx, itemId) {
-  const item=_menu[idx]; if(!item) return;
-  const sv=_selVars[idx];
-  const variants=Array.isArray(item.variants)?item.variants:[];
-  const varLabel = sv ? sv.label : (variants.length>0 ? variants[0].label : '');
-  const varPrice = sv ? sv.price : (variants.length>0 ? variants[0].price : item.price);
+  const item = _menu[idx]; if (!item) return;
+  const sv = _selVars[idx];
+  const variants = Array.isArray(item.variants) ? item.variants : [];
+  const varLabel = sv ? sv.label : (variants.length > 0 ? variants[0].label : '');
+  const varPrice = sv ? sv.price : (variants.length > 0 ? variants[0].price : item.price);
   Cart.add(item, varLabel, varPrice);
   renderMenu(_menu);
 }
@@ -1182,23 +1192,23 @@ function addToCart(idx, itemId) {
 // ══════════════════════════════════════════════
 // CART PAGE
 // ══════════════════════════════════════════════
-let _coupon=null;
+let _coupon = null;
 
 function renderCart() {
-  const cart=Cart.get(), isSub=getSub();
-  const list=doc('cart-list'), bill=doc('cart-bill'), dNote=doc('del-note'), btn=doc('place-btn');
-  if(!cart.length) {
-    list.innerHTML=`<div class="empty"><span class="em">🛒</span><h3>Cart khaali hai</h3><p>Kuch items add karein</p></div>`;
-    bill.innerHTML=''; dNote.innerHTML=''; btn.classList.add('hide'); return;
+  const cart = Cart.get(), isSub = getSub();
+  const list = doc('cart-list'), bill = doc('cart-bill'), dNote = doc('del-note'), btn = doc('place-btn');
+  if (!cart.length) {
+    list.innerHTML = `<div class="empty"><span class="em">🛒</span><h3>Cart khaali hai</h3><p>Kuch items add karein</p></div>`;
+    bill.innerHTML = ''; dNote.innerHTML = ''; btn.classList.add('hide'); return;
   }
   btn.classList.remove('hide');
-  list.innerHTML=cart.map(item=>{
-    const img=resolveImg(item.imageUrl)||`https://picsum.photos/seed/${item.itemId}/56`;
+  list.innerHTML = cart.map(item => {
+    const img = resolveImg(item.imageUrl) || `https://picsum.photos/seed/${item.itemId}/56`;
     return `<div class="c-item">
       <img class="c-img" src="${img}" onerror="this.src='https://picsum.photos/56'" loading="lazy">
       <div class="c-info">
         <div class="c-name">${esc(item.name)}</div>
-        ${item.selectedVariant?`<div class="c-var">${esc(item.selectedVariant)}</div>`:''}
+        ${item.selectedVariant ? `<div class="c-var">${esc(item.selectedVariant)}</div>` : ''}
         <div class="c-price">₹${item.price} each</div>
       </div>
       <div class="qty-ctl">
@@ -1208,88 +1218,87 @@ function renderCart() {
       </div>
     </div>`;
   }).join('');
-  const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
-  const del=isSub?0:20;
-  const disc=_coupon?calcDisc(_coupon,sub):0;
-  const total=Math.max(0,sub-disc+del);
-  bill.innerHTML=`<div class="bill">
+  const sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const del = isSub ? 0 : 20;
+  const disc = _coupon ? calcDisc(_coupon, sub) : 0;
+  const total = Math.max(0, sub - disc + del);
+  bill.innerHTML = `<div class="bill">
     <div class="br"><span class="muted">Subtotal</span><span>₹${sub}</span></div>
-    ${disc>0?`<div class="br"><span class="muted green">🎟️ Discount (${_coupon.code})</span><span class="green">−₹${disc}</span></div>`:''}
-    <div class="br"><span class="muted">Delivery</span><span>${del===0?'<span class="green">FREE ✨</span>':'₹'+del}</span></div>
+    ${disc > 0 ? `<div class="br"><span class="muted green">🎟️ Discount (${_coupon.code})</span><span class="green">−₹${disc}</span></div>` : ''}
+    <div class="br"><span class="muted">Delivery</span><span>${del === 0 ? '<span class="green">FREE ✨</span>' : '₹' + del}</span></div>
     <div class="br tot"><span>Total</span><span>₹${total}</span></div>
   </div>`;
-  dNote.innerHTML=isSub
+  dNote.innerHTML = isSub
     ? `<div class="del-note">✨ You get <strong>Free Home Delivery</strong> as a subscriber!</div>`
     : `<div class="del-note warn">🚚 ₹20 delivery charge. <strong><a href="#" onclick="joinTiffin();return false" style="color:inherit">Join monthly tiffin for FREE delivery</a></strong>.</div>`;
 }
 
 function calcDisc(coupon, sub) {
-  return coupon.discountType==='percent' ? Math.round(sub*coupon.discountValue/100) : Number(coupon.discountValue);
+  return coupon.discountType === 'percent' ? Math.round(sub * coupon.discountValue / 100) : Number(coupon.discountValue);
 }
 
 async function applyCoupon() {
-  const code=doc('cpn-inp').value.trim().toUpperCase(), msg=doc('cpn-msg');
-  if(!code) return;
-  msg.textContent='Checking...'; msg.className='cpn-msg'; msg.classList.remove('hide');
+  const code = doc('cpn-inp').value.trim().toUpperCase(), msg = doc('cpn-msg');
+  if (!code) return;
+  msg.textContent = 'Checking...'; msg.className = 'cpn-msg'; msg.classList.remove('hide');
   try {
-    const user=Auth.get();
-    const c=await api('applyCoupon',{code,phone:user?.phone});
-    _coupon=c;
-    const cart=Cart.get(), sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
-    msg.textContent=`✅ ${c.code} applied! You save ₹${calcDisc(c,sub)}`; msg.className='cpn-msg ok';
+    const user = Auth.get();
+    const c = await api('applyCoupon', { code, phone: user?.phone });
+    _coupon = c;
+    const cart = Cart.get(), sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    msg.textContent = `✅ ${c.code} applied! You save ₹${calcDisc(c, sub)}`; msg.className = 'cpn-msg ok';
     renderCart();
-  } catch(e) { _coupon=null; msg.textContent='❌ '+e.message; msg.className='cpn-msg err'; }
+  } catch(e) { _coupon = null; msg.textContent = '❌ ' + e.message; msg.className = 'cpn-msg err'; }
 }
 
-let _waMsg='', _waPhone='';
-function openWhatsApp(){ WA.open('screenshot', _waMsg); }
+let _waMsg = '', _waPhone = '';
+function openWhatsApp() { openWA(_waPhone, _waMsg); }
 
 async function placeOrder() {
-  const user=Auth.get(), cart=Cart.get();
-  if(!user?.address?.trim()) { toast('Pehle account mein address set karein'); nav('pg-account'); return; }
-  if(!cart.length) { toast('Cart khaali hai!'); return; }
-  const isSub=getSub(), sub=cart.reduce((s,i)=>s+i.price*i.qty,0), del=isSub?0:20;
-  const disc=_coupon?calcDisc(_coupon,sub):0, total=Math.max(0,sub-disc+del);
-  const btn=doc('place-btn');
-  btn.innerHTML='<span class="spin"></span> Placing...'; btn.disabled=true;
+  const user = Auth.get(), cart = Cart.get();
+  if (!user?.address?.trim()) { toast('Pehle account mein address set karein'); nav('pg-account'); return; }
+  if (!cart.length) { toast('Cart khaali hai!'); return; }
+  const isSub = getSub(), sub = cart.reduce((s, i) => s + i.price * i.qty, 0), del = isSub ? 0 : 20;
+  const disc = _coupon ? calcDisc(_coupon, sub) : 0, total = Math.max(0, sub - disc + del);
+  const btn = doc('place-btn');
+  btn.innerHTML = '<span class="spin"></span> Placing...'; btn.disabled = true;
   try {
-    const res=await api('createOrder',{
-      userId:user.userId,name:user.name,phone:user.phone,address:user.address,
-      items:cart,totalAmount:sub,deliveryCharge:del,finalAmount:total,
-      couponCode:_coupon?.code||'',discount:disc,userType:isSub?'subscriber':'daily'
+    const res = await api('createOrder', {
+      userId: user.userId, name: user.name, phone: user.phone, address: user.address,
+      items: cart, totalAmount: sub, deliveryCharge: del, finalAmount: total,
+      couponCode: _coupon?.code || '', discount: disc, userType: isSub ? 'subscriber' : 'daily'
     });
-    let msg=`🍱 *Home Bite Order*\n📋 ID: *${res.orderId}*\n👤 ${user.name} | 📞 ${user.phone}\n📍 ${user.address}\n\n*Items:*\n`;
-    cart.forEach(i=>{ msg+=`• ${i.name}${i.selectedVariant?` (${i.selectedVariant})`:''} ×${i.qty} — ₹${i.price*i.qty}\n`; });
-    msg+=`\n`;
-    if(disc>0) msg+=`🎟️ Discount: −₹${disc}\n`;
-    msg+=`🚴 Delivery: ${del===0?'FREE':'₹'+del}\n✅ *Total: ₹${total}*\n\n`;
-    msg+=isSub?`✨ I am a *monthly subscriber*. Please deduct from my wallet. 🙏`:`💳 Please share UPI/QR for payment. I'll send screenshot. 🙏`;
-    _waMsg=msg; _waPhone=CFG.WA_NUM;
-    Cart.clear(); _coupon=null; doc('cpn-inp').value=''; doc('cpn-msg').classList.add('hide');
+    let msg = `🍱 *Home Bite Order*\n📋 ID: *${res.orderId}*\n👤 ${user.name} | 📞 ${user.phone}\n📍 ${user.address}\n\n*Items:*\n`;
+    cart.forEach(i => { msg += `• ${i.name}${i.selectedVariant ? ` (${i.selectedVariant})` : ''} ×${i.qty} — ₹${i.price * i.qty}\n`; });
+    msg += `\n`;
+    if (disc > 0) msg += `🎟️ Discount: −₹${disc}\n`;
+    msg += `🚴 Delivery: ${del === 0 ? 'FREE' : '₹' + del}\n✅ *Total: ₹${total}*\n\n`;
+    msg += isSub
+      ? `✨ I am a *monthly subscriber*. Please deduct from my wallet. 🙏`
+      : `💳 Please share UPI/QR for payment. I'll send screenshot. 🙏`;
+    _waMsg = msg; _waPhone = CFG.WA;
+    Cart.clear(); _coupon = null;
+    doc('cpn-inp').value = ''; doc('cpn-msg').classList.add('hide');
     nav('pg-success');
     doc('pay-note').classList.toggle('hide', isSub);
-    const wb=doc('wa-btn-wrap');
-    if(wb){ wb.classList.add('hide'); setTimeout(()=>{ wb.classList.remove('hide'); },2500); }
-  } catch(e) { toast('❌ '+e.message); }
-  finally { btn.innerHTML='<i class="fa-brands fa-whatsapp"></i> Place Order'; btn.disabled=false; }
+    const wb = doc('wa-btn-wrap');
+    if (wb) { wb.classList.add('hide'); setTimeout(() => wb.classList.remove('hide'), 2500); }
+  } catch(e) { toast('❌ ' + e.message); }
+  finally { btn.innerHTML = '<i class="fa-brands fa-whatsapp"></i> Place Order'; btn.disabled = false; }
 }
 
 // ══════════════════════════════════════════════
 // ORDERS
 // ══════════════════════════════════════════════
-let _orders=[];
 async function loadOrders() {
-  const el=doc('orders-list'), user=Auth.get();
-  if(!user) return;
-  // Always show loading skeleton and fetch fresh from server
-  el.innerHTML='<div class="sk sk-lg"></div><div class="sk sk-lg"></div><div class="sk sk-lg"></div>';
+  const el = doc('orders-list'), user = Auth.get(); if (!user) return;
+  el.innerHTML = '<div class="sk sk-lg"></div><div class="sk sk-lg"></div><div class="sk sk-lg"></div>';
   try {
-    _orders=await api('getUserOrders',{userId:user.userId});
-    renderOrders(_orders);
+    const orders = await api('getUserOrders', { userId: user.userId });
+    renderOrders(orders);
   } catch(e) {
-    el.innerHTML=`<div class="empty">
-      <span class="em">😕</span>
-      <h3>Load failed</h3>
+    el.innerHTML = `<div class="empty">
+      <span class="em">😕</span><h3>Load failed</h3>
       <p style="color:#888;font-size:13px;margin-bottom:12px">Internet check karein aur retry karein</p>
       <button class="btn btn-p" style="width:auto;padding:10px 24px" onclick="loadOrders()">
         <i class="fa-solid fa-rotate-right"></i> Retry
@@ -1299,25 +1308,25 @@ async function loadOrders() {
 }
 
 function renderOrders(orders) {
-  if(!orders.length) {
-    doc('orders-list').innerHTML=`<div class="empty"><span class="em">📋</span><h3>Koi orders nahi</h3><p>Pehla order daalein!</p></div>`;
+  if (!orders.length) {
+    doc('orders-list').innerHTML = `<div class="empty"><span class="em">📋</span><h3>Koi orders nahi</h3><p>Pehla order daalein!</p></div>`;
     return;
   }
-  const sc={pending:'b-y',preparing:'b-o','out for delivery':'b-o',delivered:'b-g'};
-  doc('orders-list').innerHTML=orders.map(o=>{
-    let items=[]; try{ items=safeP(o.items); }catch{}
-    const txt=items.map(i=>`${i.name}${i.selectedVariant?` (${i.selectedVariant})`:''} ×${i.qty}`).join(', ');
+  const sc = { pending:'b-y', preparing:'b-o', 'out for delivery':'b-o', delivered:'b-g' };
+  doc('orders-list').innerHTML = orders.map(o => {
+    let items = []; try { items = safeP(o.items); } catch {}
+    const txt = items.map(i => `${i.name}${i.selectedVariant ? ` (${i.selectedVariant})` : ''} ×${i.qty}`).join(', ');
     return `<div class="ord-card">
       <div class="ord-hd">
         <div><div class="ord-id">${esc(o.orderId)}</div><div class="ord-dt">${esc(fmtDate(o.date))} · ${esc(fmtTime(o.time))}</div></div>
-        <span class="bdg ${sc[o.orderStatus]||'b-y'}">${esc(o.orderStatus)}</span>
+        <span class="bdg ${sc[o.orderStatus] || 'b-y'}">${esc(o.orderStatus)}</span>
       </div>
       <div class="ord-items">${esc(txt)}</div>
       <div class="ord-ft">
         <span class="ord-amt">₹${Number(o.finalAmount).toFixed(0)}</span>
         <div style="display:flex;gap:6px">
-          <span class="bdg ${o.paymentStatus==='paid'?'b-g':'b-y'}">${esc(o.paymentStatus)}</span>
-          <button class="btn btn-sm btn-ghost" onclick="WA.open('support','Order help')">Help</button>
+          <span class="bdg ${o.paymentStatus === 'paid' ? 'b-g' : 'b-y'}">${esc(o.paymentStatus)}</span>
+          <button class="btn btn-sm btn-ghost" onclick="openWA('${CFG.WA}','')">Help</button>
         </div>
       </div>
     </div>`;
@@ -1325,89 +1334,80 @@ function renderOrders(orders) {
 }
 
 // ══════════════════════════════════════════════
-// TIFFIN
+// TIFFIN & CONTACT
 // ══════════════════════════════════════════════
 function joinTiffin() {
   const user = Auth.get();
-  const extra = '🍛 Monthly Tiffin Plan Enquiry\n🚚 Free Home Delivery + Save ₹200/month\n\n' + (user ? 'Name: '+user.name+'\nPhone: '+user.phone+'\nAddress: '+user.address : '');
-  WA.open('tiffin', extra);
+  let msg = 'Namaste! Monthly tiffin plan ke baare mein jaanna chahta/chahti hoon.\n\n🚚 *Free Home Delivery* + Save ₹200/month\n\n';
+  if (user) msg += `Name: ${user.name}\nPhone: ${user.phone}\nAddress: ${user.address}`;
+  openWA(CFG.TIFFIN, msg);
+}
+
+function openWhatsAppContact() {
+  openWA(CFG.WA, 'mujhe kuch information chahiye thi');
 }
 
 // ══════════════════════════════════════════════
-// UTILS
+// STARTUP — with blank-screen recovery
 // ══════════════════════════════════════════════
-function doc(id) { return document.getElementById(id); }
-function esc(s) { if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmtDate(v){
-  if(!v) return '';
-  const s=String(v).trim();
-  if(/^\d{4}-\d{2}-\d{2}T/.test(s)||v instanceof Date){
-    const ist=new Date((v instanceof Date?v:new Date(s)).getTime()+5.5*60*60*1000);
-    if(!isNaN(ist.getTime())) return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
-  }
-  return s;
-}
-function fmtTime(v){
-  if(!v) return '';
-  const s=String(v).trim();
-  if(/^\d{4}-\d{2}-\d{2}T/.test(s)||v instanceof Date){
-    const ist=new Date((v instanceof Date?v:new Date(s)).getTime()+5.5*60*60*1000);
-    if(!isNaN(ist.getTime())){ let h=ist.getUTCHours(),m=ist.getUTCMinutes(); const p=h>=12?'PM':'AM'; h=h%12||12; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+p; }
-  }
-  return s.replace(/[\u00a0\u202f\u2009]/g,' ');
-}
-function toast(msg) { const t=doc('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),3000); }
-function getSub() { return Store.get('hb_sub')?.isSubscriber || false; }
-function safeP(v) { if(Array.isArray(v)) return v; if(typeof v==='object'&&v!==null) return v; if(typeof v!=='string'||!v.trim()) return []; try{ return JSON.parse(v); }catch{ return []; } }
-
-// ══════════════════════════════════════════════
-// STARTUP
-// ══════════════════════════════════════════════
-// Named boot function — can be re-called on bfcache restore
 function bootApp() {
-  const user = Auth.get();
-  if (user) {
-    // Show home page
-    document.querySelectorAll('.pg').forEach(p => p.classList.remove('here'));
-    doc('pg-auth').classList.add('left');
-    doc('pg-home').classList.remove('right','left');
-    doc('pg-home').classList.add('here');
-    stack = ['pg-auth','pg-home'];
-    try { history.replaceState({page:'pg-home'},'','#pg-home'); } catch(e){}
-    updateBottomNav('pg-home');
-    showAppUI();
-    const sub0 = Store.get('hb_sub');
-    if (sub0?.isSubscriber) doc('sub-banner').classList.remove('hide');
-    updateBadge();
-    loadMenu();
-    api('checkSubscriber',{phone:user.phone}).then(sub=>{
-      Store.set('hb_sub',sub);
-      if(sub.isSubscriber) doc('sub-banner').classList.remove('hide');
-    }).catch(()=>{});
-  } else {
-    doc('pg-auth').classList.remove('right','left');
-    doc('pg-auth').classList.add('here');
+  const loader = doc('app-loader');
+
+  // Attempt to clear any stale/corrupt service worker caches
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      regs.forEach(r => r.unregister());
+    }).catch(() => {});
+    if ('caches' in window) {
+      caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+    }
+  }
+
+  // ── NO AUTO-LOGIN ──
+  // Session is always in-memory. Every app open shows login screen.
+  // Only autofill credentials for convenience.
+  history.replaceState({ page: 'pg-auth' }, '', location.pathname);
+
+  // Autofill saved credentials into login form
+  autofillCreds();
+
+  // Clean up any legacy hb_user data from older versions
+  Store.remove('hb_user');
+
+  // Hide boot loader with fade
+  loader.classList.add('fade-out');
+  setTimeout(() => { loader.style.display = 'none'; }, 300);
+}
+
+// Recovery: if page appears blank after 3s, force a hard reload
+(function blankScreenGuard() {
+  setTimeout(() => {
+    const visible = document.querySelector('.pg.here');
+    if (!visible || !visible.offsetHeight) {
+      location.replace(location.pathname);
+    }
+  }, 3000);
+})();
+
+// Handle page restore from bfcache (back/forward cache) — Firefox/Safari
+// On restore: always return to login screen (no auto-login)
+window.addEventListener('pageshow', e => {
+  if (e.persisted && !_session) {
+    // Ensure auth page is shown and creds are filled
+    document.querySelectorAll('.pg').forEach(p => { p.classList.remove('here','left'); p.classList.add('right'); });
+    doc('pg-auth').classList.remove('right'); doc('pg-auth').classList.add('here');
     stack = ['pg-auth'];
-    try { history.replaceState({page:'pg-auth'},'','#pg-auth'); } catch(e){}
+    hideAppUI(); hideFab();
+    autofillCreds();
   }
+});
+
+// Run boot on DOM ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootApp);
+} else {
+  bootApp();
 }
-
-window.addEventListener('DOMContentLoaded', bootApp);
-
-// Hide loader — called after bootApp() sets up correct page
-function hideLoader() {
-  const loader = document.getElementById('app-loader');
-  if (loader) {
-    loader.classList.add('hidden');
-    setTimeout(() => { if(loader.parentNode) loader.parentNode.removeChild(loader); }, 400);
-  }
-}
-// Hide loader after DOMContentLoaded + small delay for render
-window.addEventListener('DOMContentLoaded', () => { setTimeout(hideLoader, 700); });
-
-// Global error boundary
-window.addEventListener('error', (e) => { console.error('[HB]', e.message, e.lineno); });
-window.addEventListener('unhandledrejection', (e) => { e.preventDefault(); });
 </script>
 </body>
 </html>

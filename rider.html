@@ -29,6 +29,11 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:480px;
 .inp{width:100%;padding:14px 16px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.08);border-radius:12px;font-family:var(--fb);font-size:14px;font-weight:500;color:var(--tx);outline:none;transition:border-color .18s}
 .inp:focus{border-color:var(--p);background:rgba(255,255,255,.09)}
 .inp::placeholder{color:var(--mu)}
+.pw-wrap{position:relative}
+.pw-wrap .inp{padding-right:46px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px;padding:4px;touch-action:manipulation}
+.creds-hint{font-size:11px;font-weight:700;color:#4ecdc4;margin-bottom:10px;padding:7px 12px;background:rgba(42,157,143,.15);border-radius:9px;display:none}
+.creds-hint.show{display:block}
 .bdg{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
 .b-g{background:rgba(42,157,143,.2);color:#4ecdc4}.b-o{background:rgba(244,162,97,.2);color:var(--o)}
 .b-y{background:rgba(255,209,102,.2);color:var(--y)}.b-r{background:rgba(230,57,70,.2);color:#ff6b81}
@@ -130,7 +135,8 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:480px;
   </div>
   <div class="a-card">
     <div class="fg"><label class="lbl">Rider Email</label><input id="r-em" class="inp" type="email" placeholder="rider@email.com"></div>
-    <div class="fg"><label class="lbl">Password</label><input id="r-pw" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div id="rider-creds-hint" class="creds-hint">✅ Credentials filled from last session</div>
+    <div class="fg"><label class="lbl">Password</label><div class="pw-wrap"><input id="r-pw" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="pw-eye" onclick="togglePw('r-pw',this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button></div></div>
     <button class="btn btn-p btn-full" id="login-btn" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login & Start Delivery</button>
   </div>
 </div>
@@ -232,8 +238,45 @@ async function api(action,data={}){
   }
 }
 
-// ── AUTH ──
+// ── AUTH — Credentials-only localStorage, session in-memory ──
+// Only email+password saved for autofill. Rider data loaded fresh from sheet.
 let _rider=null;
+
+// Password show/hide toggle
+function togglePw(inputId,btn){
+  const inp=doc(inputId), icon=btn.querySelector('i');
+  if(!inp) return;
+  if(inp.type==='password'){ inp.type='text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
+  else{ inp.type='password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+}
+
+// WhatsApp opener — works from any app (WhatsApp, Telegram, Chrome)
+function openWA(phone,encodedMsg){
+  const url='https://wa.me/'+phone+(encodedMsg?'?text='+encodedMsg:'');
+  try{
+    const a=document.createElement('a'); a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }catch(e){ window.open(url,'_blank'); }
+}
+
+// Rider credentials store — ONLY email+password
+const RCreds={
+  save:(em,pw)=>{ try{ localStorage.setItem('hb_rider_creds',JSON.stringify({em,pw})); }catch{} },
+  get:()=>{ try{ return JSON.parse(localStorage.getItem('hb_rider_creds')); }catch{ return null; } },
+  clear:()=>{ try{ localStorage.removeItem('hb_rider_creds'); }catch{} }
+};
+
+function autofillRiderCreds(){
+  const c=RCreds.get();
+  if(c&&c.em&&c.pw){
+    try{
+      doc('r-em').value=c.em;
+      doc('r-pw').value=c.pw;
+      const hint=doc('rider-creds-hint');
+      if(hint) hint.classList.add('show');
+    }catch{}
+  }
+}
 
 async function doLogin(){
   const em=doc('r-em').value.trim(), pw=doc('r-pw').value;
@@ -241,8 +284,10 @@ async function doLogin(){
   const btn=doc('login-btn');
   btn.innerHTML='<span class="spin"></span> Logging in...'; btn.disabled=true;
   try{
+    // Always verify+load from sheet
     _rider=await api('riderLogin',{email:em,password:pw});
-    localStorage.setItem('hb_rider',JSON.stringify(_rider));
+    // Save ONLY credentials for autofill
+    RCreds.save(em,pw);
     showApp();
   }catch(e){ toast('❌ '+e.message); }
   finally{ btn.innerHTML='<i class="fa-solid fa-right-to-bracket"></i> Login & Start Delivery'; btn.disabled=false; }
@@ -250,9 +295,11 @@ async function doLogin(){
 
 function doLogout(){
   if(!confirm('Logout?')) return;
-  localStorage.removeItem('hb_rider'); _rider=null;
+  // Clear session — NOT credentials (keep for autofill)
+  _rider=null;
   doc('pg-app').style.display='none';
   doc('pg-auth').style.display='flex';
+  autofillRiderCreds();
 }
 
 function showApp(){
@@ -504,7 +551,7 @@ function renderOrders(){
         <div class="act-row">
           <a href="tel:${esc(o.phone)}" class="a-btn call"><i class="fa-solid fa-phone"></i> ${esc(o.phone)}</a>
           <a href="${mapsUrl}" target="_blank" class="a-btn maps"><i class="fa-solid fa-map-location-dot"></i> Maps</a>
-          <a href="https://wa.me/91${esc(o.phone)}?text=${encodeURIComponent(waMsg)}" class="a-btn wa"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="${'https://wa.me/91'+String(o.phone).replace(/\D/g,'')+'?text='+encodeURIComponent(waMsg)}" target="_blank" class="a-btn wa" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i></a>
         </div>
       </div>
       <div class="items-sec">
@@ -700,11 +747,12 @@ function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replac
 function toast(msg){ const t=doc('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),3000); }
 function safeP(v){ if(Array.isArray(v)) return v; if(typeof v==='object'&&v!==null) return v; if(!v||typeof v!=='string') return []; try{ return JSON.parse(v); }catch{ return []; } }
 
-// ── INIT ──
+// ── INIT — No auto-login, autofill credentials only ──
 window.addEventListener('DOMContentLoaded',()=>{
-  // Auto-login if saved
-  const saved=localStorage.getItem('hb_rider');
-  if(saved){ try{ _rider=JSON.parse(saved); showApp(); }catch{ localStorage.removeItem('hb_rider'); } }
+  // Clean up any legacy hb_rider data from older versions
+  try{ localStorage.removeItem('hb_rider'); }catch{}
+  // Autofill saved credentials for convenience
+  autofillRiderCreds();
   // Default date = today (IST)
   const istNow=new Date(new Date().getTime()+5.5*60*60*1000);
   const yyyy=istNow.getUTCFullYear();
@@ -715,22 +763,6 @@ window.addEventListener('DOMContentLoaded',()=>{
 
 // Auto-refresh every 90s
 setInterval(()=>{ if(_rider && !document.hidden) loadOrders(); }, 90000);
-
-// Blank screen fix for page restore from bfcache
-window.addEventListener('pageshow', (e) => {
-  if (e.persisted) { const a = document.getElementById('pg-app'); if (a) a.style.display = 'block'; }
-});
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
-    const pg = document.querySelector('#pg-app');
-    if (pg && pg.style.display !== 'none' && pg.offsetHeight === 0) {
-      document.body.style.display = 'none'; void document.body.offsetHeight; document.body.style.display = '';
-    }
-  }
-});
-// Global error boundary
-window.addEventListener('error', (e) => { console.error('[Rider]', e.message); });
-window.addEventListener('unhandledrejection', (e) => { e.preventDefault(); });
 </script>
 </body>
 </html>
