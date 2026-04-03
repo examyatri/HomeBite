@@ -117,6 +117,7 @@ textarea.inp{resize:vertical;min-height:72px}
 
 /* ── HOME page body — bottom padding = bnav + contact card + buffer ── */
 #pg-home .pg-body{padding-bottom:80px}
+.pg-body{padding-bottom:80px}
 
 /* ══ PAGE 1: AUTH ══ */
 #pg-auth{background:linear-gradient(170deg,#fff5f5 0%,#fff 65%)}
@@ -139,6 +140,14 @@ textarea.inp{resize:vertical;min-height:72px}
   cursor:pointer;text-align:center;border-radius:var(--r);transition:background .18s}
 .btn-forgot:hover{background:#f0fdf4}
 .btn-forgot i{margin-right:5px}
+
+/* ══ PAGE HEADER NAV ══ */
+.tnav{position:sticky;top:0;z-index:80;background:#fff;padding:13px 16px;
+      display:flex;align-items:center;gap:12px;box-shadow:0 1px 8px rgba(0,0,0,.06);flex-shrink:0}
+.bk-btn{width:38px;height:38px;border-radius:12px;background:var(--lt);border:none;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;color:var(--dk);font-size:15px;
+        flex-shrink:0;touch-action:manipulation}
+.pg-title{font-family:var(--ff);font-size:17px;font-weight:800;flex:1}
 
 /* ══ PAGE 2: HOME ══ */
 .home-top{position:sticky;top:0;z-index:80;background:#fff;padding:13px 16px;
@@ -396,7 +405,7 @@ textarea.inp{resize:vertical;min-height:72px}
         <div style="font-size:13px;color:var(--gr);line-height:1.6">UPI / QR details will be shared by us. Send screenshot after payment to confirm your order.</div>
       </div>
     </div>
-    <div id="wa-btn-wrap" style="width:100%;margin-bottom:12px;display:none">
+    <div id="wa-btn-wrap" class="hide" style="width:100%;margin-bottom:12px">
       <button class="btn btn-g" id="wa-open-btn" onclick="openWhatsApp()" style="background:#25d366;font-size:15px;gap:10px">
         <i class="fa-brands fa-whatsapp" style="font-size:18px"></i> Open WhatsApp &amp; Send Screenshot
       </button>
@@ -542,6 +551,7 @@ const CFG = {
 // PAGE ROUTER — hardware back button aware
 // ══════════════════════════════════════════════
 let stack = ['pg-auth'];
+let _nativeBack = false;
 
 function nav(id) {
   const cur = stack[stack.length-1];
@@ -558,7 +568,9 @@ function nav(id) {
 
 function back() {
   if (stack.length < 2) return;
-  history.back(); // triggers popstate → _goBack()
+  _nativeBack = true;
+  _goBack();
+  history.back(); // keep browser history in sync, flag prevents double _goBack
 }
 
 function _goBack() {
@@ -571,12 +583,14 @@ function _goBack() {
   updateBottomNav(prev);
 }
 
-// Hardware back button
+// Hardware/browser back button
+// _nativeBack flag prevents double-fire when back() calls _goBack() + history.back()
 window.addEventListener('popstate', (e) => {
+  if (_nativeBack) { _nativeBack = false; return; }
+  // This is a true browser back (swipe gesture / hardware button)
   if (stack.length >= 2) {
     _goBack();
   } else {
-    // At root — let browser handle (or push state again to prevent exit on first back)
     history.pushState({ page: stack[0] }, '', '#'+stack[0]);
   }
 });
@@ -593,9 +607,8 @@ function onEnter(id) {
   if (id==='pg-cart')    { renderCart(); hideFab(); }
   if (id==='pg-orders')  { loadOrders(); }
   if (id==='pg-account') { renderAccount(); }
+  if (id==='pg-success') { hideFab(); }
   if (id!=='pg-home')    { hideFab(); }
-  // Show contact card only on home page
-
 }
 
 function hideFab() { const fab=doc('cart-fab'); if(fab) fab.classList.remove('show'); }
@@ -618,8 +631,7 @@ function goHome() {
 
 function openWhatsAppContact() {
   var msg = encodeURIComponent('mujhe kuch information chahiye thi');
-  var url = 'whatsapp://send?phone=919889760350&text=' + msg;
-  window.location.href = url;
+  window.open('https://wa.me/919889760350?text=' + msg, '_blank');
 }
 
 function showAppUI() {
@@ -704,13 +716,23 @@ function hideAbout(e) {
 // API
 // ══════════════════════════════════════════════
 async function api(action, data={}) {
-  const r = await fetch(CFG.GAS, {
-    method:'POST', headers:{'Content-Type':'text/plain'},
-    body: JSON.stringify({ action, data, apiKey: CFG.KEY })
-  });
-  const res = await r.json();
-  if (!res.success) throw new Error(res.error || 'API error');
-  return res.data;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20000); // 20s timeout
+  try {
+    const r = await fetch(CFG.GAS, {
+      method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({ action, data, apiKey: CFG.KEY }),
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    const res = await r.json();
+    if (!res.success) throw new Error(res.error || 'API error');
+    return res.data;
+  } catch(e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') throw new Error('Request timed out. Please try again.');
+    throw e;
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -747,7 +769,8 @@ function forgotPassword() {
     msg += `📱 Mera registered mobile number: (phone number fill nahi kiya)\n\n`;
   }
   msg += `Kripya mujhe naya password set karne mein help karein. 🙏`;
-  window.location.href = `whatsapp://send?phone=919889760350&text=${encodeURIComponent(msg)}`;
+  const waUrl = `https://wa.me/919889760350?text=${encodeURIComponent(msg)}`;
+  window.open(waUrl, '_blank');
 }
 
 async function doLogin() {
@@ -873,7 +896,7 @@ const Cart = {
   clear:() => { localStorage.removeItem('hb_cart'); updateBadge(); },
   add:  (item, variantLabel, variantPrice) => {
     const cart=Cart.get();
-    const key=item.itemId+(variantLabel||'');
+    const key=(item.itemId+(variantLabel||'')).replace(/['\\/]/g,'_');
     const idx=cart.findIndex(i=>i._key===key);
     if(idx>=0) { cart[idx].qty++; }
     else {
@@ -890,14 +913,18 @@ const Cart = {
 };
 
 function updateBadge() {
-  const n=Cart.get().reduce((s,i)=>s+i.qty,0);
-  const b=doc('cart-badge'); if(b){ b.textContent=n; b.classList.toggle('hide',n===0); }
-  const fab=doc('cart-fab'), fabCount=doc('cart-fab-count');
-  const onHome = doc('pg-home') && doc('pg-home').classList.contains('here');
-  if(fab){
-    fab.classList.toggle('show', n>0 && onHome);
-    if(fabCount) fabCount.textContent=n+' item'+(n===1?'':'s');
-  }
+  try {
+    const n=Cart.get().reduce((s,i)=>s+i.qty,0);
+    const b=doc('cart-badge'); if(b){ b.textContent=n; b.classList.toggle('hide',n===0); }
+    const fab=doc('cart-fab'), fabCount=doc('cart-fab-count');
+    const onHome = doc('pg-home') && doc('pg-home').classList.contains('here');
+    if(fab){
+      fab.classList.toggle('show', n>0 && onHome);
+      if(fabCount) fabCount.textContent=n+' item'+(n===1?'':'s');
+    }
+    // Update nav cart badge
+    const cb=doc('bn-cart'); if(cb) cb.style.position='relative';
+  } catch(err) {}
 }
 
 // ══════════════════════════════════════════════
@@ -921,8 +948,8 @@ let _menu=[];
 
 async function loadMenu() {
   const list=doc('menu-list');
-  if(_menu.length) { renderMenu(_menu); }
-  else { list.innerHTML='<div class="sk sk-lg"></div><div class="sk sk-lg"></div>'; }
+  // Always show skeleton and fetch fresh from server
+  list.innerHTML='<div class="sk sk-lg"></div><div class="sk sk-lg"></div>';
   try {
     const menu=await api('getMenu');
     _menu=menu;
@@ -938,7 +965,14 @@ async function loadMenu() {
       updateCutoffBanner(cfg, h, h<11.5?'morning':'evening');
     }catch(e){}
   } catch(e) {
-    if(!_menu.length) list.innerHTML=`<div class="empty"><span class="em">😕</span><h3>Load failed</h3><p>Internet check karein</p></div>`;
+    list.innerHTML=`<div class="empty">
+      <span class="em">😕</span>
+      <h3>Menu load failed</h3>
+      <p style="color:#888;font-size:13px;margin-bottom:12px">Internet check karein aur retry karein</p>
+      <button class="btn btn-p" style="width:auto;padding:10px 24px" onclick="loadMenu()">
+        <i class="fa-solid fa-rotate-right"></i> Retry
+      </button>
+    </div>`;
   }
 }
 
@@ -971,11 +1005,11 @@ function renderMenu(menu) {
       </div>` : '';
     const defPrice = variants.length>0 ? variants[0].price : item.price;
     const defLabel = variants.length>0 ? variants[0].label : '';
-    const key = item.itemId+(defLabel||'');
+    const key = (item.itemId+(defLabel||'')).replace(/['\\/]/g,'_');
     const inCart = cart.find(i=>i._key===key);
     const qty = inCart ? inCart.qty : 0;
     const ctrl = qty>0
-      ? `<div class="qty-ctl"><button class="q-btn" onclick="Cart.qty('${key}',-1);renderMenu(window._menu)">−</button><span class="q-n">${qty}</span><button class="q-btn" onclick="Cart.qty('${key}',1);renderMenu(window._menu)">+</button></div>`
+      ? `<div class="qty-ctl"><button class="q-btn" onclick="Cart.qty('${key}',-1);renderMenu(_menu)">−</button><span class="q-n">${qty}</span><button class="q-btn" onclick="Cart.qty('${key}',1);renderMenu(_menu)">+</button></div>`
       : `<button class="add-btn" id="abtn-${idx}" onclick="addToCart(${idx},'${esc(item.itemId)}')">Add +</button>`;
     return `<div class="m-card">
       <img class="m-img" src="${imgSrc}" alt="${esc(item.name)}" loading="lazy"
@@ -991,7 +1025,6 @@ function renderMenu(menu) {
       </div>
     </div>`;
   }).join('');
-  window._menu=menu;
 }
 
 const _selVars={};
@@ -1073,11 +1106,11 @@ async function applyCoupon() {
 }
 
 let _waMsg='', _waPhone='';
-function openWhatsApp(){ window.location.href=`whatsapp://send?phone=${_waPhone}&text=${encodeURIComponent(_waMsg)}`; }
+function openWhatsApp(){ window.open(`https://wa.me/${_waPhone}?text=${encodeURIComponent(_waMsg)}`, '_blank'); }
 
 async function placeOrder() {
   const user=Auth.get(), cart=Cart.get();
-  if(!user?.address) { toast('Pehle account mein address set karein'); return; }
+  if(!user?.address?.trim()) { toast('Pehle account mein address set karein'); nav('pg-account'); return; }
   if(!cart.length) { toast('Cart khaali hai!'); return; }
   const isSub=getSub(), sub=cart.reduce((s,i)=>s+i.price*i.qty,0), del=isSub?0:20;
   const disc=_coupon?calcDisc(_coupon,sub):0, total=Math.max(0,sub-disc+del);
@@ -1100,7 +1133,7 @@ async function placeOrder() {
     nav('pg-success');
     doc('pay-note').classList.toggle('hide', isSub);
     const wb=doc('wa-btn-wrap');
-    if(wb){ wb.style.display='none'; setTimeout(()=>{ wb.style.display='block'; },2500); }
+    if(wb){ wb.classList.add('hide'); setTimeout(()=>{ wb.classList.remove('hide'); },2500); }
   } catch(e) { toast('❌ '+e.message); }
   finally { btn.innerHTML='<i class="fa-brands fa-whatsapp"></i> Place Order'; btn.disabled=false; }
 }
@@ -1112,12 +1145,21 @@ let _orders=[];
 async function loadOrders() {
   const el=doc('orders-list'), user=Auth.get();
   if(!user) return;
-  if(_orders.length) renderOrders(_orders);
-  else el.innerHTML='<div class="sk sk-lg"></div><div class="sk sk-lg"></div>';
+  // Always show loading skeleton and fetch fresh from server
+  el.innerHTML='<div class="sk sk-lg"></div><div class="sk sk-lg"></div><div class="sk sk-lg"></div>';
   try {
     _orders=await api('getUserOrders',{userId:user.userId});
     renderOrders(_orders);
-  } catch(e) { if(!_orders.length) el.innerHTML=`<div class="empty"><span class="em">😕</span><h3>Load failed</h3></div>`; }
+  } catch(e) {
+    el.innerHTML=`<div class="empty">
+      <span class="em">😕</span>
+      <h3>Load failed</h3>
+      <p style="color:#888;font-size:13px;margin-bottom:12px">Internet check karein aur retry karein</p>
+      <button class="btn btn-p" style="width:auto;padding:10px 24px" onclick="loadOrders()">
+        <i class="fa-solid fa-rotate-right"></i> Retry
+      </button>
+    </div>`;
+  }
 }
 
 function renderOrders(orders) {
@@ -1139,7 +1181,7 @@ function renderOrders(orders) {
         <span class="ord-amt">₹${Number(o.finalAmount).toFixed(0)}</span>
         <div style="display:flex;gap:6px">
           <span class="bdg ${o.paymentStatus==='paid'?'b-g':'b-y'}">${esc(o.paymentStatus)}</span>
-          <button class="btn btn-sm btn-ghost" onclick="window.location.href='whatsapp://send?phone=${CFG.WA}'">Help</button>
+          <button class="btn btn-sm btn-ghost" onclick="window.open('https://wa.me/${CFG.WA}','_blank')">Help</button>
         </div>
       </div>
     </div>`;
@@ -1153,7 +1195,7 @@ function joinTiffin() {
   const user=Auth.get();
   let msg=`Namaste! Monthly tiffin plan ke baare mein jaanna chahta/chahti hoon.\n\n🚚 *Free Home Delivery* + Save ₹200/month\n\n`;
   if(user) msg+=`Name: ${user.name}\nPhone: ${user.phone}\nAddress: ${user.address}`;
-  window.location.href=`whatsapp://send?phone=${CFG.TIFFIN}&text=${encodeURIComponent(msg)}`;
+  window.open(`https://wa.me/${CFG.TIFFIN}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 // ══════════════════════════════════════════════

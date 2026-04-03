@@ -217,10 +217,19 @@ const CFG={
 };
 
 async function api(action,data={}){
-  const r=await fetch(CFG.GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,data,apiKey:CFG.KEY})});
-  const res=await r.json();
-  if(!res.success) throw new Error(res.error||'API error');
-  return res.data;
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),20000);
+  try{
+    const r=await fetch(CFG.GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,data,apiKey:CFG.KEY}),signal:ctrl.signal});
+    clearTimeout(timer);
+    const res=await r.json();
+    if(!res.success) throw new Error(res.error||'API error');
+    return res.data;
+  }catch(e){
+    clearTimeout(timer);
+    if(e.name==='AbortError') throw new Error('Request timed out. Please retry.');
+    throw e;
+  }
 }
 
 // ── AUTH ──
@@ -495,7 +504,7 @@ function renderOrders(){
         <div class="act-row">
           <a href="tel:${esc(o.phone)}" class="a-btn call"><i class="fa-solid fa-phone"></i> ${esc(o.phone)}</a>
           <a href="${mapsUrl}" target="_blank" class="a-btn maps"><i class="fa-solid fa-map-location-dot"></i> Maps</a>
-          <a href="whatsapp://send?phone=91${esc(o.phone)}&text=${encodeURIComponent(waMsg)}" class="a-btn wa"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="https://wa.me/91${esc(o.phone)}?text=${encodeURIComponent(waMsg)}" class="a-btn wa"><i class="fa-brands fa-whatsapp"></i></a>
         </div>
       </div>
       <div class="items-sec">
@@ -705,7 +714,7 @@ window.addEventListener('DOMContentLoaded',()=>{
 });
 
 // Auto-refresh every 90s
-setInterval(()=>{ if(_rider) loadOrders(); }, 90000);
+setInterval(()=>{ if(_rider && !document.hidden) loadOrders(); }, 90000);
 </script>
 </body>
 </html>

@@ -453,10 +453,19 @@ const CFG={
   KEY:'HB_SECURE_API_KEY_2026'
 };
 async function api(action,data={}){
-  const r=await fetch(CFG.GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,data,apiKey:CFG.KEY})});
-  const res=await r.json();
-  if(!res.success) throw new Error(res.error||'API error');
-  return res.data;
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),20000);
+  try{
+    const r=await fetch(CFG.GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,data,apiKey:CFG.KEY}),signal:ctrl.signal});
+    clearTimeout(timer);
+    const res=await r.json();
+    if(!res.success) throw new Error(res.error||'API error');
+    return res.data;
+  }catch(e){
+    clearTimeout(timer);
+    if(e.name==='AbortError') throw new Error('Request timed out. Please retry.');
+    throw e;
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -703,6 +712,8 @@ async function loadBulkSubs(){
 function toggleAllBulk(cb){ document.querySelectorAll('.bulk-cb').forEach(c=>c.checked=cb.checked); }
 
 async function genBulkOrders(){
+  const checked=document.querySelectorAll('.bulk-cb:checked').length;
+  if(!checked){ toast('❌ Koi subscriber select nahi kiya'); return; }
   const itemId=doc('bulk-item').value;
   if(!itemId){ toast('Select a menu item'); return; }
   const item=_bulkMenu.find(i=>i.itemId===itemId);
@@ -794,6 +805,7 @@ function renderVarRows(){
 }
 
 async function submitMenu(){
+  const _sbtn=doc('menu-submit-btn'); if(_sbtn){_sbtn.disabled=true;}
   const itemId=doc('mi-id').value;
   const variants=_varRows.filter(v=>v.label&&v.price);
   const data={
