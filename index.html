@@ -1339,7 +1339,6 @@ function renderOrders(orders) {
 function joinTiffin() {
   const user = Auth.get();
   let msg = 'Namaste! Monthly tiffin plan ke baare mein jaanna chahta/chahti hoon.\n\n🚚 *Free Home Delivery* + Save ₹200/month\n\n';
-  if (user) msg += `Name: ${user.name}\nPhone: ${user.phone}\nAddress: ${user.address}`;
   openWA(CFG.TIFFIN, msg);
 }
 
