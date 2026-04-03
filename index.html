@@ -33,6 +33,9 @@ body{font-family:var(--fb);color:var(--dk);width:100%;max-width:520px;margin:0 a
   transition:opacity .3s;
 }
 #app-loader.fade-out{opacity:0;pointer-events:none}
+/* Safety fallback: auto-hide loader after 6s if JS crashes before bootApp runs */
+@keyframes loaderAutoHide{0%,83%{opacity:1;pointer-events:auto}100%{opacity:0;pointer-events:none}}
+#app-loader{animation:loaderAutoHide 6s forwards}
 #app-loader .logo-mark{font-family:var(--ff);font-size:28px;font-weight:900;color:var(--p)}
 #app-loader .tagline{font-size:12px;color:var(--gr);font-weight:600;font-style:italic}
 #app-loader .loader-ring{
@@ -371,9 +374,9 @@ textarea.inp{resize:vertical;min-height:72px}
         <div class="ico">✨</div>
         <div><h4>Subscriber Active!</h4><p>🚚 Free Home Delivery on all your orders</p></div>
       </div>
-      <div id="cutoff-banner" class="hide" style="background:linear-gradient(135deg,#e63946,#c1121f);color:#fff;border-radius:var(--r);padding:11px 16px;margin-bottom:14px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px">
-        <span style="font-size:20px">⏰</span>
-        <div><div id="cutoff-msg" style="font-weight:700">Orders closed</div><div style="font-size:11px;opacity:.85" id="cutoff-sub">Next slot opens soon</div></div>
+      <div id="cutoff-banner" class="hide" style="border-radius:var(--r);padding:11px 16px;margin-bottom:14px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px">
+        <span id="cutoff-icon" style="font-size:20px">🟢</span>
+        <div><div id="cutoff-msg" style="font-weight:700">Orders Open</div><div style="font-size:11px;opacity:.85" id="cutoff-sub">Closes at 11:30 AM IST</div></div>
       </div>
       <button class="tif-ban" onclick="joinTiffin()">
         <div><h4>🍛 Monthly Tiffin Plan</h4><p>Free Home Delivery + Save ₹200/month</p></div>
@@ -1122,16 +1125,44 @@ async function loadMenu() {
   }
 }
 
+function to12hIST(timeStr) {
+  // Converts "HH:MM" string directly to "H:MM AM/PM IST" — never uses new Date()
+  const parts = (timeStr || '').split(':');
+  if (parts.length < 2) return timeStr + ' IST';
+  let h = parseInt(parts[0], 10), m = parseInt(parts[1], 10);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return h + ':' + String(m).padStart(2, '0') + ' ' + ampm + ' IST';
+}
+
 function updateCutoffBanner(cfg, currentH, menuType) {
-  const banner = doc('cutoff-banner'), msgEl = doc('cutoff-msg'), subEl = doc('cutoff-sub'), placeBtn = doc('place-btn');
+  const banner = doc('cutoff-banner'), iconEl = doc('cutoff-icon'), msgEl = doc('cutoff-msg'), subEl = doc('cutoff-sub'), placeBtn = doc('place-btn');
   if (!cfg || !cfg.enabled) { banner.classList.add('hide'); if (placeBtn) placeBtn.disabled = false; return; }
   const [dH, dM] = (cfg.cutoffDay || '11:30').split(':').map(Number);
   const [nH, nM] = (cfg.cutoffNight || '19:30').split(':').map(Number);
   const dayCutoff = dH + dM/60, nightCutoff = nH + nM/60;
   let closed = false;
-  if (menuType === 'morning' && currentH >= dayCutoff) { closed = true; msgEl.textContent = 'Orders closed for lunch'; subEl.textContent = `Cutoff was ${cfg.cutoffDay} AM`; banner.style.background = 'linear-gradient(135deg,#e63946,#c1121f)'; }
-  else if (menuType === 'evening' && currentH >= nightCutoff) { closed = true; msgEl.textContent = 'Orders closed for dinner'; subEl.textContent = `Cutoff was ${cfg.cutoffNight} IST`; banner.style.background = 'linear-gradient(135deg,#e63946,#c1121f)'; }
-  else { msgEl.textContent = 'Orders open'; subEl.textContent = menuType === 'morning' ? `Closes at ${cfg.cutoffDay} AM` : `Closes at ${cfg.cutoffNight} IST`; banner.style.background = 'linear-gradient(135deg,#2a9d8f,#1d7a6f)'; }
+  if (menuType === 'morning' && currentH >= dayCutoff) {
+    closed = true;
+    iconEl.textContent = '🔴';
+    msgEl.textContent = 'Orders Closed';
+    subEl.textContent = 'Reopens at ' + to12hIST(cfg.cutoffNight);
+    banner.style.background = 'linear-gradient(135deg,#e63946,#c1121f)';
+    banner.style.color = '#fff';
+  } else if (menuType === 'evening' && currentH >= nightCutoff) {
+    closed = true;
+    iconEl.textContent = '🔴';
+    msgEl.textContent = 'Orders Closed';
+    subEl.textContent = 'Reopens at 7:30 AM IST';
+    banner.style.background = 'linear-gradient(135deg,#e63946,#c1121f)';
+    banner.style.color = '#fff';
+  } else {
+    iconEl.textContent = '🟢';
+    msgEl.textContent = 'Orders Open';
+    subEl.textContent = menuType === 'morning' ? 'Closes at ' + to12hIST(cfg.cutoffDay) : 'Closes at ' + to12hIST(cfg.cutoffNight);
+    banner.style.background = 'linear-gradient(135deg,#2a9d8f,#1d7a6f)';
+    banner.style.color = '#fff';
+  }
   banner.classList.remove('hide');
   if (placeBtn) placeBtn.disabled = closed;
 }
