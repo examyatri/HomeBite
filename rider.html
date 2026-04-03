@@ -21,7 +21,7 @@
   --ngt:#4f46e5;--ngtb:#eef2ff;--ngtbd:#c7d2fe;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:520px;margin:0 auto;min-height:100vh}
+body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:480px;margin:0 auto;min-height:100vh}
 .hide{display:none!important}
 
 /* ── BUTTONS ── */
@@ -45,16 +45,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:520px;
 .lbl-field{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:block}
 
 /* ── SEARCH BAR ── */
-.search-wrap{display:flex;align-items:center;gap:8px;margin:10px 14px 6px}
-.search-inner{position:relative;flex:1}
-.search-inp{width:100%;padding:11px 36px 11px 40px;background:#fff;border:2px solid var(--lt);border-radius:11px;font-family:var(--fb);font-size:14px;font-weight:500;color:var(--tx);outline:none;transition:border-color .18s}
+.search-wrap{position:relative;margin:10px 14px 6px}
+.search-inp{width:100%;padding:11px 40px 11px 40px;background:#fff;border:2px solid var(--lt);border-radius:11px;font-family:var(--fb);font-size:14px;font-weight:500;color:var(--tx);outline:none;transition:border-color .18s}
 .search-inp:focus{border-color:var(--p)}
 .search-inp::placeholder{color:var(--mu)}
 .search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:14px;pointer-events:none}
-.search-clear{position:absolute;right:9px;top:50%;transform:translateY(-50%);background:var(--lt);border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:11px;color:var(--mu)}
+.search-clear{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:var(--lt);border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:11px;color:var(--mu)}
 .search-clear.show{display:flex}
-.search-btn{flex-shrink:0;background:var(--p);color:#fff;border:none;border-radius:11px;padding:11px 14px;font-family:var(--ff);font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;touch-action:manipulation;transition:background .18s}
-.search-btn:active{transform:scale(.96);background:var(--pd)}
 
 /* ── BADGES ── */
 .bdg{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
@@ -173,7 +170,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:520px;
 
 /* ── ROUTE MODAL ── */
 .route-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
-.route-box{background:#fff;border-radius:24px 24px 0 0;padding:22px 20px 36px;width:100%;max-width:520px;animation:slideup .28s ease}
+.route-box{background:#fff;border-radius:24px 24px 0 0;padding:22px 20px 36px;width:100%;max-width:480px;animation:slideup .28s ease}
 @keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .route-box h3{font-family:var(--ff);font-size:16px;font-weight:800;margin-bottom:3px}
 .route-box .rm-desc{font-size:13px;color:var(--mu);margin-bottom:14px;line-height:1.5}
@@ -247,16 +244,9 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:520px;
 
   <!-- Search Bar -->
   <div class="search-wrap">
-    <div class="search-inner">
-      <i class="fa-solid fa-magnifying-glass search-icon"></i>
-      <input class="search-inp" id="search-inp" type="text" placeholder="Search by name, mobile or address…"
-        oninput="onSearchInput(this.value)"
-        onkeydown="if(event.key==='Enter'){event.preventDefault();doSearch();}">
-      <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
-    </div>
-    <button class="search-btn" onclick="doSearch()">
-      <i class="fa-solid fa-magnifying-glass"></i> Search
-    </button>
+    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+    <input class="search-inp" id="search-inp" type="text" placeholder="Search by name, mobile or address…" oninput="onSearch(this.value)">
+    <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
   </div>
 
   <!-- Two-Tab Layout -->
@@ -271,39 +261,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:520px;
     </button>
   </div>
 
-  <!-- Active Tab Filters -->
-  <div class="filter-wrap" id="active-filters">
-    <button class="filter-toggle" id="ftbtn-active" onclick="toggleFilters('active')">
-      <span><i class="fa-solid fa-sliders" style="color:var(--p);margin-right:7px"></i>Filter Active Orders</span>
-      <i class="fa-solid fa-chevron-down arr"></i>
-    </button>
-    <div class="filter-body hide" id="fbody-active">
-      <div class="filter-row">
-        <span class="f-label">📅 Date</span>
-        <input type="date" class="f-date" id="active-filter-date" onchange="renderActive()">
-        <button class="f-clr" onclick="doc('active-filter-date').value='';renderActive()">✕</button>
-      </div>
-      <div class="filter-row">
-        <span class="f-label">🕐 Slot</span>
-        <select class="f-select" id="active-filter-slot" onchange="renderActive()">
-          <option value="all">All Slots</option>
-          <option value="day">☀️ Morning</option>
-          <option value="night">🌙 Evening</option>
-        </select>
-      </div>
-      <div class="filter-acts">
-        <button class="f-reset" onclick="doc('active-filter-date').value='';doc('active-filter-slot').value='all';renderActive()">Reset Filters</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Delivered Tab Filters (hidden when on active tab) -->
   <div class="filter-wrap hide" id="delivered-filters">
-    <button class="filter-toggle" id="ftbtn-delivered" onclick="toggleFilters('delivered')">
+    <button class="filter-toggle" id="ftbtn" onclick="toggleFilters()">
       <span><i class="fa-solid fa-sliders" style="color:var(--p);margin-right:7px"></i>Filter Delivered Orders</span>
       <i class="fa-solid fa-chevron-down arr"></i>
     </button>
-    <div class="filter-body hide" id="fbody-delivered">
+    <div class="filter-body hide" id="fbody">
       <div class="filter-row">
         <span class="f-label">📅 Date</span>
         <input type="date" class="f-date" id="filter-date" onchange="renderDelivered()">
@@ -455,7 +419,6 @@ function switchTab(tab){
   doc('tab-active').classList.toggle('act',tab==='active');
   doc('tab-delivered').classList.toggle('act',tab==='delivered');
   doc('route-banner-btn').classList.toggle('hide',tab==='delivered');
-  doc('active-filters').classList.toggle('hide',tab==='delivered');
   doc('delivered-filters').classList.toggle('hide',tab==='active');
 
   if(tab==='active'){
@@ -468,15 +431,9 @@ function switchTab(tab){
 }
 
 // ══ SEARCH ══
-// onSearchInput: called on every keystroke — only updates the ✕ clear button visibility
-function onSearchInput(q){
-  doc('search-clear').classList.toggle('show', q.length > 0);
-}
-// doSearch: triggered by Search button or Enter key — commits the query and re-renders
-function doSearch(){
-  const q = doc('search-inp').value.trim().toLowerCase();
-  _searchQ = q;
-  doc('search-clear').classList.toggle('show', q.length > 0);
+function onSearch(q){
+  _searchQ=q.trim().toLowerCase();
+  doc('search-clear').classList.toggle('show',_searchQ.length>0);
   if(_currentTab==='active') renderActive();
   else renderDelivered();
 }
@@ -548,59 +505,16 @@ function updateTabCounts(){
   doc('tab-delivered-count').textContent=_deliveredOrders.length;
 }
 
-// ══ RENDER ACTIVE TAB — Morning/Evening groups with date+slot filter ══
+// ══ RENDER ACTIVE TAB — Morning/Evening groups ══
 function renderActive(){
-  const dv = doc('active-filter-date').value;
-  const tv = doc('active-filter-slot').value;
-
-  // Apply search + date + slot filters
-  let list = _activeOrders.filter(o => {
-    if(!matchesSearch(o)) return false;
-    if(dv && orderDateToISO(o.date) !== dv) return false;
-    if(tv !== 'all'){
-      const d = isDayOrder(o);
-      if(tv === 'day' && !d) return false;
-      if(tv === 'night' && d) return false;
-    }
-    return true;
-  });
-
+  const list=_activeOrders.filter(matchesSearch);
   const b=doc('ord-count-badge');
-  const hasFilter = _searchQ || dv || tv !== 'all';
   if(b) b.textContent=list.length+' order'+(list.length!==1?'s':'');
 
   if(!list.length){
-    doc('orders-con').innerHTML=`<div class="empty"><span>${hasFilter?'🔍':'🎉'}</span><p>${hasFilter?'No results for applied filters':'All orders delivered!'}</p></div>`;
+    doc('orders-con').innerHTML=`<div class="empty"><span>${_searchQ?'🔍':'🎉'}</span><p>${_searchQ?'No results for "'+esc(_searchQ)+'"':'All orders delivered!'}</p></div>`;
     return;
   }
-
-  // When a slot filter is active, don't split into sub-groups (already filtered)
-  if(tv === 'day'){
-    const sorted = [...list].sort(sortOldest);
-    let html = `<div class="group-hdr">
-      <div class="group-pill pill-day"><i class="fa-solid fa-sun"></i> Morning</div>
-      <span class="group-cnt">${sorted.length} order${sorted.length>1?'s':''}</span>
-      <button class="group-route-btn" onclick="showRouteModal('day')"><i class="fa-solid fa-route"></i> Route</button>
-    </div>`;
-    sorted.forEach(o=>{ html+=renderCard(o,false); });
-    html+='<div style="height:20px"></div>';
-    doc('orders-con').innerHTML=html;
-    return;
-  }
-  if(tv === 'night'){
-    const sorted = [...list].sort(sortOldest);
-    let html = `<div class="group-hdr">
-      <div class="group-pill pill-ngt"><i class="fa-solid fa-moon"></i> Evening</div>
-      <span class="group-cnt">${sorted.length} order${sorted.length>1?'s':''}</span>
-      <button class="group-route-btn" onclick="showRouteModal('night')"><i class="fa-solid fa-route"></i> Route</button>
-    </div>`;
-    sorted.forEach(o=>{ html+=renderCard(o,false); });
-    html+='<div style="height:20px"></div>';
-    doc('orders-con').innerHTML=html;
-    return;
-  }
-
-  // Default: split into Morning / Evening groups
   const dayList=[...list.filter(o=>isDayOrder(o))].sort(sortOldest);
   const ngtList=[...list.filter(o=>!isDayOrder(o))].sort(sortOldest);
   let html='';
@@ -678,7 +592,7 @@ function renderCard(o, isDone){
 
   return `<div class="o-card${isDone?' done':''}" id="oc-${o.orderId.replace(/[^a-zA-Z0-9_-]/g,'')}">
   <div class="oc-top">
-    <span class="oc-id">${esc(o.orderId)} &nbsp;·&nbsp; ${esc(fmtDate(o.createdAt||o.date))} ${esc(fmtTime(o.createdAt||o.time))}</span>
+    <span class="oc-id">${esc(o.orderId)} &nbsp;·&nbsp; ${esc(fmtDate(o.date))} ${esc(fmtTime(o.time))}</span>
     <span class="bdg ${isDone?'b-g':'b-bl'}">${isDone?'Delivered':'Out for Delivery'}</span>
   </div>
   <div class="oc-cust">
@@ -772,14 +686,10 @@ function openRouteInMaps(){
   }catch(e){window.open(url,'_blank');}
 }
 
-// ══ FILTER TOGGLE ══
-function toggleFilters(tab){
-  const suffix = tab || _currentTab;
-  const btn  = doc('ftbtn-' + suffix);
-  const body = doc('fbody-' + suffix);
-  if(!btn || !body) return;
-  btn.classList.toggle('open');
-  body.classList.toggle('hide');
+// ══ FILTER TOGGLE (Delivered tab) ══
+function toggleFilters(){
+  const btn=doc('ftbtn'),body=doc('fbody');
+  btn.classList.toggle('open');body.classList.toggle('hide');
 }
 
 // ══ PDF EXPORT — individual ORDER TOTAL per card, NO grand total ══
@@ -815,7 +725,7 @@ ${Number(o.deliveryCharge)>0?`<div class="row"><span style="color:#999">Delivery
 ${Number(o.discount)>0?`<div class="row"><span style="color:#2a9d8f">Discount</span><span>−₹${o.discount}</span></div>`:''}
 <div class="sep"></div>
 <div class="row"><span class="tot">ORDER TOTAL</span><span class="tot">₹${Number(o.finalAmount).toFixed(0)}</span></div>
-<div style="font-size:11px;color:#666;margin-top:5px">${o.userType==='subscriber'?'👑 Wallet':'💰 Collect'} | ${esc(fmtDate(o.createdAt||o.date))} ${esc(fmtTime(o.createdAt||o.time))}</div>
+<div style="font-size:11px;color:#666;margin-top:5px">${o.userType==='subscriber'?'👑 Wallet':'💰 Collect'} | ${esc(fmtDate(o.date))} ${esc(fmtTime(o.time))}</div>
 </div>`; }).join('')}
 </body></html>`;
   const win=window.open('','_blank');
@@ -835,7 +745,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   autofillRiderCreds();
 });
 
-setInterval(()=>{if(_rider&&!document.hidden) loadOrders();},60000);
+setInterval(()=>{if(_rider&&!document.hidden) loadOrders();},90000);
 </script>
 </body>
 </html>

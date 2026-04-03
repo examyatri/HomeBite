@@ -671,7 +671,7 @@ function renderOrds(){
       <td><span class="bdg ${o.userType==='subscriber'?'b-g':'b-gr'}">${esc(o.userType||'daily')}</span></td>
       <td><span class="bdg ${sc[o.paymentStatus]||'b-y'}">${esc(o.paymentStatus||'pending')}</span></td>
       <td><span class="bdg ${sc[o.orderStatus]||'b-y'}">${esc(o.orderStatus||'pending')}</span></td>
-      <td style="font-size:12px;white-space:nowrap">${esc(fmtDate(o.createdAt||o.date))}<br><span style="color:#999">${esc(fmtTime(o.createdAt||o.time))}</span></td>
+      <td style="font-size:12px;white-space:nowrap">${esc(fmtDate(o.date))}<br><span style="color:#999">${esc(fmtTime(o.time))}</span></td>
       <td style="font-size:12px">${o.riderId?`<code>${esc(o.riderId)}</code>`:'<span style="color:#ccc">—</span>'}</td>
       <td>
         <button class="btn btn-sm btn-ghost" onclick='showOrdDetail(${JSON.stringify(o).replace(/'/g,"&#39;")})' style="margin-right:4px"><i class="fa-solid fa-eye"></i></button>
@@ -686,7 +686,7 @@ function showOrdDetail(o){
   doc('mo-order-c').innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
       <div><div style="font-size:11px;color:#999;font-weight:700">ORDER ID</div><code style="font-weight:700">${esc(o.orderId)}</code></div>
-      <div><div style="font-size:11px;color:#999;font-weight:700">DATE</div>${esc(fmtDate(o.createdAt||o.date))} ${esc(fmtTime(o.createdAt||o.time))}</div>
+      <div><div style="font-size:11px;color:#999;font-weight:700">DATE</div>${esc(fmtDate(o.date))} ${esc(fmtTime(o.time))}</div>
       <div><div style="font-size:11px;color:#999;font-weight:700">CUSTOMER</div><strong>${esc(o.name)}</strong></div>
       <div><div style="font-size:11px;color:#999;font-weight:700">PHONE</div><a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>
     </div>
