@@ -445,6 +445,22 @@ tr:hover td{background:#fafafa}
 
 <div class="toast" id="toast"></div>
 <script>
+
+// Safe Storage wrapper
+const Store = {
+  get(key, fallback) {
+    if (fallback === undefined) fallback = null;
+    try {
+      const v = localStorage.getItem(key);
+      if (v === null || v === 'undefined') return fallback;
+      return JSON.parse(v);
+    } catch(e) { try { localStorage.removeItem(key); } catch(_) {} return fallback; }
+  },
+  set(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} },
+  remove(key) { try { localStorage.removeItem(key); } catch(e) {} },
+  clear() { try { localStorage.clear(); } catch(e) {} }
+};
+
 // ════════════════════════════════════════════════
 // CONFIG
 // ════════════════════════════════════════════════
@@ -1100,6 +1116,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   if(session){ showApp(session); }
   if(window.innerWidth<=768){ doc('menu-toggle').style.display='block'; }
 });
+
+window.addEventListener('error', (e) => { console.error('[Admin]', e.message); });
+window.addEventListener('unhandledrejection', (e) => { e.preventDefault(); });
 </script>
 </body>
 </html>

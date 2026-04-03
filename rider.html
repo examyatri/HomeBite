@@ -715,6 +715,22 @@ window.addEventListener('DOMContentLoaded',()=>{
 
 // Auto-refresh every 90s
 setInterval(()=>{ if(_rider && !document.hidden) loadOrders(); }, 90000);
+
+// Blank screen fix for page restore from bfcache
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) { const a = document.getElementById('pg-app'); if (a) a.style.display = 'block'; }
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    const pg = document.querySelector('#pg-app');
+    if (pg && pg.style.display !== 'none' && pg.offsetHeight === 0) {
+      document.body.style.display = 'none'; void document.body.offsetHeight; document.body.style.display = '';
+    }
+  }
+});
+// Global error boundary
+window.addEventListener('error', (e) => { console.error('[Rider]', e.message); });
+window.addEventListener('unhandledrejection', (e) => { e.preventDefault(); });
 </script>
 </body>
 </html>

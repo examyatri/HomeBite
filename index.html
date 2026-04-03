@@ -7,6 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+/* -- LOADER shown immediately until JS boots -- */
+#app-loader{position:fixed;inset:0;background:#f3f4f6;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .3s}
+#app-loader.hidden{opacity:0;pointer-events:none}
+.ld-logo{font-family:'Sora',sans-serif;font-size:28px;font-weight:900;color:#e63946;margin-bottom:12px}
+.ld-sub{font-size:13px;color:#6b7280;font-weight:600;margin-bottom:28px;font-style:italic}
+.ld-spin{width:36px;height:36px;border:3px solid #fde8ea;border-top-color:#e63946;border-radius:50%;animation:sp .8s linear infinite}
 :root{
   --p:#e63946;--pd:#c1121f;--pl:#fde8ea;
   --g:#2a9d8f;--gl:#e8f5f3;
@@ -269,6 +275,14 @@ textarea.inp{resize:vertical;min-height:72px}
 .cart-fab-count{background:rgba(255,255,255,.25);border-radius:20px;padding:2px 9px;font-size:13px;font-weight:800}
 @keyframes fabIn{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
+
+/* -- LOGOUT BUTTON -- */
+.btn-logout{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  padding:15px;background:#fff5f5;color:var(--p);border:2px solid #fde8ea;border-radius:var(--r);
+  font-family:var(--ff);font-weight:700;font-size:14px;cursor:pointer;margin-top:6px;
+  transition:background .18s;touch-action:manipulation}
+.btn-logout:hover{background:var(--pl)}
+.btn-logout:active{transform:scale(.97)}
 /* ── RESPONSIVE ── */
 @media(min-width:400px){
   .m-img{height:190px}
@@ -277,6 +291,13 @@ textarea.inp{resize:vertical;min-height:72px}
 </style>
 </head>
 <body>
+
+<!-- Full-screen loader until JS is ready -->
+<div id="app-loader">
+  <div class="ld-logo">Home Bite</div>
+  <div class="ld-sub">Ghar ka khana ♥</div>
+  <div class="ld-spin"></div>
+</div>
 
 <!-- Pull-to-refresh indicator — fixed globally, above home-top -->
 <div class="ptr-indicator" id="ptr-ind"><i class="fa-solid fa-arrow-rotate-right"></i></div>
@@ -304,7 +325,7 @@ textarea.inp{resize:vertical;min-height:72px}
       <div class="fg"><label class="lbl">Password</label>
         <input id="l-pw" class="inp" type="password" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="btn btn-p" id="btn-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
-      <button class="btn-forgot" onclick="forgotPassword()">
+      <button class="btn-forgot" onclick="WA.open('forgot','Page: Login | Phone: '+(document.getElementById('l-ph').value.trim()||'not entered'))">
         <i class="fa-brands fa-whatsapp"></i> Forgot Password? Get help on WhatsApp
       </button>
     </div>
@@ -492,7 +513,7 @@ textarea.inp{resize:vertical;min-height:72px}
     </div>
 
     <!-- Logout -->
-    <button class="btn" style="background:var(--lt);color:var(--p);font-family:var(--ff);font-weight:700;width:100%;margin-top:4px" onclick="Auth.logout()">
+    <button class="btn-logout" onclick="Auth.logout()">
       <i class="fa-solid fa-right-from-bracket"></i> Logout
     </button>
     <div style="height:16px"></div>
@@ -514,7 +535,7 @@ textarea.inp{resize:vertical;min-height:72px}
   <button class="bn" id="bn-cart" onclick="nav('pg-cart')"><i class="fa-solid fa-bag-shopping"></i><span>Cart</span></button>
   <button class="bn" id="bn-orders" onclick="nav('pg-orders')"><i class="fa-solid fa-receipt"></i><span>Orders</span></button>
   <button class="bn" id="bn-account" onclick="nav('pg-account')"><i class="fa-solid fa-user"></i><span>Account</span></button>
-  <button class="bn" onclick="openWhatsAppContact()"><i class="fa-brands fa-whatsapp" style="color:#25D366"></i><span style="color:#25D366">Contact</span></button>
+  <button class="bn" onclick="WA.open('contact')"><i class="fa-brands fa-whatsapp" style="color:#25D366"></i><span style="color:#25D366">Contact</span></button>
 </nav>
 
 <!-- About Modal -->
@@ -543,9 +564,79 @@ textarea.inp{resize:vertical;min-height:72px}
 const CFG = {
   GAS:  'https://script.google.com/macros/s/AKfycbwHq-D_E4_aD2W3R9TmaTk39pW87El0UCN89Vrjx4lUUhWRnMJbcsuUZLt1trwjkAq8Yg/exec',
   KEY:  'HB_SECURE_API_KEY_2026',
-  WA:   '919889760350',
-  TIFFIN: '919889760350'
+  WA_NUM: '919889760350'
 };
+
+// =============================================
+// WHATSAPP -- universal wa.me deep link
+// =============================================
+const WA = {
+  open(context, extra) {
+    const msgs = {
+      forgot:     'Namaste! Home Bite password reset karna hai.\n\n' + (extra||'') + '\n\nKripya help karein.',
+      tiffin:     extra || 'Namaste! Monthly tiffin plan ke baare mein jaanna chahta/chahti hoon.',
+      support:    'Namaste! App mein help chahiye.\n\n' + (extra||'') + '\n\nKripya assist karein.',
+      contact:    'Namaste! ' + (extra||'kuch information chahiye thi'),
+      order:      extra || 'Namaste! Order enquiry hai.',
+      screenshot: extra || 'Namaste! Payment screenshot bhej raha/rahi hoon.',
+    };
+    const text = msgs[context] || extra || 'Namaste! Home Bite se contact kar raha/rahi hoon.';
+    const url  = 'https://wa.me/' + CFG.WA_NUM + '?text=' + encodeURIComponent(text);
+    try {
+      const win = window.open(url, '_blank');
+      if (!win) window.location.href = url;
+    } catch(e) { window.location.href = url; }
+  }
+};
+
+// =============================================
+// SAFE STORAGE -- prevents blank screen from
+//                 corrupted localStorage
+// =============================================
+const Store = {
+  get(key, fallback) {
+    if (fallback === undefined) fallback = null;
+    try {
+      const v = localStorage.getItem(key);
+      if (v === null || v === 'undefined') return fallback;
+      return JSON.parse(v);
+    } catch(e) {
+      try { localStorage.removeItem(key); } catch(_) {}
+      return fallback;
+    }
+  },
+  set(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} },
+  remove(key)   { try { localStorage.removeItem(key); } catch(e) {} },
+  clear()       { try { localStorage.clear(); } catch(e) {} try { sessionStorage.clear(); } catch(e) {} }
+};
+
+// =============================================
+// BLANK SCREEN GUARD
+// =============================================
+(function blankScreenGuard() {
+  const FLAG = 'hb_reload_attempt', MAX = 2;
+  const attempts = Store.get(FLAG, 0);
+  setTimeout(() => {
+    const authPg = document.getElementById('pg-auth');
+    const homePg = document.getElementById('pg-home');
+    const ok = (authPg && authPg.classList.contains('here')) || (homePg && homePg.classList.contains('here'));
+    if (!ok && attempts < MAX) { Store.set(FLAG, attempts + 1); window.location.reload(); }
+    else if (ok) Store.set(FLAG, 0);
+  }, 3000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      const pg = document.querySelector('.pg.here');
+      if (!pg || pg.offsetHeight === 0) {
+        document.body.style.display = 'none';
+        void document.body.offsetHeight;
+        document.body.style.display = '';
+      }
+    }
+  });
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) { updateBadge(); if (stack[stack.length-1] === 'pg-home') loadMenu(); }
+  });
+})();
 
 // ══════════════════════════════════════════════
 // PAGE ROUTER — hardware back button aware
@@ -629,10 +720,7 @@ function goHome() {
   }
 }
 
-function openWhatsAppContact() {
-  var msg = encodeURIComponent('mujhe kuch information chahiye thi');
-  window.open('https://wa.me/919889760350?text=' + msg, '_blank');
-}
+// openWhatsAppContact replaced by WA.open in bnav
 
 function showAppUI() {
   var nav = doc('bottom-nav');
@@ -739,17 +827,20 @@ async function api(action, data={}) {
 // AUTH — persists in localStorage
 // ══════════════════════════════════════════════
 const Auth = {
-  get:    () => { try { return JSON.parse(localStorage.getItem('hb_user')); } catch { return null; } },
-  set:    u  => localStorage.setItem('hb_user', JSON.stringify(u)),
-  clear:  () => { localStorage.removeItem('hb_user'); localStorage.removeItem('hb_sub'); },
-  logout: () => {
+  get:    ()  => Store.get('hb_user'),
+  set:    u   => Store.set('hb_user', u),
+
+  logout() {
     if (!confirm('Logout karna chahte hain?')) return;
-    Auth.clear(); Cart.clear();
+    Store.clear(); Cart.clear();
     document.querySelectorAll('.pg').forEach(p => { p.classList.remove('here','left'); p.classList.add('right'); });
     doc('pg-auth').classList.replace('right','here');
     stack = ['pg-auth'];
     history.replaceState({ page:'pg-auth' }, '', '#pg-auth');
+    ['l-ph','l-pw','s-nm','s-ph','s-em','s-pw'].forEach(id => { const el = doc(id); if (el) el.value = ''; });
+    const sa = doc('s-ad'); if (sa) sa.value = '';
     hideAppUI();
+    toast('Logged out successfully');
   }
 };
 
@@ -760,18 +851,7 @@ function switchTab(t, el) {
   el.classList.add('act');
 }
 
-function forgotPassword() {
-  const phone = doc('l-ph').value.trim();
-  let msg = `Namaste! 🙏 Mujhe apna Home Bite password reset karna hai.\n\n`;
-  if(phone) {
-    msg += `📱 Mera registered mobile number: *${phone}*\n\n`;
-  } else {
-    msg += `📱 Mera registered mobile number: (phone number fill nahi kiya)\n\n`;
-  }
-  msg += `Kripya mujhe naya password set karne mein help karein. 🙏`;
-  const waUrl = `https://wa.me/919889760350?text=${encodeURIComponent(msg)}`;
-  window.open(waUrl, '_blank');
-}
+// forgotPassword handled inline via WA.open
 
 async function doLogin() {
   const phone = doc('l-ph').value.trim(), pw = doc('l-pw').value;
@@ -805,7 +885,7 @@ async function initApp() {
   const user=Auth.get(); if(!user) return;
   try {
     const sub=await api('checkSubscriber',{phone:user.phone});
-    localStorage.setItem('hb_sub',JSON.stringify(sub));
+    Store.set('hb_sub', sub);
     if(sub.isSubscriber) doc('sub-banner').classList.remove('hide');
   } catch(e) {}
   updateBadge();
@@ -891,9 +971,9 @@ async function savePassword() {
 // CART
 // ══════════════════════════════════════════════
 const Cart = {
-  get:  () => { try{ return JSON.parse(localStorage.getItem('hb_cart'))||[]; }catch{ return []; } },
-  save: c  => { localStorage.setItem('hb_cart',JSON.stringify(c)); updateBadge(); },
-  clear:() => { localStorage.removeItem('hb_cart'); updateBadge(); },
+  get:  () => Store.get('hb_cart', []),
+  save: c  => { Store.set('hb_cart', c); updateBadge(); },
+  clear:() => { Store.remove('hb_cart'); updateBadge(); },
   add:  (item, variantLabel, variantPrice) => {
     const cart=Cart.get();
     const key=(item.itemId+(variantLabel||'')).replace(/['\\/]/g,'_');
@@ -1106,7 +1186,7 @@ async function applyCoupon() {
 }
 
 let _waMsg='', _waPhone='';
-function openWhatsApp(){ window.open(`https://wa.me/${_waPhone}?text=${encodeURIComponent(_waMsg)}`, '_blank'); }
+function openWhatsApp(){ WA.open('screenshot', _waMsg); }
 
 async function placeOrder() {
   const user=Auth.get(), cart=Cart.get();
@@ -1181,7 +1261,7 @@ function renderOrders(orders) {
         <span class="ord-amt">₹${Number(o.finalAmount).toFixed(0)}</span>
         <div style="display:flex;gap:6px">
           <span class="bdg ${o.paymentStatus==='paid'?'b-g':'b-y'}">${esc(o.paymentStatus)}</span>
-          <button class="btn btn-sm btn-ghost" onclick="window.open('https://wa.me/${CFG.WA}','_blank')">Help</button>
+          <button class="btn btn-sm btn-ghost" onclick="WA.open('support','Order help')">Help</button>
         </div>
       </div>
     </div>`;
@@ -1192,10 +1272,9 @@ function renderOrders(orders) {
 // TIFFIN
 // ══════════════════════════════════════════════
 function joinTiffin() {
-  const user=Auth.get();
-  let msg=`Namaste! Monthly tiffin plan ke baare mein jaanna chahta/chahti hoon.\n\n🚚 *Free Home Delivery* + Save ₹200/month\n\n`;
-  if(user) msg+=`Name: ${user.name}\nPhone: ${user.phone}\nAddress: ${user.address}`;
-  window.open(`https://wa.me/${CFG.TIFFIN}?text=${encodeURIComponent(msg)}`, '_blank');
+  const user = Auth.get();
+  const extra = '🍛 Monthly Tiffin Plan Enquiry\n🚚 Free Home Delivery + Save ₹200/month\n\n' + (user ? 'Name: '+user.name+'\nPhone: '+user.phone+'\nAddress: '+user.address : '');
+  WA.open('tiffin', extra);
 }
 
 // ══════════════════════════════════════════════
@@ -1222,7 +1301,7 @@ function fmtTime(v){
   return s.replace(/[\u00a0\u202f\u2009]/g,' ');
 }
 function toast(msg) { const t=doc('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),3000); }
-function getSub() { try{ return JSON.parse(localStorage.getItem('hb_sub'))?.isSubscriber||false; }catch{ return false; } }
+function getSub() { return Store.get('hb_sub')?.isSubscriber || false; }
 function safeP(v) { if(Array.isArray(v)) return v; if(typeof v==='object'&&v!==null) return v; if(typeof v!=='string'||!v.trim()) return []; try{ return JSON.parse(v); }catch{ return []; } }
 
 // ══════════════════════════════════════════════
@@ -1239,14 +1318,12 @@ window.addEventListener('DOMContentLoaded', ()=>{
     history.replaceState({page:'pg-home'},'','#pg-home');
     updateBottomNav('pg-home');
     showAppUI();
-    try {
-      const sub=JSON.parse(localStorage.getItem('hb_sub'));
-      if(sub?.isSubscriber) doc('sub-banner').classList.remove('hide');
-    } catch(e){}
+    const sub0 = Store.get('hb_sub');
+    if (sub0?.isSubscriber) doc('sub-banner').classList.remove('hide');
     updateBadge();
     loadMenu();
     api('checkSubscriber',{phone:user.phone}).then(sub=>{
-      localStorage.setItem('hb_sub',JSON.stringify(sub));
+      Store.set('hb_sub', sub);
       if(sub.isSubscriber) doc('sub-banner').classList.remove('hide');
     }).catch(()=>{});
   } else {
@@ -1254,6 +1331,21 @@ window.addEventListener('DOMContentLoaded', ()=>{
     history.replaceState({page:'pg-auth'},'','#pg-auth');
   }
 });
+
+// Hide loader after DOM is ready
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const loader = document.getElementById('app-loader');
+    if (loader) {
+      loader.classList.add('hidden');
+      setTimeout(() => { loader.style.display = 'none'; }, 350);
+    }
+  }, 400);
+});
+
+// Global error boundary
+window.addEventListener('error', (e) => { console.error('[HB]', e.message, e.lineno); });
+window.addEventListener('unhandledrejection', (e) => { e.preventDefault(); });
 </script>
 </body>
 </html>
