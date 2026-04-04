@@ -9,15 +9,16 @@
 <style>
 :root{
   --p:#e63946;--pd:#c1121f;--pl:#fde8ea;
+  --grad:linear-gradient(135deg,#e63946,#f4591d);
   --g:#2a9d8f;--gl:#e8f5f3;
   --dk:#111827;--sb:#0f172a;--sba:#1e293b;
-  --gr:#6b7280;--lt:#f3f4f6;--wh:#fff;
-  --sh:0 2px 16px rgba(0,0,0,.08);
-  --r:12px;--sw:240px;
+  --gr:#6b7280;--lt:#faf7f5;--wh:#fff;
+  --sh:0 4px 20px rgba(0,0,0,.09);--shl:0 12px 40px rgba(0,0,0,.16);
+  --r:14px;--sw:240px;
   --ff:'Sora',sans-serif;--fb:'DM Sans',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--fb);background:var(--lt);color:var(--dk)}
+body{font-family:var(--fb);background:#f5f2ef;color:var(--dk)}
 .hide{display:none!important}
 
 /* ── AUTH ── */
@@ -38,7 +39,7 @@ body{font-family:var(--fb);background:var(--lt);color:var(--dk)}
 select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:34px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 18px;border-radius:10px;font-family:var(--ff);font-weight:700;font-size:13px;border:none;cursor:pointer;transition:all .18s}
 .btn:active{transform:scale(.97)}
-.btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--pd)}
+.btn-p{background:var(--grad);color:#fff}.btn-p:hover{filter:brightness(1.08)}
 .btn-g{background:var(--g);color:#fff}
 .btn-dk{background:var(--dk);color:#fff}
 .btn-ghost{background:rgba(0,0,0,.06);color:var(--dk)}
@@ -62,7 +63,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 .ni{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:9px;margin:1px 8px;
     font-size:13px;font-weight:600;color:rgba(255,255,255,.55);cursor:pointer;border:none;background:none;width:calc(100% - 16px);text-align:left;transition:all .18s}
 .ni:hover{background:rgba(255,255,255,.06);color:#fff}
-.ni.act{background:var(--p);color:#fff;box-shadow:0 4px 14px rgba(230,57,70,.35)}
+.ni.act{background:var(--grad);color:#fff;box-shadow:0 4px 14px rgba(230,57,70,.35)}
 .ni i{width:16px;text-align:center;font-size:14px}
 .sb-foot{margin-top:auto;padding:14px;border-top:1px solid rgba(255,255,255,.08)}
 
@@ -75,13 +76,13 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 
 /* ── STATS ── */
 .st-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:24px}
-.st-card{background:#fff;border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
+.st-card{background:#fff;border-radius:16px;padding:18px;box-shadow:var(--sh);border:1px solid rgba(0,0,0,.04)}
 .st-lbl{font-size:11px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .st-val{font-family:var(--ff);font-size:26px;font-weight:800}
 .st-ico{font-size:26px;margin-bottom:8px}
 
 /* ── TABLES ── */
-.tc{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:20px}
+.tc{background:#fff;border-radius:16px;box-shadow:var(--sh);overflow:hidden;margin-bottom:20px;border:1px solid rgba(0,0,0,.04)}
 .th{padding:16px 18px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .th h3{font-family:var(--ff);font-size:15px;font-weight:700}
 table{width:100%;border-collapse:collapse;font-size:13px}
@@ -103,7 +104,7 @@ tr:hover td{background:#fafafa}
 
 /* ── MODAL ── */
 .mo{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
-.mo-box{background:#fff;border-radius:20px;padding:26px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mo-box{background:#fff;border-radius:24px;padding:26px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
 .mo-t{font-family:var(--ff);font-size:17px;font-weight:700;margin-bottom:18px}
 .mo-ft{display:flex;gap:9px;margin-top:18px;justify-content:flex-end}
 .var-entry{display:flex;gap:8px;margin-bottom:8px;align-items:center}
@@ -145,7 +146,7 @@ tr:hover td{background:#fafafa}
 <!-- AUTH -->
 <div id="auth-pg">
   <div class="a-card">
-    <div class="a-logo"><h1>🍱 Home Bite</h1><p id="auth-subtitle">Admin Control Center</p></div>
+    <div class="a-logo"><h1 style="color:var(--p)">🍱 Home Bite</h1><p id="auth-subtitle">Admin Control Center</p></div>
     <div class="fg">
       <label class="lbl">Login As</label>
       <select id="a-role" class="inp" onchange="updateAuthUI()">
@@ -168,7 +169,7 @@ tr:hover td{background:#fafafa}
 
   <!-- SIDEBAR -->
   <aside class="sb" id="sidebar">
-    <div class="sb-logo"><h1>Home Bite</h1><p id="sb-role-label">Admin Panel</p></div>
+    <div class="sb-logo"><h1 style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Home Bite</h1><p id="sb-role-label">Admin Panel</p></div>
     <nav style="flex:1;padding:6px 0">
       <div class="sb-sec">Overview</div>
       <button class="ni act" id="ni-dashboard" onclick="showPg('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
@@ -238,11 +239,14 @@ tr:hover td{background:#fafafa}
       <!-- BULK ORDERS -->
       <div class="pg-v" id="pg-bulk">
         <div class="tc">
-          <div class="th"><h3>Manual Order Generation</h3><span style="font-size:12px;color:var(--gr)">For subscribers who didn't order by cutoff</span></div>
+          <div class="th"><h3>Bulk Order Generation</h3><span style="font-size:12px;color:var(--gr)">Auto-select eligible subscribers with sufficient balance who haven't ordered today</span></div>
           <div style="padding:18px">
-            <p style="font-size:13px;color:var(--gr);margin-bottom:16px">Generate bulk orders for subscribers (Day cutoff: 11:30 AM, Night cutoff: 7:30 PM)</p>
-            <div class="fg"><label class="lbl">Select Menu Item</label><select id="bulk-item" class="inp"><option value="">-- Select item --</option></select></div>
-            <div class="fg"><label class="lbl">Override Price (₹) — leave blank to use menu price</label><input id="bulk-price" class="inp" type="number" placeholder="e.g. 80"></div>
+            <div style="background:linear-gradient(135deg,#e8f5f3,#d4eeea);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:#1e7e71;font-weight:600">
+              <i class="fa-solid fa-circle-info" style="margin-right:6px"></i>
+              Orders generated will be marked <strong>PENDING</strong> for admin verification. Only subscribers with sufficient wallet balance who have <strong>not already ordered today</strong> are auto-selected.
+            </div>
+            <div class="fg"><label class="lbl">Select Menu Item *</label><select id="bulk-item" class="inp" onchange="onBulkItemChange()"><option value="">-- Select item --</option></select></div>
+            <div class="fg"><label class="lbl">Override Price (₹) — leave blank to use menu price</label><input id="bulk-price" class="inp" type="number" placeholder="e.g. 80" oninput="onBulkItemChange()"></div>
             <div class="fg"><label class="lbl">Reason / Note</label><input id="bulk-reason" class="inp" type="text" placeholder="e.g. Auto-generated for Day subscribers"></div>
             <div class="fg"><label class="lbl">Filter Subscribers By Plan</label>
               <select id="bulk-plan" class="inp" onchange="loadBulkSubs()">
@@ -250,11 +254,17 @@ tr:hover td{background:#fafafa}
                 <option value="night">Night Only</option><option value="both">Both Plans</option>
               </select>
             </div>
-            <div class="tc" style="margin-top:14px">
-              <div class="th"><h3>Subscribers to Order For</h3></div>
-              <div style="overflow-x:auto"><table><thead><tr><th><input type="checkbox" id="bulk-all" onchange="toggleAllBulk(this)"></th><th>Phone</th><th>Name</th><th>Plan</th><th>Address</th></tr></thead><tbody id="bulk-tb"></tbody></table></div>
+            <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+              <button class="btn btn-g" onclick="autoSelectEligible()" style="flex:1"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Select Eligible</button>
+              <button class="btn btn-ghost" onclick="toggleAllBulk({checked:true})" style="flex:1"><i class="fa-solid fa-check-double"></i> Select All</button>
+              <button class="btn btn-ghost" onclick="toggleAllBulk({checked:false})" style="flex:1"><i class="fa-solid fa-xmark"></i> Deselect All</button>
             </div>
-            <button class="btn btn-p" style="margin-top:14px" onclick="genBulkOrders()"><i class="fa-solid fa-boxes-stacked"></i> Generate Selected Orders</button>
+            <div id="bulk-auto-info" class="hide" style="background:#fffde7;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;font-weight:600;color:#c67c00"></div>
+            <div class="tc" style="margin-top:4px">
+              <div class="th"><h3 id="bulk-sub-count">Subscribers to Order For</h3><button class="btn btn-ghost btn-sm" onclick="loadBulkSubs()"><i class="fa-solid fa-rotate"></i> Refresh</button></div>
+              <div style="overflow-x:auto"><table><thead><tr><th><input type="checkbox" id="bulk-all" onchange="toggleAllBulk(this)"></th><th>Phone</th><th>Name</th><th>Plan</th><th>Balance</th><th>Address</th></tr></thead><tbody id="bulk-tb"></tbody></table></div>
+            </div>
+            <button class="btn btn-p" style="margin-top:14px" onclick="genBulkOrders()"><i class="fa-solid fa-boxes-stacked"></i> Generate Pending Orders</button>
           </div>
         </div>
       </div>
@@ -847,6 +857,8 @@ async function submitStatus(){
 let _bulkSubs=[],_bulkMenu=[];
 
 async function initBulk(){
+  const infoEl=doc('bulk-auto-info');
+  if(infoEl) infoEl.classList.add('hide');
   try{
     _bulkMenu=await api('adminGetMenu');
     const sel=doc('bulk-item'); sel.innerHTML='<option value="">-- Select item --</option>';
@@ -858,25 +870,89 @@ async function initBulk(){
 async function loadBulkSubs(){
   const plan=doc('bulk-plan').value;
   const tb=doc('bulk-tb');
-  tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">Loading...</td></tr>';
+  tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;color:#999">Loading...</td></tr>';
   try{
-    const subs=await api('adminGetSubscribers');
+    // Load subscribers and wallet balances in parallel
+    const [subs, khataData] = await Promise.all([
+      api('adminGetSubscribers'),
+      api('adminGetAllKhata').catch(()=>[])
+    ]);
+    // Build balance map
+    const balMap={};
+    khataData.forEach(k=>{ balMap[String(k.phone).replace(/\D/g,'')]=Number(k.balance)||0; });
     _bulkSubs=subs.filter(s=>{
       if(String(s.status||'active').toLowerCase()==='paused') return false;
       if(plan==='all') return true;
       return (s.plan||'both')===plan;
-    });
-    tb.innerHTML=_bulkSubs.length?_bulkSubs.map((s,i)=>`<tr>
-      <td><input type="checkbox" class="bulk-cb" data-i="${i}" checked></td>
-      <td><code>${esc(s.phone)}</code></td>
-      <td style="font-weight:700">${esc(s.name)}</td>
-      <td><span class="bdg b-g">${esc(s.plan||'both')}</span></td>
-      <td style="font-size:12px;color:#999">${esc(s.address||'No address')}</td>
-    </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">No matching subscribers</td></tr>';
+    }).map(s=>({ ...s, _bal: balMap[String(s.phone).replace(/\D/g,'')] || 0 }));
+    if(doc('bulk-sub-count')) doc('bulk-sub-count').textContent=`Subscribers (${_bulkSubs.length})`;
+    tb.innerHTML=_bulkSubs.length?_bulkSubs.map((s,i)=>{
+      const bal=s._bal;
+      const balClass=bal<0?'b-r':bal<100?'b-o':'b-g';
+      return `<tr>
+        <td><input type="checkbox" class="bulk-cb" data-i="${i}" checked></td>
+        <td><code>${esc(s.phone)}</code></td>
+        <td style="font-weight:700">${esc(s.name)}</td>
+        <td><span class="bdg b-g">${esc(s.plan||'both')}</span></td>
+        <td><span class="bdg ${balClass}">₹${bal}</span></td>
+        <td style="font-size:12px;color:#999">${esc(s.address||'No address')}</td>
+      </tr>`;
+    }).join(''):'<tr><td colspan="6" style="text-align:center;padding:20px;color:#999">No matching subscribers</td></tr>';
   }catch(e){ toast('Error: '+e.message); }
 }
 
 function toggleAllBulk(cb){ document.querySelectorAll('.bulk-cb').forEach(c=>c.checked=cb.checked); }
+
+function onBulkItemChange(){
+  // Reset auto-select info when item changes
+  const infoEl=doc('bulk-auto-info');
+  if(infoEl) infoEl.classList.add('hide');
+}
+
+async function autoSelectEligible(){
+  const itemId=doc('bulk-item').value;
+  if(!itemId){ toast('Please select a menu item first'); return; }
+  const item=_bulkMenu.find(i=>i.itemId===itemId);
+  const price=Number(doc('bulk-price').value)||Number(item?.price)||0;
+  if(!price){ toast('Please set item price first'); return; }
+  if(!_bulkSubs.length){ toast('Load subscribers first'); return; }
+
+  const infoEl=doc('bulk-auto-info');
+  if(infoEl){ infoEl.textContent='Checking today\'s orders...'; infoEl.classList.remove('hide'); }
+
+  try{
+    // Get today's orders to check who already ordered
+    const allOrders=await api('adminGetOrders');
+    // Get today's date string in DD/MM/YYYY (IST)
+    const ist=new Date(Date.now()+5.5*3600000);
+    const todayStr=String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
+    // Build set of phones that already have an order today
+    const orderedToday=new Set();
+    allOrders.forEach(o=>{
+      const oDate=normDate(o.date);
+      if(oDate===todayStr) orderedToday.add(String(o.phone).replace(/\D/g,''));
+    });
+    // Select only those with sufficient balance AND no order today
+    let eligibleCount=0, skippedBalance=0, skippedOrdered=0;
+    document.querySelectorAll('.bulk-cb').forEach((cb,idx)=>{
+      const s=_bulkSubs[Number(cb.dataset.i)];
+      if(!s){ cb.checked=false; return; }
+      const phone=String(s.phone).replace(/\D/g,'');
+      const bal=s._bal||0;
+      if(orderedToday.has(phone)){ cb.checked=false; skippedOrdered++; return; }
+      if(bal<price){ cb.checked=false; skippedBalance++; return; }
+      cb.checked=true; eligibleCount++;
+    });
+    let msg=`✅ ${eligibleCount} eligible subscriber(s) selected.`;
+    if(skippedOrdered>0) msg+=` ${skippedOrdered} already ordered today.`;
+    if(skippedBalance>0) msg+=` ${skippedBalance} have insufficient balance (< ₹${price}).`;
+    if(infoEl){ infoEl.textContent=msg; infoEl.classList.remove('hide'); }
+    toast(`✅ Auto-selected ${eligibleCount} eligible subscribers`);
+  }catch(e){
+    toast('❌ '+e.message);
+    if(infoEl) infoEl.classList.add('hide');
+  }
+}
 
 async function genBulkOrders(){
   const checked=document.querySelectorAll('.bulk-cb:checked').length;
@@ -885,17 +961,18 @@ async function genBulkOrders(){
   if(!itemId){ toast('Select a menu item'); return; }
   const item=_bulkMenu.find(i=>i.itemId===itemId);
   const price=Number(doc('bulk-price').value)||Number(item?.price)||0;
-  const reason=doc('bulk-reason').value.trim()||'Manual bulk order';
+  const reason=doc('bulk-reason').value.trim()||'Auto bulk order';
   const selected=[];
   document.querySelectorAll('.bulk-cb:checked').forEach(cb=>{ selected.push(_bulkSubs[Number(cb.dataset.i)]); });
   if(!selected.length){ toast('Select at least one subscriber'); return; }
-  if(!confirm(`Generate orders for ${selected.length} subscriber(s) — balance will be checked?`)) return;
+  if(!confirm(`Generate PENDING orders for ${selected.length} subscriber(s)?\n\nOrders will be marked PENDING for admin verification. Wallet balance will be checked.`)) return;
 
   const orders=selected.map(s=>({
     userId:s.phone, name:s.name, phone:s.phone, address:s.address||'',
     items:[{itemId:item.itemId,name:item.name,price,qty:1,selectedVariant:'',imageUrl:item.imageUrl}],
     totalAmount:price, deliveryCharge:0, finalAmount:price,
-    couponCode:'', discount:0, userType:'subscriber', note:reason
+    couponCode:'', discount:0, userType:'subscriber', note:reason,
+    orderStatus:'pending'
   }));
 
   try{
@@ -903,16 +980,19 @@ async function genBulkOrders(){
     // Show results modal
     const s=res.success||[], f=res.failed||[];
     doc('mo-bulk-res').innerHTML=`
+      <div style="background:#fffde7;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;font-weight:600;color:#c67c00">
+        <i class="fa-solid fa-clock"></i> All created orders are marked <strong>PENDING</strong> — go to Orders section to verify and update status.
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-        <div style="background:#e8f5f3;border-radius:10px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:800;color:var(--g)">${s.length}</div><div style="font-size:12px;font-weight:700;color:var(--g)">Orders Created ✅</div></div>
+        <div style="background:#e8f5f3;border-radius:10px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:800;color:var(--g)">${s.length}</div><div style="font-size:12px;font-weight:700;color:var(--g)">Orders Created (Pending) ✅</div></div>
         <div style="background:#fde8ea;border-radius:10px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:800;color:var(--p)">${f.length}</div><div style="font-size:12px;font-weight:700;color:var(--p)">Failed / Low Balance ❌</div></div>
       </div>
-      ${s.length?`<div style="margin-bottom:12px"><div style="font-weight:700;font-size:13px;margin-bottom:6px;color:var(--g)">✅ Success</div>${s.map(x=>`<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #f0f0f0">${esc(x.name||x.phone)} — <code style="font-size:11px">${esc(x.orderId)}</code></div>`).join('')}</div>`:''}
-      ${f.length?`<div><div style="font-weight:700;font-size:13px;margin-bottom:6px;color:var(--p)">❌ Failed</div>${f.map(x=>`<div style="font-size:12px;padding:6px 0;border-bottom:1px solid #f0f0f0"><span style="font-weight:700">${esc(x.name||x.phone)}</span> — <span style="color:#c45500">${esc(x.reason)}</span><button class="btn btn-sm" style="margin-left:8px;background:#fff3e0;color:#c45500;font-size:11px" onclick="forceUdharForSub('${esc(x.phone)}','${esc(x.name||'')}',${price},'${esc(item.itemId)}','${esc(item.name||'')}','${esc(s.address||'')}')">Force Udhar</button></div>`).join('')}</div>`:''}
+      ${s.length?`<div style="margin-bottom:12px"><div style="font-weight:700;font-size:13px;margin-bottom:6px;color:var(--g)">✅ Pending Orders Created</div>${s.map(x=>`<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #f0f0f0">${esc(x.name||x.phone)} — <code style="font-size:11px">${esc(x.orderId)}</code> <span class="bdg b-y" style="font-size:10px">pending</span></div>`).join('')}</div>`:''}
+      ${f.length?`<div><div style="font-weight:700;font-size:13px;margin-bottom:6px;color:var(--p)">❌ Failed</div>${f.map(x=>`<div style="font-size:12px;padding:6px 0;border-bottom:1px solid #f0f0f0"><span style="font-weight:700">${esc(x.name||x.phone)}</span> — <span style="color:#c45500">${esc(x.reason)}</span><button class="btn btn-sm" style="margin-left:8px;background:#fff3e0;color:#c45500;font-size:11px" onclick="forceUdharForSub('${esc(x.phone)}','${esc(x.name||'')}',${price},'${esc(item.itemId)}','${esc(item.name||'')}','${esc(x.address||'')}')">Force Udhar</button></div>`).join('')}</div>`:''}
     `;
     doc('mo-bulk-balance').classList.remove('hide');
-    if(s.length>0){ loadOrds(); }
-    toast(`✅ ${s.length} orders created, ${f.length} failed`);
+    if(s.length>0){ loadOrds(); showPg('orders'); }
+    toast(`✅ ${s.length} PENDING orders created, ${f.length} failed`);
   }catch(e){ toast('❌ '+e.message); }
 }
 
@@ -1494,14 +1574,23 @@ function exportKhataPDF(){
   const rows=filtered.map(e=>{
     const amt=Number(e.amount)||0;
     const bal=Number(e.runningBalance);
-    return `<tr><td>${e.date||''}</td><td>${e.time||''}</td><td>${typeLabels[e.type]||e.type}</td><td style="color:${amt>=0?'green':'red'}">${amt>=0?'+':''}₹${Math.abs(amt)}</td><td style="font-weight:700">₹${bal}</td><td>${e.note||''}</td></tr>`;
+    // Wallet Deduction column: extract item name from note
+    let walletDeductCol='—';
+    if(e.type==='tiffin_given'||e.type==='tiffin_udhar'){
+      const absAmt=Math.abs(amt);
+      // Try to extract item name from note (e.g. "Tiffin Given — Order HB-xxx" or "Bulk: Chicken Curry")
+      let itemName=e.note||'';
+      itemName=itemName.replace(/^(Tiffin Given\s*—?\s*Order\s*HB-\S+\s*)/i,'').replace(/^Bulk:\s*/i,'').trim()||'tiffin';
+      walletDeductCol=`₹${absAmt} deducted for ${itemName}`;
+    }
+    return `<tr><td>${e.date||''}</td><td>${e.time||''}</td><td>${typeLabels[e.type]||e.type}</td><td style="color:${amt>=0?'green':'red'};font-weight:700">${amt>=0?'+':''}₹${Math.abs(amt)}</td><td style="font-weight:700">₹${bal}</td><td style="font-size:11px;color:#555">${walletDeductCol}</td><td>${e.note||''}</td></tr>`;
   }).join('');
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Khata — ${name}</title>
-  <style>body{font-family:Arial,sans-serif;margin:30px}h1{color:#e63946}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#f3f4f6;padding:8px;text-align:left;font-size:12px;border:1px solid #e5e7eb}td{padding:8px;font-size:12px;border:1px solid #e5e7eb}.bal{font-size:20px;font-weight:800;color:${balance<0?'#e63946':'#2a9d8f'}}.header{display:flex;justify-content:space-between;margin-bottom:20px}</style>
+  <style>body{font-family:Arial,sans-serif;margin:30px;color:#111}h1{color:#e63946;font-size:22px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#f3f4f6;padding:9px;text-align:left;font-size:11px;border:1px solid #e5e7eb;white-space:nowrap}td{padding:8px;font-size:11px;border:1px solid #e5e7eb}.bal{font-size:22px;font-weight:800;color:${balance<0?'#e63946':'#2a9d8f'}}.header{display:flex;justify-content:space-between;margin-bottom:20px;background:#f9fafb;padding:16px;border-radius:10px}</style>
   </head><body>
   <h1>🍱 Home Bite — Khata Statement</h1>
   <div class="header"><div><strong>${name}</strong><br><code>${phone}</code></div><div style="text-align:right"><div style="font-size:11px;color:#999">CLOSING BALANCE</div><div class="bal">₹${balance}</div>${fromDate||toDate?`<div style="font-size:11px;color:#999">${fromDate||'start'} to ${toDate||'today'}</div>`:''}</div></div>
-  <table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Amount</th><th>Balance</th><th>Note</th></tr></thead><tbody>${rows}</tbody></table>
+  <table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Amount</th><th>Balance</th><th>Wallet Deduction</th><th>Note</th></tr></thead><tbody>${rows}</tbody></table>
   <div style="margin-top:20px;font-size:11px;color:#999">Generated on ${new Date().toLocaleString('en-IN')}</div>
   </body></html>`;
   const w=window.open('','_blank'); w.document.write(html); w.document.close();
