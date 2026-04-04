@@ -10,6 +10,7 @@
 :root{
   --p:#e63946;--pd:#c1121f;--pl:#fde8ea;
   --g:#2a9d8f;--gl:#e8f5f3;
+  --o:#f4a261;--ol:#fff3e0;
   --dk:#111827;--sb:#0f172a;--sba:#1e293b;
   --gr:#6b7280;--lt:#f3f4f6;--wh:#fff;
   --sh:0 2px 16px rgba(0,0,0,.08);
@@ -39,14 +40,15 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 18px;border-radius:10px;font-family:var(--ff);font-weight:700;font-size:13px;border:none;cursor:pointer;transition:all .18s}
 .btn:active{transform:scale(.97)}
 .btn-p{background:var(--p);color:#fff}.btn-p:hover{background:var(--pd)}
-.btn-g{background:var(--g);color:#fff}
+.btn-g{background:var(--g);color:#fff}.btn-g:hover{background:#21867a}
+.btn-o{background:var(--o);color:#fff}
 .btn-dk{background:var(--dk);color:#fff}
 .btn-ghost{background:rgba(0,0,0,.06);color:var(--dk)}
 .btn-red{background:var(--p);color:#fff}
 .btn-out{background:transparent;border:2px solid var(--p);color:var(--p)}
 .btn-full{width:100%}
 .btn-sm{padding:7px 13px;font-size:12px;border-radius:8px}
-.spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
+.spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;display:inline-block}
 @keyframes sp{to{transform:rotate(360deg)}}
 
 /* ── LAYOUT ── */
@@ -93,6 +95,7 @@ tr:hover td{background:#fafafa}
 .b-g{background:var(--gl);color:var(--g)}.b-r{background:var(--pl);color:var(--p)}
 .b-o{background:#fff3e0;color:#c45500}.b-y{background:#fffde7;color:#c67c00}
 .b-bl{background:#e3f2fd;color:#1565c0}.b-gr{background:#f5f5f5;color:#666}
+.b-pu{background:#f3e8ff;color:#7c3aed}
 
 /* ── FILTERS ── */
 .fb{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
@@ -113,8 +116,31 @@ tr:hover td{background:#fafafa}
 .toast{position:fixed;top:18px;right:18px;background:var(--dk);color:#fff;padding:13px 18px;border-radius:12px;font-weight:600;font-size:13px;z-index:9999;transform:translateX(120%);transition:transform .3s;box-shadow:0 8px 28px rgba(0,0,0,.2)}
 .toast.on{transform:none}
 
-/* ── OVERLAY (mobile sidebar) ── */
+/* ── OVERLAY ── */
 .sb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:299}
+
+/* ── KHATA CARDS ── */
+.khata-bal{background:linear-gradient(135deg,#2a9d8f,#21867a);color:#fff;border-radius:var(--r);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.khata-bal.negative{background:linear-gradient(135deg,#e63946,#c1121f)}
+.khata-bal .bal-label{font-size:11px;font-weight:700;opacity:.85;text-transform:uppercase;letter-spacing:.5px}
+.khata-bal .bal-amount{font-family:var(--ff);font-size:28px;font-weight:800}
+.khata-entry{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid #f3f4f6}
+.khata-entry:last-child{border-bottom:none}
+.khata-entry .ke-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ke-credit{background:#e8f5f3;color:#2a9d8f}
+.ke-debit{background:var(--pl);color:var(--p)}
+.ke-udhar{background:#fff3e0;color:#c45500}
+.khata-entry .ke-info{flex:1;min-width:0}
+.ke-type{font-weight:700;font-size:13px}
+.ke-sub{font-size:11px;color:var(--gr);margin-top:1px}
+.ke-amount{font-family:var(--ff);font-weight:800;font-size:15px;white-space:nowrap}
+.ke-amount.pos{color:var(--g)}.ke-amount.neg{color:var(--p)}
+.low-bal-box{background:#fff1f2;border:2px solid var(--pl);border-radius:var(--r);padding:18px;margin-bottom:20px}
+.low-bal-box h4{color:var(--p);font-family:var(--ff);font-size:14px;margin-bottom:12px}
+.failed-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #fde8ea}
+.failed-row:last-child{border-bottom:none}
+.failed-row .fr-info{flex:1;font-size:13px}
+.failed-row .fr-acts{display:flex;gap:6px;flex-shrink:0}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
@@ -136,7 +162,6 @@ tr:hover td{background:#fafafa}
   .fb{gap:5px}
   .f-btn{padding:5px 10px;font-size:11px}
 }
-/* staff-hide: hidden for staff role */
 .staff-hide{display:none!important}
 </style>
 </head>
@@ -163,7 +188,6 @@ tr:hover td{background:#fafafa}
 
 <!-- APP -->
 <div id="app" class="hide">
-  <!-- SIDEBAR OVERLAY (mobile) -->
   <div class="sb-ov hide" id="sb-ov" onclick="closeSb()"></div>
 
   <!-- SIDEBAR -->
@@ -177,7 +201,8 @@ tr:hover td{background:#fafafa}
       <button class="ni" id="ni-bulk" onclick="showPg('bulk')"><i class="fa-solid fa-boxes-stacked"></i> Bulk Orders</button>
       <button class="ni" id="ni-menu" onclick="showPg('menu')"><i class="fa-solid fa-utensils"></i> Menu</button>
       <button class="ni" id="ni-coupons" onclick="showPg('coupons')"><i class="fa-solid fa-tags"></i> Coupons</button>
-      <div class="sb-sec">Users</div>
+      <div class="sb-sec">Khata & Subscribers</div>
+      <button class="ni" id="ni-khata" onclick="showPg('khata')"><i class="fa-solid fa-book-open"></i> Khata Manager</button>
       <button class="ni" id="ni-subscribers" onclick="showPg('subscribers')"><i class="fa-solid fa-crown"></i> Subscribers</button>
       <button class="ni" id="ni-users" onclick="showPg('users')"><i class="fa-solid fa-users"></i> All Users</button>
       <div class="sb-sec">Delivery</div>
@@ -207,8 +232,8 @@ tr:hover td{background:#fafafa}
       <div class="pg-v act" id="pg-dashboard">
         <div class="st-grid" id="st-grid">
           <div class="st-card"><div class="st-ico">📦</div><div class="st-lbl">Today's Orders</div><div class="st-val" id="s-tod-ord">—</div></div>
-          <div class="st-card revenue-card"><div class="st-ico">💰</div><div class="st-lbl">Today's Revenue</div><div class="st-val" id="s-tod-rev">—</div></div>
-          <div class="st-card revenue-card"><div class="st-ico">📅</div><div class="st-lbl">Monthly Revenue</div><div class="st-val" id="s-mo-rev">—</div></div>
+          <div class="st-card staff-hide"><div class="st-ico">💰</div><div class="st-lbl">Today's Revenue</div><div class="st-val" id="s-tod-rev">—</div></div>
+          <div class="st-card staff-hide"><div class="st-ico">📅</div><div class="st-lbl">Monthly Revenue</div><div class="st-val" id="s-mo-rev">—</div></div>
           <div class="st-card"><div class="st-ico">🛒</div><div class="st-lbl">Total Orders</div><div class="st-val" id="s-tot-ord">—</div></div>
           <div class="st-card"><div class="st-ico">👥</div><div class="st-lbl">Total Users</div><div class="st-val" id="s-users">—</div></div>
           <div class="st-card"><div class="st-ico">👑</div><div class="st-lbl">Subscribers</div><div class="st-val" id="s-subs">—</div></div>
@@ -217,6 +242,11 @@ tr:hover td{background:#fafafa}
 
       <!-- ORDERS -->
       <div class="pg-v" id="pg-orders">
+        <!-- Low Balance Orders Box -->
+        <div class="low-bal-box" id="low-bal-box" style="display:none">
+          <h4><i class="fa-solid fa-triangle-exclamation"></i> Low Balance Orders — Action Required</h4>
+          <div id="low-bal-list"></div>
+        </div>
         <div class="fb">
           <button class="f-btn act" onclick="filterOrd('all',this)">All</button>
           <button class="f-btn" onclick="filterOrd('today',this)">Today</button>
@@ -224,6 +254,7 @@ tr:hover td{background:#fafafa}
           <button class="f-btn" onclick="filterOrd('preparing',this)">Preparing</button>
           <button class="f-btn" onclick="filterOrd('out for delivery',this)">Out for Del.</button>
           <button class="f-btn" onclick="filterOrd('delivered',this)">Delivered</button>
+          <button class="f-btn" style="border-color:#e63946;color:#e63946" onclick="filterOrd('lowBalance',this)">⚠️ Low Bal</button>
           <input class="s-inp" type="text" placeholder="Search name/phone/ID..." id="ord-srch" oninput="renderOrds()">
         </div>
         <div class="tc">
@@ -235,12 +266,11 @@ tr:hover td{background:#fafafa}
       <!-- BULK ORDERS -->
       <div class="pg-v" id="pg-bulk">
         <div class="tc">
-          <div class="th"><h3>Manual Order Generation</h3><span style="font-size:12px;color:var(--gr)">For subscribers who didn't order by cutoff</span></div>
+          <div class="th"><h3>Bulk Order Generation</h3><span style="font-size:12px;color:var(--gr)">Balance-checked — failed orders shown below</span></div>
           <div style="padding:18px">
-            <p style="font-size:13px;color:var(--gr);margin-bottom:16px">Generate bulk orders for subscribers (Day cutoff: 11:30 AM, Night cutoff: 7:30 PM)</p>
             <div class="fg"><label class="lbl">Select Menu Item</label><select id="bulk-item" class="inp"><option value="">-- Select item --</option></select></div>
             <div class="fg"><label class="lbl">Override Price (₹) — leave blank to use menu price</label><input id="bulk-price" class="inp" type="number" placeholder="e.g. 80"></div>
-            <div class="fg"><label class="lbl">Reason / Note</label><input id="bulk-reason" class="inp" type="text" placeholder="e.g. Auto-generated for Day subscribers"></div>
+            <div class="fg"><label class="lbl">Reason / Note</label><input id="bulk-reason" class="inp" type="text" placeholder="e.g. Auto-generated Day orders"></div>
             <div class="fg"><label class="lbl">Filter Subscribers By Plan</label>
               <select id="bulk-plan" class="inp" onchange="loadBulkSubs()">
                 <option value="all">All Active</option><option value="day">Day Only</option>
@@ -249,10 +279,75 @@ tr:hover td{background:#fafafa}
             </div>
             <div class="tc" style="margin-top:14px">
               <div class="th"><h3>Subscribers to Order For</h3></div>
-              <div style="overflow-x:auto"><table><thead><tr><th><input type="checkbox" id="bulk-all" onchange="toggleAllBulk(this)"></th><th>Phone</th><th>Name</th><th>Plan</th><th>Address</th></tr></thead><tbody id="bulk-tb"></tbody></table></div>
+              <div style="overflow-x:auto"><table><thead><tr><th><input type="checkbox" id="bulk-all" onchange="toggleAllBulk(this)"></th><th>Phone</th><th>Name</th><th>Plan</th><th>Balance</th><th>Address</th></tr></thead><tbody id="bulk-tb"></tbody></table></div>
             </div>
             <button class="btn btn-p" style="margin-top:14px" onclick="genBulkOrders()"><i class="fa-solid fa-boxes-stacked"></i> Generate Selected Orders</button>
           </div>
+        </div>
+
+        <!-- Failed Orders (insufficient balance) -->
+        <div id="bulk-failed-box" style="display:none">
+          <div class="low-bal-box">
+            <h4 style="margin-bottom:6px"><i class="fa-solid fa-triangle-exclamation"></i> Failed — Insufficient Balance (<span id="bulk-failed-count">0</span> subscribers)</h4>
+            <p style="font-size:12px;color:#c1121f;margin-bottom:14px">These subscribers had insufficient balance. Call/WhatsApp to collect payment, or force as Udhar.</p>
+            <div id="bulk-failed-list"></div>
+            <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+              <button class="btn btn-o" onclick="selectAllFailed()"><i class="fa-solid fa-check-double"></i> Select All</button>
+              <button class="btn btn-p" onclick="forceSelectedUdhar()"><i class="fa-solid fa-bolt"></i> Force Selected as Udhar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Processed Results -->
+        <div id="bulk-success-box" style="display:none">
+          <div class="tc">
+            <div class="th"><h3 style="color:var(--g)">✅ Successfully Processed (<span id="bulk-success-count">0</span>)</h3></div>
+            <div id="bulk-success-list" style="padding:14px;font-size:13px;color:#374151;line-height:1.8"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KHATA MANAGER -->
+      <div class="pg-v" id="pg-khata">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <!-- Search + Filter -->
+          <div class="tc" style="grid-column:1/-1">
+            <div class="th"><h3>🔍 Search Khata</h3></div>
+            <div style="padding:18px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+              <div style="flex:1;min-width:180px">
+                <label class="lbl">Subscriber Mobile</label>
+                <input id="kh-phone" class="inp" type="tel" placeholder="10-digit mobile" maxlength="10">
+              </div>
+              <div>
+                <label class="lbl">From Date</label>
+                <input id="kh-from" class="inp" type="date" style="width:150px">
+              </div>
+              <div>
+                <label class="lbl">To Date</label>
+                <input id="kh-to" class="inp" type="date" style="width:150px">
+              </div>
+              <button class="btn btn-p" onclick="searchKhata()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+              <button class="btn btn-ghost" onclick="exportKhata()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Balance Card -->
+        <div id="kh-bal-wrap" style="display:none;margin-bottom:16px"></div>
+
+        <!-- Khata History Table -->
+        <div class="tc" id="kh-table-wrap" style="display:none">
+          <div class="th">
+            <h3 id="kh-table-title">Khata History</h3>
+            <button class="btn btn-g btn-sm" onclick="openRechargeModal()"><i class="fa-solid fa-plus"></i> Add Recharge</button>
+          </div>
+          <div id="kh-entries"></div>
+        </div>
+
+        <!-- All Subscribers Balances -->
+        <div class="tc">
+          <div class="th"><h3>All Subscriber Balances</h3><button class="btn btn-ghost btn-sm" onclick="loadAllBalances()"><i class="fa-solid fa-rotate"></i></button></div>
+          <div style="overflow-x:auto"><table><thead><tr><th>Phone</th><th>Name</th><th>Plan</th><th>Balance</th><th>Actions</th></tr></thead><tbody id="bal-tb"></tbody></table></div>
         </div>
       </div>
 
@@ -293,7 +388,7 @@ tr:hover td{background:#fafafa}
           <button class="btn btn-g" onclick="openSubModal()"><i class="fa-solid fa-plus"></i> Add Subscriber</button>
         </div>
         <div class="tc"><div class="th"><h3 id="sub-count">Subscribers</h3></div>
-          <div style="overflow-x:auto"><table><thead><tr><th>Phone</th><th>Name</th><th>Plan</th><th>Status</th><th>Start Date</th><th>Actions</th></tr></thead><tbody id="sub-tb"></tbody></table></div>
+          <div style="overflow-x:auto"><table><thead><tr><th>Phone</th><th>Name</th><th>Plan</th><th>Status</th><th>Balance</th><th>Start</th><th>Actions</th></tr></thead><tbody id="sub-tb"></tbody></table></div>
         </div>
       </div>
 
@@ -352,7 +447,7 @@ tr:hover td{background:#fafafa}
         </div>
       </div>
 
-      <!-- STAFF MANAGEMENT (Admin only) -->
+      <!-- STAFF -->
       <div class="pg-v" id="pg-staff">
         <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn btn-p" onclick="openStaffModal()"><i class="fa-solid fa-plus"></i> Add Staff</button></div>
         <div class="tc">
@@ -361,11 +456,11 @@ tr:hover td{background:#fafafa}
         </div>
       </div>
 
-    </div>
-  </div>
-</div>
+    </div><!-- /ca -->
+  </div><!-- /main -->
+</div><!-- /app -->
 
-<!-- MODALS -->
+<!-- ══ MODALS ══ -->
 
 <!-- Order Detail -->
 <div class="mo hide" id="mo-order"><div class="mo-box"><div class="mo-t">Order Details</div><div id="mo-order-c"></div><div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-order')">Close</button></div></div></div>
@@ -374,13 +469,46 @@ tr:hover td{background:#fafafa}
 <div class="mo hide" id="mo-status"><div class="mo-box">
   <div class="mo-t">Update Order</div>
   <input type="hidden" id="st-oid">
+  <input type="hidden" id="st-phone">
+  <input type="hidden" id="st-amount">
+  <input type="hidden" id="st-usertype">
+  <div id="st-balance-info" style="padding:12px;background:var(--gl);border-radius:var(--r);margin-bottom:14px;font-size:13px;display:none"></div>
   <div class="fg"><label class="lbl">Order Status</label>
-    <select id="st-os" class="inp"><option value="pending">Pending</option><option value="preparing">Preparing</option><option value="out for delivery">Out for Delivery</option><option value="delivered">Delivered</option></select></div>
+    <select id="st-os" class="inp"><option value="pending">Pending</option><option value="preparing">Preparing</option><option value="out for delivery">Out for Delivery</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select></div>
   <div class="fg"><label class="lbl">Payment Status</label>
-    <select id="st-ps" class="inp"><option value="pending">Pending</option><option value="paid">Paid</option></select></div>
-  <div class="fg"><label class="lbl">Rider ID (optional — auto-assigned on Out for Delivery)</label>
+    <select id="st-ps" class="inp"><option value="pending">Pending</option><option value="paid">Paid</option><option value="udhar">Udhar</option></select></div>
+  <div class="fg"><label class="lbl">Rider (optional)</label>
     <select id="st-rid" class="inp"><option value="">Auto-assign available rider</option></select></div>
+  <div id="st-khata-note" style="padding:11px;background:#fff3e0;border-radius:var(--r);margin-bottom:14px;font-size:12px;color:#c45500;display:none">
+    ⚠️ This is a subscriber order. Updating to "Preparing" will check wallet balance and deduct automatically.
+  </div>
   <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-status')">Cancel</button><button class="btn btn-p" onclick="submitStatus()"><i class="fa-solid fa-check"></i> Update</button></div>
+</div></div>
+
+<!-- Recharge Modal -->
+<div class="mo hide" id="mo-recharge"><div class="mo-box">
+  <div class="mo-t">💰 Add Recharge (Amount Received)</div>
+  <input type="hidden" id="rch-phone">
+  <div id="rch-sub-info" style="padding:11px;background:var(--gl);border-radius:var(--r);margin-bottom:14px;font-size:13px;color:#374151"></div>
+  <div class="fg"><label class="lbl">Recharge Amount (₹) *</label><input id="rch-amount" class="inp" type="number" placeholder="e.g. 1000" min="1"></div>
+  <div class="fg"><label class="lbl">Note (optional)</label><input id="rch-note" class="inp" type="text" placeholder="e.g. Cash received, UPI transfer"></div>
+  <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-recharge')">Cancel</button><button class="btn btn-g" onclick="submitRecharge()"><i class="fa-solid fa-plus"></i> Add Recharge</button></div>
+</div></div>
+
+<!-- Manual Khata Entry -->
+<div class="mo hide" id="mo-khata-entry"><div class="mo-box">
+  <div class="mo-t" id="mo-ke-title">Add Khata Entry</div>
+  <input type="hidden" id="ke-phone">
+  <div class="fg"><label class="lbl">Entry Type *</label>
+    <select id="ke-type" class="inp">
+      <option value="Amount Received (Recharge)">💰 Amount Received (Recharge)</option>
+      <option value="Tiffin Given">🍱 Tiffin Given</option>
+      <option value="Tiffin Given on Udhar">📋 Tiffin Given on Udhar</option>
+    </select>
+  </div>
+  <div class="fg"><label class="lbl">Amount (₹) *</label><input id="ke-amount" class="inp" type="number" placeholder="e.g. 100" min="1"></div>
+  <div class="fg"><label class="lbl">Note</label><input id="ke-note" class="inp" type="text" placeholder="Optional note"></div>
+  <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-khata-entry')">Cancel</button><button class="btn btn-p" onclick="submitKhataEntry()"><i class="fa-solid fa-check"></i> Add Entry</button></div>
 </div></div>
 
 <!-- Menu Item -->
@@ -389,16 +517,15 @@ tr:hover td{background:#fafafa}
   <input type="hidden" id="mi-id">
   <div class="fg"><label class="lbl">Item Name *</label><input id="mi-name" class="inp" type="text" placeholder="e.g. Dal Makhani"></div>
   <div class="fg"><label class="lbl">Category</label><input id="mi-cat" class="inp" type="text" placeholder="e.g. Dal, Rice"></div>
-  <div class="fg"><label class="lbl">Base Price (₹) — used if no variants</label><input id="mi-price" class="inp" type="number" placeholder="e.g. 80"></div>
+  <div class="fg"><label class="lbl">Base Price (₹)</label><input id="mi-price" class="inp" type="number" placeholder="e.g. 80"></div>
   <div class="fg">
-    <label class="lbl">Variants (size/weight/qty with different prices)</label>
+    <label class="lbl">Variants</label>
     <div id="var-list"></div>
     <button class="btn btn-ghost btn-sm" onclick="addVarRow()" style="margin-top:8px"><i class="fa-solid fa-plus"></i> Add Variant</button>
-    <div style="font-size:11px;color:var(--gr);margin-top:4px">Leave empty to use base price only</div>
   </div>
-  <div class="fg"><label class="lbl">Image URL (ibb.co / imgur / direct link)</label><input id="mi-img" class="inp" type="url" placeholder="https://i.ibb.co/..."></div>
+  <div class="fg"><label class="lbl">Image URL</label><input id="mi-img" class="inp" type="url" placeholder="https://i.ibb.co/..."></div>
   <div class="fg"><label class="lbl">Menu Type</label>
-    <select id="mi-type" class="inp"><option value="morning">Morning (Before 11:30 AM)</option><option value="evening">Evening (After 11:30 AM)</option></select></div>
+    <select id="mi-type" class="inp"><option value="morning">Morning</option><option value="evening">Evening</option></select></div>
   <div class="fg"><label class="lbl">Availability</label>
     <select id="mi-avail" class="inp"><option value="TRUE">Available</option><option value="FALSE">Not Available</option></select></div>
   <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-menu')">Cancel</button><button class="btn btn-p" onclick="submitMenu()"><i class="fa-solid fa-check"></i> Save</button></div>
@@ -421,6 +548,7 @@ tr:hover td{background:#fafafa}
   <input type="hidden" id="sub-orig-ph">
   <div class="fg"><label class="lbl">Phone *</label><input id="sub-ph" class="inp" type="tel" placeholder="10-digit"></div>
   <div class="fg"><label class="lbl">Name</label><input id="sub-nm" class="inp" type="text" placeholder="Subscriber name"></div>
+  <div class="fg"><label class="lbl">Address</label><input id="sub-addr" class="inp" type="text" placeholder="Delivery address"></div>
   <div class="fg"><label class="lbl">Plan</label>
     <select id="sub-plan" class="inp"><option value="both">Both (Day + Night)</option><option value="day">Day Only</option><option value="night">Night Only</option></select></div>
   <div class="fg"><label class="lbl">Status</label>
@@ -449,7 +577,19 @@ tr:hover td{background:#fafafa}
   <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-staff')">Cancel</button><button class="btn btn-p" onclick="submitStaff()"><i class="fa-solid fa-check"></i> Save</button></div>
 </div></div>
 
+<!-- Change Subscriber Phone -->
+<div class="mo hide" id="mo-chphone"><div class="mo-box">
+  <div class="mo-t">📱 Change Subscriber Phone</div>
+  <input type="hidden" id="chph-old">
+  <div id="chph-sub-info" style="padding:11px;background:var(--gl);border-radius:var(--r);margin-bottom:14px;font-size:13px;color:#374151"></div>
+  <div class="fg"><label class="lbl">Old Phone</label><input id="chph-old-disp" class="inp" type="tel" disabled style="background:#f9fafb;color:#6b7280"></div>
+  <div class="fg"><label class="lbl">New Phone Number *</label><input id="chph-new" class="inp" type="tel" placeholder="New 10-digit mobile" maxlength="10"></div>
+  <div style="font-size:11px;color:#c45500;padding:8px 12px;background:#fff3e0;border-radius:8px;margin-bottom:14px">⚠️ This will update the phone in Subscribers AND all Khata records. Cannot be undone.</div>
+  <div class="mo-ft"><button class="btn btn-ghost" onclick="closeMo('mo-chphone')">Cancel</button><button class="btn btn-p" onclick="submitChangePhone()"><i class="fa-solid fa-check"></i> Change Phone</button></div>
+</div></div>
+
 <div class="toast" id="toast"></div>
+
 <script>
 // ════════════════════════════════════════════════
 // CONFIG
@@ -458,9 +598,10 @@ const CFG={
   GAS:'https://script.google.com/macros/s/AKfycbwHq-D_E4_aD2W3R9TmaTk39pW87El0UCN89Vrjx4lUUhWRnMJbcsuUZLt1trwjkAq8Yg/exec',
   KEY:'HB_SECURE_API_KEY_2026'
 };
+
 async function api(action,data={}){
   const ctrl=new AbortController();
-  const timer=setTimeout(()=>ctrl.abort(),20000);
+  const timer=setTimeout(()=>ctrl.abort(),25000);
   try{
     const r=await fetch(CFG.GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,data,apiKey:CFG.KEY}),signal:ctrl.signal});
     clearTimeout(timer);
@@ -475,284 +616,341 @@ async function api(action,data={}){
 }
 
 // ════════════════════════════════════════════════
-// SESSION — In-memory only. NEVER persisted to localStorage.
-// Only role+id+password saved for autofill.
+// AUTH
 // ════════════════════════════════════════════════
-let _adminSession=null;
+let _session=null;
 
-// Credentials store — ONLY role+identifier+password
-const ACreds={
-  save:(role,id,pw)=>{ try{ localStorage.setItem('hb_admin_creds',JSON.stringify({role,id,pw})); }catch{} },
-  get:()=>{ try{ return JSON.parse(localStorage.getItem('hb_admin_creds')); }catch{ return null; } }
-};
-
-const Session={
-  get:()=>_adminSession,
-  set:(s)=>{ _adminSession=s; },
-  clear:()=>{ _adminSession=null; },
-  isAdmin:()=>_adminSession && _adminSession.role==='admin',
-  isStaff:()=>_adminSession && _adminSession.role==='staff'
-};
-
-// Password show/hide toggle
 function togglePw(inputId,btn){
-  const inp=doc(inputId), icon=btn.querySelector('i');
-  if(!inp) return;
-  if(inp.type==='password'){ inp.type='text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
-  else{ inp.type='password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+  const inp=doc(inputId);
+  const show=inp.type==='password';
+  inp.type=show?'text':'password';
+  btn.innerHTML=show?'<i class="fa-solid fa-eye-slash"></i>':'<i class="fa-solid fa-eye"></i>';
 }
 
-// Autofill login form from saved creds
 function autofillAdminCreds(){
-  const c=ACreds.get();
-  if(!c) return;
   try{
-    if(c.role){ doc('a-role').value=c.role; updateAuthUI(); }
-    if(c.id){
-      if(c.role==='admin') doc('a-em').value=c.id;
-      else doc('a-uid').value=c.id;
+    const role=localStorage.getItem('hb_role')||'admin';
+    doc('a-role').value=role; updateAuthUI();
+    if(role==='admin'){
+      const em=localStorage.getItem('hb_admin_em'); const pw=localStorage.getItem('hb_admin_pw');
+      if(em&&pw){ doc('a-em').value=em; doc('a-pw').value=pw; doc('admin-creds-hint').classList.add('show'); }
+    } else {
+      const uid=localStorage.getItem('hb_staff_uid'); const pw=localStorage.getItem('hb_staff_pw');
+      if(uid&&pw){ doc('a-uid').value=uid; doc('a-pw').value=pw; doc('admin-creds-hint').classList.add('show'); }
     }
-    if(c.pw) doc('a-pw').value=c.pw;
-    const hint=doc('admin-creds-hint');
-    if(hint) hint.classList.add('show');
   }catch{}
 }
 
-// ════════════════════════════════════════════════
-// AUTH UI
-// ════════════════════════════════════════════════
 function updateAuthUI(){
-  const role=doc('a-role').value;
-  doc('a-em-fg').style.display=role==='admin'?'block':'none';
-  doc('a-uid-fg').style.display=role==='staff'?'block':'none';
-  doc('auth-subtitle').textContent=role==='admin'?'Admin Control Center':'Staff Portal';
+  const isAdmin=doc('a-role').value==='admin';
+  doc('a-em-fg').style.display=isAdmin?'':'none';
+  doc('a-uid-fg').style.display=isAdmin?'none':'';
+  doc('auth-subtitle').textContent=isAdmin?'Admin Control Center':'Staff Login';
 }
 
 async function doLogin(){
-  const role=doc('a-role').value;
-  const pw=doc('a-pw').value;
-  if(!pw) return toast('Password required');
-  const btn=doc('login-btn');
-  btn.innerHTML='<span class="spin"></span> Logging in...'; btn.disabled=true;
+  const btn=doc('login-btn'); btn.disabled=true; btn.innerHTML='<span class="spin"></span> Logging in...';
+  const role=doc('a-role').value, pw=doc('a-pw').value;
   try{
+    let session;
     if(role==='admin'){
       const em=doc('a-em').value.trim();
-      if(!em) return toast('Email required');
-      // Always verify+load from sheet
-      const admin=await api('adminLogin',{email:em,password:pw});
-      Session.set({...admin,role:'admin'}); // in-memory only
-      ACreds.save('admin',em,pw); // save ONLY for autofill
-      showApp(Session.get());
+      session=await api('adminLogin',{email:em,password:pw});
+      session.role='admin'; session.loginKey=em;
+      try{ localStorage.setItem('hb_role','admin'); localStorage.setItem('hb_admin_em',em); localStorage.setItem('hb_admin_pw',pw); }catch{}
     } else {
       const uid=doc('a-uid').value.trim();
-      if(!uid) return toast('Username required');
-      const staff=await api('staffLogin',{username:uid,password:pw});
-      Session.set({...staff,role:'staff'}); // in-memory only
-      ACreds.save('staff',uid,pw); // save ONLY for autofill
-      showApp(Session.get());
+      session=await api('staffLogin',{username:uid,password:pw});
+      session.role='staff'; session.loginKey=uid;
+      try{ localStorage.setItem('hb_role','staff'); localStorage.setItem('hb_staff_uid',uid); localStorage.setItem('hb_staff_pw',pw); }catch{}
     }
-  }catch(e){ toast('❌ '+e.message); }
-  finally{ btn.innerHTML='<i class="fa-solid fa-lock-open"></i> Access Dashboard'; btn.disabled=false; }
+    showApp(session);
+  }catch(e){
+    toast('❌ '+e.message);
+    btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-lock-open"></i> Access Dashboard';
+  }
 }
 
 function showApp(session){
+  _session=session;
   doc('auth-pg').classList.add('hide');
   doc('app').classList.remove('hide');
-  doc('admin-badge').textContent=(session.name||'User')+' · '+(session.role==='admin'?'Admin':'Staff');
   doc('sb-role-label').textContent=session.role==='admin'?'Admin Panel':'Staff Panel';
+  doc('admin-badge').textContent=session.name||session.role;
   applyRoleUI(session.role);
-  showPg(session.role==='admin'?'dashboard':'orders');
-  if(window.innerWidth<=768){ doc('menu-toggle').style.display='block'; doc('sb-ov').classList.add('hide'); }
+  showPg('dashboard');
+  if(window.innerWidth<=768) doc('menu-toggle').style.display='block';
 }
 
 function applyRoleUI(role){
-  // Hide revenue cards for staff
-  document.querySelectorAll('.revenue-card').forEach(el=>{
-    el.style.display=role==='staff'?'none':'';
-  });
-  // Hide admin-only sidebar items for staff
-  document.querySelectorAll('.admin-only').forEach(el=>{
-    el.style.display=role==='staff'?'none':'';
-  });
+  const isAdmin=role==='admin';
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
+  // Hide revenue figures from staff
+  document.querySelectorAll('.staff-hide').forEach(el=>el.style.display=isAdmin?'':'none');
 }
 
 function doLogout(){
-  if(!confirm('Logout?')) return;
-  Session.clear();
+  _session=null;
+  try{ localStorage.removeItem('hb_role'); localStorage.removeItem('hb_admin_em'); localStorage.removeItem('hb_admin_pw'); localStorage.removeItem('hb_staff_uid'); localStorage.removeItem('hb_staff_pw'); }catch{}
   doc('app').classList.add('hide');
   doc('auth-pg').classList.remove('hide');
-  // Autofill for next login
-  autofillAdminCreds();
+  doc('a-pw').value='';
 }
 
-// ════════════════════════════════════════════════
-// SIDEBAR (mobile)
-// ════════════════════════════════════════════════
 function toggleSb(){ doc('sidebar').classList.toggle('open'); doc('sb-ov').classList.toggle('hide'); }
 function closeSb(){ doc('sidebar').classList.remove('open'); doc('sb-ov').classList.add('hide'); }
 
 // ════════════════════════════════════════════════
-// NAVIGATION
+// PAGES
 // ════════════════════════════════════════════════
 let _curPg='dashboard';
-const _titles={dashboard:'Dashboard',orders:'Orders',bulk:'Bulk Orders',menu:'Menu Management',coupons:'Coupons',subscribers:'Subscribers',users:'All Users',riders:'Riders',staff:'Staff Members',settings:'Settings'};
+const _titles={dashboard:'Dashboard',orders:'Orders',bulk:'Bulk Orders',menu:'Menu Management',
+  coupons:'Coupons',khata:'Khata Manager',subscribers:'Subscribers',users:'All Users',
+  riders:'Riders',staff:'Staff Members',settings:'Settings'};
 
 function showPg(name){
   document.querySelectorAll('.pg-v').forEach(p=>p.classList.remove('act'));
-  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('act'));
-  doc('pg-'+name).classList.add('act');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));
+  const pg=doc('pg-'+name); if(pg) pg.classList.add('act');
   const ni=doc('ni-'+name); if(ni) ni.classList.add('act');
   doc('pg-title').textContent=_titles[name]||name;
   _curPg=name; closeSb();
-  const loaders={dashboard:loadDash,orders:loadOrds,menu:loadMenu,coupons:loadCpns,subscribers:loadSubs,users:loadUsers,riders:loadRiders,bulk:initBulk,staff:loadStaff,settings:loadSettings};
+  const loaders={dashboard:loadDash,orders:loadOrds,menu:loadMenu,coupons:loadCpns,
+    khata:loadKhataPage,subscribers:loadSubs,users:loadUsers,riders:loadRiders,
+    bulk:initBulk,staff:loadStaff,settings:loadSettings};
   if(loaders[name]) loaders[name]();
 }
 
-function refreshCurrent(){ const m={dashboard:loadDash,orders:loadOrds,menu:loadMenu,coupons:loadCpns,subscribers:loadSubs,users:loadUsers,riders:loadRiders,bulk:initBulk,staff:loadStaff,settings:loadSettings}; if(m[_curPg]) m[_curPg](); }
+function refreshCurrent(){
+  const m={dashboard:loadDash,orders:loadOrds,menu:loadMenu,coupons:loadCpns,
+    khata:loadKhataPage,subscribers:loadSubs,users:loadUsers,riders:loadRiders,
+    bulk:initBulk,staff:loadStaff,settings:loadSettings};
+  if(m[_curPg]) m[_curPg]();
+}
 
 // ════════════════════════════════════════════════
 // DASHBOARD
 // ════════════════════════════════════════════════
 async function loadDash(){
-  // Show loading state
-  ['s-tod-ord','s-tod-rev','s-mo-rev','s-tot-ord','s-users','s-subs'].forEach(id=>{ const el=doc(id); if(el) el.innerHTML='<span style="font-size:16px;color:#999">loading...</span>'; });
+  ['s-tod-ord','s-tod-rev','s-mo-rev','s-tot-ord','s-users','s-subs'].forEach(id=>{ doc(id).textContent='...'; });
   try{
-    const a=await api('getAnalytics');
-    doc('s-tod-ord').textContent=a.todayOrders||0;
-    doc('s-tod-rev').textContent='₹'+(a.todayRevenue||0);
-    doc('s-mo-rev').textContent='₹'+(a.monthlyRevenue||0);
-    doc('s-tot-ord').textContent=a.totalOrders||0;
-    doc('s-users').textContent=a.totalUsers||0;
-    doc('s-subs').textContent=a.totalSubscribers||0;
+    const d=await api('getAnalytics');
+    doc('s-tod-ord').textContent=d.todayOrders;
+    doc('s-tod-rev').textContent='₹'+Math.round(d.todayRevenue).toLocaleString('en-IN');
+    doc('s-mo-rev').textContent='₹'+Math.round(d.monthlyRevenue).toLocaleString('en-IN');
+    doc('s-tot-ord').textContent=d.totalOrders;
+    doc('s-users').textContent=d.totalUsers;
+    doc('s-subs').textContent=d.totalSubscribers;
   }catch(e){ toast('Dashboard error: '+e.message); }
 }
 
 // ════════════════════════════════════════════════
-// ORDERS
+// ORDERS — with Low Balance handling
 // ════════════════════════════════════════════════
 let _ords=[],_ordF='all';
 
 async function loadOrds(){
   doc('ord-tb').innerHTML='<tr><td colspan="10" style="text-align:center;padding:28px;color:#999">Loading...</td></tr>';
-  try{ _ords=await api('adminGetOrders'); renderOrds(); }
-  catch(e){ toast('Orders error: '+e.message); }
+  try{
+    _ords=await api('adminGetOrders');
+    renderLowBalBox();
+    renderOrds();
+  }catch(e){ toast('Orders error: '+e.message); }
 }
 
-function filterOrd(f,btn){
-  _ordF=f;
-  document.querySelectorAll('#pg-orders .f-btn').forEach(b=>b.classList.remove('act'));
-  btn.classList.add('act'); renderOrds();
+function renderLowBalBox(){
+  const lowBal=_ords.filter(o=>o.orderStatus==='lowBalance');
+  const box=doc('low-bal-box'); const list=doc('low-bal-list');
+  if(!lowBal.length){ box.style.display='none'; return; }
+  box.style.display='block';
+  list.innerHTML=lowBal.map(o=>`
+    <div class="failed-row">
+      <div class="fr-info">
+        <strong>${esc(o.name)}</strong> — <code>${esc(o.phone)}</code><br>
+        <span style="font-size:11px;color:#c1121f">₹${Number(o.finalAmount)||0} required — Balance insufficient</span>
+      </div>
+      <div class="fr-acts">
+        <a href="tel:${esc(o.phone)}" class="btn btn-ghost btn-sm"><i class="fa-solid fa-phone"></i></a>
+        <button class="btn btn-sm" style="background:#25d366;color:#fff" onclick="openWA('${esc(o.phone)}','${esc(o.name)}',${Number(o.finalAmount)||0})"><i class="fa-brands fa-whatsapp"></i></button>
+        <button class="btn btn-sm btn-p" onclick="forceUdharSingle('${esc(o.orderId)}','${esc(o.phone)}','${esc(o.name)}',${Number(o.finalAmount)||0})">Force Udhar</button>
+      </div>
+    </div>`).join('');
 }
+
+function filterOrd(f,btn){ _ordF=f; document.querySelectorAll('#pg-orders .f-btn').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); renderOrds(); }
 
 function renderOrds(){
   const srch=(doc('ord-srch').value||'').toLowerCase();
   const today=todayIST();
-  const sc={pending:'b-y',preparing:'b-o','out for delivery':'b-bl',delivered:'b-g',paid:'b-g'};
-
   let filtered=_ords.filter(o=>{
     if(_ordF==='today') return normDate(o.date)===today;
-    if(_ordF==='pending'||_ordF==='preparing'||_ordF==='out for delivery'||_ordF==='delivered') return o.orderStatus===_ordF;
-    return true;
+    if(_ordF==='all') return true;
+    return (o.orderStatus||'')=== _ordF;
   }).filter(o=>!srch||(o.name||'').toLowerCase().includes(srch)||(o.phone||'').includes(srch)||(o.orderId||'').toLowerCase().includes(srch));
 
   doc('ord-tb').innerHTML=filtered.length?filtered.map(o=>{
-    let items=[]; try{ items=safeP(o.items); }catch{}
-    const sum=items.slice(0,2).map(i=>`${i.name}${i.selectedVariant?` (${i.selectedVariant})`:''} ×${i.qty}`).join(', ')+(items.length>2?'...':'');
+    const items=safeP(o.items);
+    const itemStr=items.slice(0,2).map(i=>`${esc(i.name||i.itemId||'')} x${i.qty||1}`).join(', ')+(items.length>2?'…':'');
+    const stCls={'pending':'b-y','preparing':'b-bl','out for delivery':'b-o','delivered':'b-g','cancelled':'b-r','lowBalance':'b-r'}[o.orderStatus]||'b-gr';
+    const payCls={'paid':'b-g','pending':'b-y','udhar':'b-o'}[o.paymentStatus]||'b-gr';
     return `<tr>
-      <td><code style="font-size:11px;font-weight:700">${esc(o.orderId)}</code></td>
-      <td><div style="font-weight:700">${esc(o.name)}</div><div style="font-size:11px;color:#999">${esc(o.phone)}</div></td>
-      <td style="max-width:180px;font-size:12px">${esc(sum)}</td>
-      <td><strong>₹${Number(o.finalAmount).toFixed(0)}</strong></td>
+      <td><code style="font-size:11px">${esc(o.orderId)}</code></td>
+      <td><strong>${esc(o.name)}</strong><br><span style="font-size:11px;color:#999">${esc(o.phone)}</span></td>
+      <td style="font-size:12px;max-width:160px">${itemStr}</td>
+      <td><strong>₹${Number(o.finalAmount||0).toFixed(0)}</strong></td>
       <td><span class="bdg ${o.userType==='subscriber'?'b-g':'b-gr'}">${esc(o.userType||'daily')}</span></td>
-      <td><span class="bdg ${sc[o.paymentStatus]||'b-y'}">${esc(o.paymentStatus||'pending')}</span></td>
-      <td><span class="bdg ${sc[o.orderStatus]||'b-y'}">${esc(o.orderStatus||'pending')}</span></td>
-      <td style="font-size:12px;white-space:nowrap">${esc(fmtDate(o.date))}<br><span style="color:#999">${esc(fmtTime(o.time))}</span></td>
+      <td><span class="bdg ${payCls}">${esc(o.paymentStatus||'pending')}</span></td>
+      <td><span class="bdg ${stCls}">${esc(o.orderStatus||'pending')}</span></td>
+      <td style="font-size:12px">${esc(normDate(o.date)||fmtDate(o.date))}</td>
       <td style="font-size:12px">${o.riderId?`<code>${esc(o.riderId)}</code>`:'<span style="color:#ccc">—</span>'}</td>
       <td>
         <button class="btn btn-sm btn-ghost" onclick='showOrdDetail(${JSON.stringify(o).replace(/'/g,"&#39;")})' style="margin-right:4px"><i class="fa-solid fa-eye"></i></button>
-        <button class="btn btn-sm btn-p" onclick="openStatusMo('${esc(o.orderId)}','${esc(o.orderStatus)}','${esc(o.paymentStatus)}','${esc(o.riderId||'')}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-sm btn-p" onclick="openStatusMo('${esc(o.orderId)}','${esc(o.orderStatus)}','${esc(o.paymentStatus)}','${esc(o.riderId||'')}','${esc(o.phone||'')}','${esc(o.userType||'')}',${Number(o.finalAmount||0)})"><i class="fa-solid fa-pen"></i></button>
       </td>
     </tr>`;
   }).join(''):'<tr><td colspan="10" style="text-align:center;padding:28px;color:#999">No orders found</td></tr>';
 }
 
 function showOrdDetail(o){
-  let items=[]; try{ items=safeP(o.items); }catch{}
+  const items=safeP(o.items);
   doc('mo-order-c').innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-      <div><div style="font-size:11px;color:#999;font-weight:700">ORDER ID</div><code style="font-weight:700">${esc(o.orderId)}</code></div>
-      <div><div style="font-size:11px;color:#999;font-weight:700">DATE</div>${esc(fmtDate(o.date))} ${esc(fmtTime(o.time))}</div>
-      <div><div style="font-size:11px;color:#999;font-weight:700">CUSTOMER</div><strong>${esc(o.name)}</strong></div>
-      <div><div style="font-size:11px;color:#999;font-weight:700">PHONE</div><a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></div>
-    </div>
-    <div style="background:#f3f4f6;border-radius:10px;padding:12px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:#999;margin-bottom:4px">ADDRESS</div><div style="font-weight:600">${esc(o.address)}</div></div>
-    <div style="background:#f3f4f6;border-radius:10px;padding:12px;margin-bottom:10px">
-      <div style="font-size:11px;font-weight:700;color:#999;margin-bottom:6px">ITEMS</div>
-      ${items.map(i=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-weight:600;font-size:13px"><span>${esc(i.name)}${i.selectedVariant?` <span style="color:#999">(${esc(i.selectedVariant)})</span>`:''} ×${i.qty}</span><span>₹${Number(i.price)*i.qty}</span></div>`).join('')}
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div style="background:#f3f4f6;border-radius:10px;padding:10px"><div style="font-size:11px;color:#999;font-weight:700">SUBTOTAL</div><strong>₹${esc(String(o.totalAmount))}</strong></div>
-      <div style="background:#f3f4f6;border-radius:10px;padding:10px"><div style="font-size:11px;color:#999;font-weight:700">DELIVERY</div><strong>₹${esc(String(o.deliveryCharge))}</strong></div>
-      <div style="background:#f3f4f6;border-radius:10px;padding:10px"><div style="font-size:11px;color:#999;font-weight:700">DISCOUNT</div><strong style="color:var(--g)">−₹${esc(String(o.discount||0))}</strong></div>
-      <div style="background:var(--p);color:#fff;border-radius:10px;padding:10px"><div style="font-size:11px;font-weight:700;opacity:.8">TOTAL</div><strong>₹${esc(String(o.finalAmount))}</strong></div>
+    <div style="display:grid;gap:8px;font-size:13px">
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--gr)">Order ID</span><code>${esc(o.orderId)}</code></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--gr)">Customer</span><strong>${esc(o.name)}</strong></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--gr)">Phone</span><code>${esc(o.phone)}</code></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--gr)">Address</span><span>${esc(o.address)}</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--gr)">Date/Time</span><span>${esc(normDate(o.date)||fmtDate(o.date))} ${esc(fmtTime(o.time))}</span></div>
+      <hr style="border:none;border-top:1px solid #f0f0f0;margin:4px 0">
+      ${items.map(i=>`<div style="display:flex;justify-content:space-between"><span>${esc(i.name||i.itemId)} ${i.selectedVariant?'('+esc(i.selectedVariant)+')':''} x${i.qty||1}</span><strong>₹${i.price||0}</strong></div>`).join('')}
+      <hr style="border:none;border-top:1px solid #f0f0f0;margin:4px 0">
+      <div style="display:flex;justify-content:space-between"><span>Total</span><strong>₹${o.totalAmount||0}</strong></div>
+      ${o.discount?`<div style="display:flex;justify-content:space-between"><span>Discount</span><strong style="color:var(--g)">-₹${o.discount}</strong></div>`:''}
+      <div style="display:flex;justify-content:space-between"><span style="font-weight:700">Final</span><strong style="font-size:16px">₹${o.finalAmount||0}</strong></div>
     </div>`;
   doc('mo-order').classList.remove('hide');
 }
 
-async function openStatusMo(orderId,curSt,curPay,curRider){
+async function openStatusMo(orderId,curSt,curPay,curRider,phone,userType,amount){
   doc('st-oid').value=orderId;
+  doc('st-phone').value=phone||'';
+  doc('st-amount').value=amount||0;
+  doc('st-usertype').value=userType||'';
   doc('st-os').value=curSt;
   doc('st-ps').value=curPay;
-  // Populate rider select
-  const rSel=doc('st-rid');
-  rSel.innerHTML='<option value="">Auto-assign available rider</option>';
+  const balInfo=doc('st-balance-info');
+  const khataNote=doc('st-khata-note');
+
+  // Load riders
+  const rSel=doc('st-rid'); rSel.innerHTML='<option value="">Auto-assign</option>';
   try{
     const riders=await api('getRiders');
     riders.forEach(r=>{ const o=document.createElement('option'); o.value=r.riderId; o.textContent=`${r.name} (${r.riderId})`; if(r.riderId===curRider) o.selected=true; rSel.appendChild(o); });
-  }catch(e){}
+  }catch{}
+
+  // Show balance info for subscriber orders
+  if(phone && userType==='subscriber'){
+    khataNote.style.display='block';
+    try{
+      const b=await api('getSubscriberBalance',{phone});
+      const sufficient=b.balance>=amount;
+      balInfo.style.display='block';
+      balInfo.style.background=sufficient?'var(--gl)':'var(--pl)';
+      balInfo.innerHTML=`<strong>Wallet Balance:</strong> ₹${b.balance} &nbsp;|&nbsp; <strong>Order Amount:</strong> ₹${amount} &nbsp;|&nbsp; ${sufficient?'<span style="color:var(--g)">✅ Sufficient</span>':'<span style="color:var(--p)">⚠️ Insufficient</span>'}`;
+    }catch{ balInfo.style.display='none'; }
+  } else { balInfo.style.display='none'; khataNote.style.display='none'; }
+
   doc('mo-status').classList.remove('hide');
 }
 
 async function submitStatus(){
-  const orderId=doc('st-oid').value, status=doc('st-os').value, paymentStatus=doc('st-ps').value, riderId=doc('st-rid').value;
+  const orderId=doc('st-oid').value;
+  const status=doc('st-os').value;
+  const paymentStatus=doc('st-ps').value;
+  const riderId=doc('st-rid').value;
+  const phone=doc('st-phone').value;
+  const userType=doc('st-usertype').value;
+  const amount=Number(doc('st-amount').value)||0;
+
+  // Subscriber order going to "preparing" → use khata balance check
+  if(userType==='subscriber' && phone && status==='preparing'){
+    try{
+      const res=await api('adminUpdateOrderKhata',{orderId,phone,amount,newStatus:'preparing',riderId});
+      if(res.action==='processed'){
+        toast(`✅ Order processed! Balance: ₹${res.balanceAfter}`);
+      } else {
+        toast(`⚠️ Blocked — Low balance (₹${res.balance} < ₹${res.required})`);
+      }
+      closeMo('mo-status'); loadOrds(); return;
+    }catch(e){ toast('❌ '+e.message); return; }
+  }
+
+  // Regular update
   try{
     await api('updateOrderStatus',{orderId,status,paymentStatus,...(riderId?{riderId}:{})});
-    toast('✅ Order updated!'); closeMo('mo-status'); loadOrds();
+    toast('✅ Updated!');
+    closeMo('mo-status'); loadOrds();
+  }catch(e){ toast('❌ '+e.message); }
+}
+
+async function forceUdharSingle(orderId,phone,name,amount){
+  if(!confirm(`Force order for ${name} (₹${amount}) as Udhar? Balance will go negative.`)) return;
+  // Find the order details needed for forceUdharOrders
+  const order=_ords.find(o=>o.orderId===orderId);
+  if(!order){ toast('❌ Order not found'); return; }
+  try{
+    // Single atomic backend call — creates new udhar order + khata entry together
+    // For lowBalance orders we delete the stuck order and recreate as udhar
+    await api('updateOrderStatus',{orderId,status:'cancelled',paymentStatus:'pending'});
+    const res=await api('forceUdharOrders',{orders:[{
+      phone, name, address:order.address,
+      amount, items:order.items,
+      totalAmount:order.totalAmount, deliveryCharge:order.deliveryCharge||0
+    }]});
+    toast(`✅ ${name} — Udhar order created! Balance: ₹${res.results[0]?.balanceAfter}`);
+    loadOrds();
   }catch(e){ toast('❌ '+e.message); }
 }
 
 // ════════════════════════════════════════════════
-// BULK ORDERS
+// BULK ORDERS — with balance check
 // ════════════════════════════════════════════════
-let _bulkSubs=[],_bulkMenu=[];
+let _bulkSubs=[],_bulkMenu=[],_bulkFailed=[];
 
 async function initBulk(){
   try{
     _bulkMenu=await api('adminGetMenu');
     const sel=doc('bulk-item'); sel.innerHTML='<option value="">-- Select item --</option>';
     _bulkMenu.forEach(i=>{ const o=document.createElement('option'); o.value=i.itemId; o.textContent=`${i.name} — ₹${i.price} (${i.menuType})`; sel.appendChild(o); });
-  }catch(e){}
-  await loadBulkSubs();
+    await loadBulkSubs();
+  }catch(e){ toast('Bulk init error: '+e.message); }
 }
 
 async function loadBulkSubs(){
   const plan=doc('bulk-plan').value;
   const tb=doc('bulk-tb');
-  tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">Loading...</td></tr>';
+  tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;color:#999">Loading...</td></tr>';
   try{
     const subs=await api('adminGetSubscribers');
     _bulkSubs=subs.filter(s=>{
-      if(String(s.status||'active').toLowerCase()==='paused') return false;
+      if((s.status||'active')!=='active') return false;
       if(plan==='all') return true;
       return (s.plan||'both')===plan;
     });
+    // Load balances in background
+    const phones=_bulkSubs.map(s=>s.phone);
+    const balMap={};
+    await Promise.all(phones.map(async ph=>{
+      try{ const b=await api('getSubscriberBalance',{phone:ph}); balMap[ph]=b.balance; }catch{ balMap[ph]=0; }
+    }));
+
     tb.innerHTML=_bulkSubs.length?_bulkSubs.map((s,i)=>`<tr>
       <td><input type="checkbox" class="bulk-cb" data-i="${i}" checked></td>
       <td><code>${esc(s.phone)}</code></td>
       <td style="font-weight:700">${esc(s.name)}</td>
       <td><span class="bdg b-g">${esc(s.plan||'both')}</span></td>
-      <td style="font-size:12px;color:#999">${esc(s.address||'No address')}</td>
-    </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:20px;color:#999">No matching subscribers</td></tr>';
+      <td><strong style="color:${(balMap[s.phone]||0)<0?'var(--p)':'var(--g)'}">₹${balMap[s.phone]||0}</strong></td>
+      <td style="font-size:12px">${esc(s.address||'—')}</td>
+    </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:20px;color:#999">No matching subscribers</td></tr>';
   }catch(e){ toast('Error: '+e.message); }
 }
 
@@ -760,29 +958,272 @@ function toggleAllBulk(cb){ document.querySelectorAll('.bulk-cb').forEach(c=>c.c
 
 async function genBulkOrders(){
   const checked=document.querySelectorAll('.bulk-cb:checked').length;
-  if(!checked){ toast('❌ Koi subscriber select nahi kiya'); return; }
+  if(!checked){ toast('❌ Select at least one subscriber'); return; }
   const itemId=doc('bulk-item').value;
   if(!itemId){ toast('Select a menu item'); return; }
   const item=_bulkMenu.find(i=>i.itemId===itemId);
   const price=Number(doc('bulk-price').value)||Number(item?.price)||0;
-  const reason=doc('bulk-reason').value.trim()||'Manual bulk order';
+  const reason=doc('bulk-reason').value.trim()||'Bulk order';
   const selected=[];
   document.querySelectorAll('.bulk-cb:checked').forEach(cb=>{ selected.push(_bulkSubs[Number(cb.dataset.i)]); });
   if(!selected.length){ toast('Select at least one subscriber'); return; }
-  if(!confirm(`Generate ${selected.length} orders?`)) return;
+  if(!confirm(`Generate orders for ${selected.length} subscribers with balance check?`)) return;
+
+  const btn=document.querySelector('#pg-bulk .btn-p');
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="spin"></span> Processing...'; }
 
   const orders=selected.map(s=>({
     userId:s.phone, name:s.name, phone:s.phone, address:s.address||'',
     items:[{itemId:item.itemId,name:item.name,price,qty:1,selectedVariant:'',imageUrl:item.imageUrl}],
     totalAmount:price, deliveryCharge:0, finalAmount:price,
-    couponCode:'', discount:0, userType:'subscriber',
     note:reason
   }));
 
   try{
-    const res=await api('createBulkOrders',{orders});
-    toast(`✅ ${res.created} orders created!`); loadOrds(); showPg('orders');
+    const res=await api('bulkOrdersWithBalance',{orders});
+    if(btn){ btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-boxes-stacked"></i> Generate Selected Orders'; }
+
+    // Show success
+    if(res.processed&&res.processed.length){
+      doc('bulk-success-box').style.display='block';
+      doc('bulk-success-count').textContent=res.processed.length;
+      doc('bulk-success-list').innerHTML=res.processed.map(p=>`✅ <strong>${esc(p.name)}</strong> (${esc(p.phone)}) — Balance after: ₹${p.balanceAfter}`).join('<br>');
+    }
+
+    // Show failed
+    _bulkFailed=res.failed||[];
+    if(_bulkFailed.length){
+      doc('bulk-failed-box').style.display='block';
+      doc('bulk-failed-count').textContent=_bulkFailed.length;
+      renderFailedList();
+      toast(`⚠️ ${res.processed.length} ok, ${_bulkFailed.length} failed (low balance)`);
+    } else {
+      doc('bulk-failed-box').style.display='none';
+      toast(`✅ All ${res.processed.length} orders created!`);
+    }
+  }catch(e){
+    if(btn){ btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-boxes-stacked"></i> Generate Selected Orders'; }
+    toast('❌ '+e.message);
+  }
+}
+
+function renderFailedList(){
+  doc('bulk-failed-list').innerHTML=_bulkFailed.map((f,i)=>`
+    <div class="failed-row">
+      <input type="checkbox" class="failed-cb" data-i="${i}" checked style="margin-right:8px">
+      <div class="fr-info">
+        <strong>${esc(f.name)}</strong> — <code>${esc(f.phone)}</code><br>
+        <span style="font-size:11px;color:#c1121f">Has ₹${f.balance}, needs ₹${f.amount}</span>
+      </div>
+      <div class="fr-acts">
+        <a href="tel:${esc(f.phone)}" class="btn btn-ghost btn-sm" title="Call"><i class="fa-solid fa-phone"></i></a>
+        <button class="btn btn-sm" style="background:#25d366;color:#fff" onclick="openWA('${esc(f.phone)}','${esc(f.name)}',${f.amount})" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+      </div>
+    </div>`).join('');
+}
+
+function selectAllFailed(){ document.querySelectorAll('.failed-cb').forEach(c=>c.checked=true); }
+
+async function forceSelectedUdhar(){
+  const selected=[];
+  document.querySelectorAll('.failed-cb:checked').forEach(cb=>{ selected.push(_bulkFailed[Number(cb.dataset.i)]); });
+  if(!selected.length){ toast('Select at least one subscriber'); return; }
+  if(!confirm(`Force ${selected.length} orders as Udhar? Balance will go negative for these subscribers.`)) return;
+
+  try{
+    const res=await api('forceUdharOrders',{orders:selected.map(f=>({
+      phone:f.phone, name:f.name, address:f.address, amount:f.amount,
+      items:f.items, totalAmount:f.totalAmount, deliveryCharge:f.deliveryCharge
+    }))});
+    toast(`✅ ${res.count} Udhar orders created!`);
+    doc('bulk-failed-box').style.display='none';
+    _bulkFailed=[];
+    loadOrds();
   }catch(e){ toast('❌ '+e.message); }
+}
+
+function openWA(phone,name,amount){
+  const msg=`Namaste ${name} ji 🙏\nAapke account mein balance kam ho gaya hai. ₹${amount} ya usse adhik recharg karein.\nHome Bite 🍱`;
+  window.open('https://wa.me/91'+phone+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ════════════════════════════════════════════════
+// KHATA MANAGER
+// ════════════════════════════════════════════════
+let _khataPhone='', _khataRows=[];
+
+async function loadKhataPage(){
+  await loadAllBalances();
+}
+
+async function loadAllBalances(){
+  const tb=doc('bal-tb');
+  tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:28px;color:#999">Loading...</td></tr>';
+  try{
+    const subs=await api('adminGetSubscribers');
+    const results=await Promise.all(subs.map(async s=>{
+      try{ const b=await api('getSubscriberBalance',{phone:s.phone}); return {...s,balance:b.balance}; }
+      catch{ return {...s,balance:0}; }
+    }));
+    tb.innerHTML=results.length?results.map(s=>`<tr>
+      <td><code>${esc(s.phone)}</code></td>
+      <td style="font-weight:700">${esc(s.name)}</td>
+      <td><span class="bdg b-g">${esc(s.plan||'both')}</span></td>
+      <td><strong style="color:${s.balance<0?'var(--p)':s.balance===0?'var(--gr)':'var(--g)';}">${s.balance<0?'':''}₹${s.balance}</strong></td>
+      <td>
+        <button class="btn btn-sm btn-g" onclick="quickViewKhata('${esc(s.phone)}','${esc(s.name)}')" style="margin-right:4px"><i class="fa-solid fa-book-open"></i> View</button>
+        <button class="btn btn-sm btn-p" onclick="quickRecharge('${esc(s.phone)}','${esc(s.name)}',${s.balance})"><i class="fa-solid fa-plus"></i> Recharge</button>
+      </td>
+    </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:28px;color:#999">No subscribers yet</td></tr>';
+  }catch(e){ toast('Error: '+e.message); }
+}
+
+async function searchKhata(){
+  const phone=doc('kh-phone').value.trim().replace(/\D/g,'');
+  if(!phone||phone.length!==10){ toast('Enter valid 10-digit mobile'); return; }
+  const from=doc('kh-from').value ? formatDateForAPI(doc('kh-from').value) : '';
+  const to=doc('kh-to').value ? formatDateForAPI(doc('kh-to').value) : '';
+  try{
+    const res=await api('khataGet',{phone,...(from?{fromDate:from}:{}),...(to?{toDate:to}:{})});
+    _khataPhone=phone; _khataRows=res.rows||[];
+    renderKhataView(res);
+  }catch(e){ toast('❌ '+e.message); }
+}
+
+function formatDateForAPI(ymd){ // "YYYY-MM-DD" → "DD/MM/YYYY"
+  const p=ymd.split('-'); return p[2]+'/'+p[1]+'/'+p[0];
+}
+
+function renderKhataView(res){
+  const bal=Number(res.balance)||0;
+  const isNeg=bal<0;
+  doc('kh-bal-wrap').style.display='block';
+  doc('kh-bal-wrap').innerHTML=`<div class="khata-bal ${isNeg?'negative':''}">
+    <div><div class="bal-label">Current Wallet Balance</div><div style="font-size:12px;opacity:.8;margin-top:2px">${esc(_khataPhone)}</div></div>
+    <div class="bal-amount">₹${bal.toLocaleString('en-IN')}</div>
+  </div>`;
+  doc('kh-table-wrap').style.display='block';
+  doc('kh-table-title').textContent=`Khata History (${_khataRows.length} entries)`;
+  renderKhataEntries(_khataRows);
+}
+
+function renderKhataEntries(rows){
+  if(!rows.length){
+    doc('kh-entries').innerHTML='<div style="text-align:center;padding:32px;color:#999">No transactions found</div>';
+    return;
+  }
+  doc('kh-entries').innerHTML=rows.slice().reverse().map(r=>{
+    const isCredit=r.txnType==='Amount Received (Recharge)';
+    const isUdhar=r.txnType==='Tiffin Given on Udhar';
+    const iconCls=isCredit?'ke-credit':isUdhar?'ke-udhar':'ke-debit';
+    const icon=isCredit?'fa-arrow-down':isUdhar?'fa-clock':'fa-arrow-up';
+    const amtColor=isCredit?'pos':'neg';
+    const amtPrefix=isCredit?'+':'-';
+    return `<div class="khata-entry">
+      <div class="ke-icon ${iconCls}"><i class="fa-solid ${icon}"></i></div>
+      <div class="ke-info">
+        <div class="ke-type">${esc(r.txnType)}</div>
+        <div class="ke-sub">${esc(r.date)} ${esc(r.time)}${r.note?' · '+esc(r.note):''}</div>
+        <div class="ke-sub" style="color:#9ca3af">Bal: ₹${Number(r.balanceBefore)||0} → ₹${Number(r.balanceAfter)||0}</div>
+      </div>
+      <div class="ke-amount ${amtColor}">${amtPrefix}₹${Number(r.amount)||0}</div>
+    </div>`;
+  }).join('');
+}
+
+async function quickViewKhata(phone,name){
+  doc('kh-phone').value=phone;
+  try{
+    const res=await api('khataGet',{phone});
+    _khataPhone=phone; _khataRows=res.rows||[];
+    renderKhataView(res);
+    doc('kh-table-title').textContent=`${name} — Khata History`;
+    document.querySelector('#pg-khata').scrollIntoView({behavior:'smooth'});
+  }catch(e){ toast('❌ '+e.message); }
+}
+
+function quickRecharge(phone,name,bal){
+  openRechargeModal(phone,name,bal);
+}
+
+function openRechargeModal(phone,name,bal){
+  const ph=phone||doc('kh-phone').value.trim();
+  if(!ph){ toast('Search for a subscriber first'); return; }
+  doc('rch-phone').value=ph;
+  doc('rch-amount').value='';
+  doc('rch-note').value='';
+  doc('rch-sub-info').textContent=`${name||ph} — Current Balance: ₹${bal!=null?bal:'...'}`;
+  doc('mo-recharge').classList.remove('hide');
+}
+
+async function submitRecharge(){
+  const phone=doc('rch-phone').value;
+  const amount=Number(doc('rch-amount').value);
+  const note=doc('rch-note').value.trim();
+  if(!amount||amount<=0){ toast('Enter valid amount'); return; }
+  try{
+    const res=await api('khataAdd',{phone,txnType:'Amount Received (Recharge)',amount,note});
+    toast(`✅ ₹${amount} recharged! New balance: ₹${res.balanceAfter}`);
+    closeMo('mo-recharge');
+    // Refresh khata view if open
+    if(_khataPhone===phone){
+      const updated=await api('khataGet',{phone});
+      _khataRows=updated.rows||[]; renderKhataView(updated);
+    }
+    loadAllBalances();
+  }catch(e){ toast('❌ '+e.message); }
+}
+
+async function submitKhataEntry(){
+  const phone=doc('ke-phone').value;
+  const txnType=doc('ke-type').value;
+  const amount=Number(doc('ke-amount').value);
+  const note=doc('ke-note').value.trim();
+  if(!amount||amount<=0){ toast('Enter valid amount'); return; }
+  try{
+    const res=await api('khataAdd',{phone,txnType,amount,note});
+    toast(`✅ Entry added! Balance: ₹${res.balanceAfter}`);
+    closeMo('mo-khata-entry');
+    if(_khataPhone===phone){
+      const updated=await api('khataGet',{phone});
+      _khataRows=updated.rows||[]; renderKhataView(updated);
+    }
+    loadAllBalances();
+  }catch(e){ toast('❌ '+e.message); }
+}
+
+function exportKhata(){
+  if(!_khataRows.length){ toast('No data to export'); return; }
+  const phone=_khataPhone;
+  const rows=_khataRows.slice().reverse();
+  const lastBal=rows.length?Number(rows[0].balanceAfter||rows[0].balanceBefore)||0:0;
+  const content=`<html><head><style>
+    body{font-family:Arial,sans-serif;font-size:13px;padding:24px}
+    h2{color:#e63946;margin-bottom:4px}
+    .meta{color:#666;font-size:12px;margin-bottom:20px}
+    .bal{font-size:18px;font-weight:bold;padding:12px 18px;background:${lastBal<0?'#fde8ea':'#e8f5f3'};border-radius:8px;display:inline-block;margin-bottom:20px}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th{background:#f3f4f6;padding:8px 12px;text-align:left;font-weight:700;border-bottom:2px solid #e5e7eb}
+    td{padding:8px 12px;border-bottom:1px solid #f3f4f6}
+    .pos{color:#2a9d8f;font-weight:700}.neg{color:#e63946;font-weight:700}
+    @media print{button{display:none}}
+  </style></head><body>
+  <h2>🍱 Home Bite — Khata Statement</h2>
+  <div class="meta">Phone: ${phone} | Generated: ${new Date().toLocaleString('en-IN')}</div>
+  <div class="bal">Current Balance: ₹${lastBal}</div>
+  <table><thead><tr><th>#</th><th>Date</th><th>Time</th><th>Type</th><th>Note</th><th>Amount</th><th>Balance</th></tr></thead><tbody>
+  ${rows.map((r,i)=>{
+    const isCredit=r.txnType==='Amount Received (Recharge)';
+    return `<tr><td>${i+1}</td><td>${r.date}</td><td>${r.time}</td><td>${r.txnType}</td><td>${r.note||'—'}</td>
+    <td class="${isCredit?'pos':'neg'}">${isCredit?'+':'-'}₹${r.amount}</td><td>₹${r.balanceAfter}</td></tr>`;
+  }).join('')}
+  </tbody></table>
+  <div style="margin-top:24px;font-size:11px;color:#999">Home Bite — Khata Report</div>
+  </body></html>`;
+  const w=window.open('','_blank');
+  w.document.write(content);
+  w.document.close();
+  setTimeout(()=>w.print(),500);
 }
 
 // ════════════════════════════════════════════════
@@ -822,43 +1263,32 @@ function renderMenu(){
 
 let _varRows=[];
 function openMenuModal(){
-  doc('mo-menu-t').textContent='Add Menu Item';
-  doc('mi-id').value='';
+  doc('mo-menu-t').textContent='Add Menu Item'; doc('mi-id').value='';
   ['mi-name','mi-cat','mi-img'].forEach(id=>doc(id).value='');
   doc('mi-price').value=''; doc('mi-type').value='morning'; doc('mi-avail').value='TRUE';
-  _varRows=[]; renderVarRows();
-  doc('mo-menu').classList.remove('hide');
+  _varRows=[]; renderVarRows(); doc('mo-menu').classList.remove('hide');
 }
-
 function editMenu(item){
-  doc('mo-menu-t').textContent='Edit Menu Item';
-  doc('mi-id').value=item.itemId; doc('mi-name').value=item.name; doc('mi-cat').value=item.category;
+  doc('mo-menu-t').textContent='Edit Menu Item'; doc('mi-id').value=item.itemId;
+  doc('mi-name').value=item.name; doc('mi-cat').value=item.category;
   doc('mi-price').value=item.price; doc('mi-img').value=item.imageUrl||'';
   doc('mi-type').value=item.menuType; doc('mi-avail').value=String(item.availability).toUpperCase()==='FALSE'?'FALSE':'TRUE';
-  _varRows=safeP(item.variants).map(v=>({...v}));
-  renderVarRows();
-  doc('mo-menu').classList.remove('hide');
+  _varRows=safeP(item.variants).map(v=>({...v})); renderVarRows(); doc('mo-menu').classList.remove('hide');
 }
-
 function addVarRow(){ _varRows.push({label:'',price:''}); renderVarRows(); }
 function removeVarRow(i){ _varRows.splice(i,1); renderVarRows(); }
 function renderVarRows(){
   doc('var-list').innerHTML=_varRows.map((v,i)=>`
     <div class="var-entry">
-      <input class="inp" type="text" placeholder="Label e.g. Half / 250g" value="${esc(v.label)}" oninput="_varRows[${i}].label=this.value" style="flex:2">
-      <input class="inp" type="number" placeholder="₹ price" value="${v.price}" oninput="_varRows[${i}].price=Number(this.value)" style="flex:1">
+      <input class="inp" type="text" placeholder="Label e.g. Half" value="${esc(v.label)}" oninput="_varRows[${i}].label=this.value" style="flex:2">
+      <input class="inp" type="number" placeholder="₹" value="${v.price}" oninput="_varRows[${i}].price=Number(this.value)" style="flex:1">
       <button class="btn btn-ghost btn-sm" onclick="removeVarRow(${i})"><i class="fa-solid fa-times"></i></button>
     </div>`).join('');
 }
-
 async function submitMenu(){
   const itemId=doc('mi-id').value;
   const variants=_varRows.filter(v=>v.label&&v.price);
-  const data={
-    name:doc('mi-name').value.trim(), category:doc('mi-cat').value.trim(),
-    price:doc('mi-price').value||'0', variants,
-    imageUrl:doc('mi-img').value.trim(), menuType:doc('mi-type').value, availability:doc('mi-avail').value
-  };
+  const data={name:doc('mi-name').value.trim(),category:doc('mi-cat').value.trim(),price:doc('mi-price').value||'0',variants,imageUrl:doc('mi-img').value.trim(),menuType:doc('mi-type').value,availability:doc('mi-avail').value};
   if(!data.name) return toast('Item name required');
   try{
     if(itemId){ await api('updateMenuItem',{itemId,...data}); toast('✅ Updated!'); }
@@ -866,7 +1296,6 @@ async function submitMenu(){
     closeMo('mo-menu'); loadMenu();
   }catch(e){ toast('❌ '+e.message); }
 }
-
 async function delMenu(itemId,name){
   if(!confirm(`Delete "${name}"?`)) return;
   try{ await api('deleteMenuItem',{itemId}); toast('✅ Deleted'); loadMenu(); }
@@ -890,7 +1319,6 @@ async function loadCpns(){
     </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:28px;color:#999">No coupons</td></tr>';
   }catch(e){ toast('Error: '+e.message); }
 }
-
 function openCpnModal(){ ['cp-code','cp-val','cp-exp','cp-ph'].forEach(id=>doc(id).value=''); doc('cp-type').value='percent'; doc('mo-cpn').classList.remove('hide'); }
 async function submitCpn(){
   const data={code:doc('cp-code').value.trim().toUpperCase(),discountType:doc('cp-type').value,discountValue:doc('cp-val').value,expiryDate:doc('cp-exp').value,userPhone:doc('cp-ph').value.trim()};
@@ -898,7 +1326,6 @@ async function submitCpn(){
   try{ await api('createCoupon',data); toast('✅ Created!'); closeMo('mo-cpn'); loadCpns(); }
   catch(e){ toast('❌ '+e.message); }
 }
-
 async function delCpn(code){
   if(!confirm(`Delete coupon "${code}"?`)) return;
   try{ await api('deleteCoupon',{code}); toast('✅ Deleted'); loadCpns(); }
@@ -906,15 +1333,22 @@ async function delCpn(code){
 }
 
 // ════════════════════════════════════════════════
-// SUBSCRIBERS
+// SUBSCRIBERS — with balance column
 // ════════════════════════════════════════════════
-let _subs=[],_subF='all';
+let _subs=[],_subBalances={},_subF='all';
 
 async function loadSubs(){
   const tb=doc('sub-tb');
-  tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:#999">Loading...</td></tr>';
-  try{ _subs=await api('adminGetSubscribers'); renderSubs(); }
-  catch(e){ toast('Error: '+e.message); }
+  tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:28px;color:#999">Loading...</td></tr>';
+  try{
+    _subs=await api('adminGetSubscribers');
+    // Load balances in parallel
+    await Promise.all(_subs.map(async s=>{
+      try{ const b=await api('getSubscriberBalance',{phone:s.phone}); _subBalances[s.phone]=b.balance; }
+      catch{ _subBalances[s.phone]=0; }
+    }));
+    renderSubs();
+  }catch(e){ toast('Error: '+e.message); }
 }
 
 function filterSubs(f,btn){ _subF=f; document.querySelectorAll('#pg-subscribers .f-btn').forEach(b=>b.classList.remove('act')); btn.classList.add('act'); renderSubs(); }
@@ -926,28 +1360,36 @@ function renderSubs(){
     return (s.plan||'both')===_subF;
   });
   doc('sub-count').textContent=`Subscribers (${filtered.length})`;
-  doc('sub-tb').innerHTML=filtered.length?filtered.map(s=>`<tr>
-    <td><code>${esc(s.phone)}</code></td>
-    <td style="font-weight:700">${esc(s.name)}</td>
-    <td><span class="bdg b-g">${esc(s.plan||'both')}</span></td>
-    <td><span class="bdg ${(s.status||'active')==='active'?'b-g':'b-o'}">${esc(s.status||'active')}</span></td>
-    <td style="font-size:12px;color:#999">${s.startDate?new Date(s.startDate).toLocaleDateString():''}</td>
-    <td>
-      <button class="btn btn-sm btn-ghost" onclick="editSub('${esc(s.phone)}','${esc(s.name)}','${esc(s.plan||'both')}','${esc(s.status||'active')}')" style="margin-right:4px"><i class="fa-solid fa-pen"></i></button>
-      <button class="btn btn-sm btn-red" onclick="delSub('${esc(s.phone)}')"><i class="fa-solid fa-user-minus"></i></button>
-    </td>
-  </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:28px;color:#999">No subscribers</td></tr>';
+  doc('sub-tb').innerHTML=filtered.length?filtered.map(s=>{
+    const bal=_subBalances[s.phone]??0;
+    return `<tr>
+      <td><code>${esc(s.phone)}</code></td>
+      <td style="font-weight:700">${esc(s.name)}</td>
+      <td><span class="bdg b-g">${esc(s.plan||'both')}</span></td>
+      <td><span class="bdg ${(s.status||'active')==='active'?'b-g':'b-o'}">${esc(s.status||'active')}</span></td>
+      <td><strong style="color:${bal<0?'var(--p)':bal===0?'var(--gr)':'var(--g)'}">₹${bal}</strong></td>
+      <td style="font-size:12px;color:#999">${s.startDate?new Date(s.startDate).toLocaleDateString():''}</td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-sm btn-g" onclick="quickRecharge('${esc(s.phone)}','${esc(s.name)}',${bal})" title="Recharge"><i class="fa-solid fa-plus"></i></button>
+        <button class="btn btn-sm btn-ghost" onclick="quickViewKhata('${esc(s.phone)}','${esc(s.name)}')" title="View Khata"><i class="fa-solid fa-book-open"></i></button>
+        <button class="btn btn-sm btn-ghost" onclick="editSub('${esc(s.phone)}','${esc(s.name)}','${esc(s.plan||'both')}','${esc(s.status||'active')}','${esc(s.address||'')}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-sm btn-ghost" onclick="openChangePhone('${esc(s.phone)}','${esc(s.name)}')" title="Change Phone"><i class="fa-solid fa-mobile-screen"></i></button>
+        <button class="btn btn-sm btn-red" onclick="delSub('${esc(s.phone)}')"><i class="fa-solid fa-user-minus"></i></button>
+      </td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="7" style="text-align:center;padding:28px;color:#999">No subscribers</td></tr>';
 }
 
-function openSubModal(){ doc('mo-sub-t').textContent='Add Subscriber'; doc('sub-orig-ph').value=''; ['sub-ph','sub-nm'].forEach(id=>doc(id).value=''); doc('sub-plan').value='both'; doc('sub-stat').value='active'; doc('mo-sub').classList.remove('hide'); }
-function editSub(ph,nm,plan,stat){ doc('mo-sub-t').textContent='Edit Subscriber'; doc('sub-orig-ph').value=ph; doc('sub-ph').value=ph; doc('sub-nm').value=nm; doc('sub-plan').value=plan; doc('sub-stat').value=stat; doc('mo-sub').classList.remove('hide'); }
+function openSubModal(){ doc('mo-sub-t').textContent='Add Subscriber'; doc('sub-orig-ph').value=''; ['sub-ph','sub-nm','sub-addr'].forEach(id=>doc(id).value=''); doc('sub-plan').value='both'; doc('sub-stat').value='active'; doc('mo-sub').classList.remove('hide'); }
+function editSub(ph,nm,plan,stat,addr){ doc('mo-sub-t').textContent='Edit Subscriber'; doc('sub-orig-ph').value=ph; doc('sub-ph').value=ph; doc('sub-nm').value=nm; doc('sub-addr').value=addr||''; doc('sub-plan').value=plan; doc('sub-stat').value=stat; doc('mo-sub').classList.remove('hide'); }
 
 async function submitSub(){
   const origPh=doc('sub-orig-ph').value, ph=doc('sub-ph').value.trim().replace(/\D/g,''), nm=doc('sub-nm').value.trim();
-  if(!ph||ph.length!==10) return toast('Valid 10-digit phone');
+  const addr=doc('sub-addr').value.trim();
+  if(!ph||ph.length!==10) return toast('Valid 10-digit phone required');
   try{
-    if(origPh){ await api('updateSubscriber',{phone:origPh,plan:doc('sub-plan').value,status:doc('sub-stat').value}); toast('✅ Updated!'); }
-    else{ await api('addSubscriber',{phone:ph,name:nm,plan:doc('sub-plan').value,status:doc('sub-stat').value}); toast('✅ Added!'); }
+    if(origPh){ await api('updateSubscriber',{phone:origPh,name:nm,address:addr,plan:doc('sub-plan').value,status:doc('sub-stat').value}); toast('✅ Updated!'); }
+    else{ await api('addSubscriber',{phone:ph,name:nm,address:addr,plan:doc('sub-plan').value,status:doc('sub-stat').value}); toast('✅ Subscriber added!'); }
     closeMo('mo-sub'); loadSubs();
   }catch(e){ toast('❌ '+e.message); }
 }
@@ -956,6 +1398,28 @@ async function delSub(phone){
   if(!confirm(`Remove subscriber ${phone}?`)) return;
   try{ await api('removeSubscriber',{phone}); toast('✅ Removed'); loadSubs(); }
   catch(e){ toast('❌ '+e.message); }
+}
+
+function openChangePhone(phone,name){
+  doc('chph-old').value=phone;
+  doc('chph-old-disp').value=phone;
+  doc('chph-new').value='';
+  doc('chph-sub-info').textContent=`Changing phone for: ${name}`;
+  doc('mo-chphone').classList.remove('hide');
+}
+
+async function submitChangePhone(){
+  const oldPhone=doc('chph-old').value;
+  const newPhone=doc('chph-new').value.trim().replace(/\D/g,'');
+  if(!newPhone||newPhone.length!==10) return toast('Enter valid 10-digit new phone');
+  if(!confirm(`Change phone from ${oldPhone} to ${newPhone}?\nThis will also update all Khata records.`)) return;
+  try{
+    await api('changeSubscriberPhone',{oldPhone,newPhone});
+    toast(`✅ Phone changed to ${newPhone}`);
+    closeMo('mo-chphone');
+    loadSubs();
+    loadAllBalances();
+  }catch(e){ toast('❌ '+e.message); }
 }
 
 // ════════════════════════════════════════════════
@@ -985,8 +1449,7 @@ function renderUsers(){
   doc('usr-tb').innerHTML=filtered.length?filtered.map(u=>{
     const isSub=_subPhones.has(String(u.phone).replace(/\D/g,''));
     return `<tr>
-      <td><code>${esc(u.phone)}</code></td>
-      <td style="font-weight:700">${esc(u.name)}</td>
+      <td><code>${esc(u.phone)}</code></td><td style="font-weight:700">${esc(u.name)}</td>
       <td style="font-size:12px;color:#999">${esc(u.email)}</td>
       <td style="font-size:12px;max-width:160px">${esc(u.address)}</td>
       <td><span class="bdg ${isSub?'b-g':'b-gr'}">${isSub?'Subscriber':'Daily'}</span></td>
@@ -1006,7 +1469,6 @@ async function loadRiders(){
     </tr>`).join(''):'<tr><td colspan="3" style="text-align:center;padding:28px;color:#999">No riders</td></tr>';
   }catch(e){ toast('Error: '+e.message); }
 }
-
 function openRiderModal(){ ['rd-nm','rd-em','rd-pw'].forEach(id=>doc(id).value=''); doc('mo-rider').classList.remove('hide'); }
 async function submitRider(){
   const nm=doc('rd-nm').value.trim(), em=doc('rd-em').value.trim(), pw=doc('rd-pw').value;
@@ -1016,7 +1478,7 @@ async function submitRider(){
 }
 
 // ════════════════════════════════════════════════
-// SETTINGS — Order Cutoff
+// SETTINGS
 // ════════════════════════════════════════════════
 async function loadSettings(){
   try{
@@ -1025,90 +1487,30 @@ async function loadSettings(){
     if(cfg.cutoffDay) doc('cutoff-day').value=cfg.cutoffDay;
     if(cfg.cutoffNight) doc('cutoff-night').value=cfg.cutoffNight;
     toggleCutoffUI();
-  }catch(e){ /* not set yet */ }
+  }catch{}
 }
-
 function toggleCutoffUI(){
   const on=doc('cutoff-enabled').checked;
   doc('cutoff-fields').style.display=on?'block':'none';
-  const slider=doc('cutoff-slider');
-  const knob=doc('cutoff-knob');
+  const slider=doc('cutoff-slider'); const knob=doc('cutoff-knob');
   if(slider) slider.style.background=on?'var(--p)':'#ccc';
   if(knob) knob.style.left=on?'25px':'3px';
 }
-
 async function saveCutoffSettings(){
   const enabled=doc('cutoff-enabled').checked;
   const cutoffDay=doc('cutoff-day').value||'11:30';
   const cutoffNight=doc('cutoff-night').value||'19:30';
-  // Validate: lunch cutoff must be earlier than dinner cutoff
   if(enabled){
     const [dH,dM]=cutoffDay.split(':').map(Number);
     const [nH,nM]=cutoffNight.split(':').map(Number);
-    if(dH*60+dM>=nH*60+nM){
-      toast('❌ Lunch cutoff must be earlier than dinner cutoff');
-      return;
-    }
+    if(dH*60+dM>=nH*60+nM){ toast('❌ Lunch cutoff must be earlier than dinner cutoff'); return; }
   }
-  try{
-    await api('setOrderCutoff',{enabled,cutoffDay,cutoffNight});
-    toast('✅ Settings saved!');
-  }catch(e){ toast('❌ '+e.message); }
+  try{ await api('setOrderCutoff',{enabled,cutoffDay,cutoffNight}); toast('✅ Settings saved!'); }
+  catch(e){ toast('❌ '+e.message); }
 }
 
 // ════════════════════════════════════════════════
-// UTILS
-// ════════════════════════════════════════════════
-function doc(id){ return document.getElementById(id); }
-function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-// Shared IST parser: any date/time value → IST-adjusted Date
-function toIST(v){
-  if(!v) return null;
-  if(v instanceof Date) return new Date(v.getTime()+5.5*60*60*1000);
-  const s=String(v).trim();
-  if(/^\d{4}-\d{2}-\d{2}T/.test(s)||/^\d{4}-\d{2}-\d{2}$/.test(s)){
-    const d=new Date(s); if(!isNaN(d.getTime())) return new Date(d.getTime()+5.5*60*60*1000);
-  }
-  return null;
-}
-// normDate: → "DD/MM/YYYY" string for Today filter comparison — IST-aware, locale-independent
-function normDate(v){
-  if(!v) return '';
-  const ist=toIST(v);
-  if(ist) return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
-  // Fallback: try to parse "DD/MM/YYYY" directly
-  const s=String(v).trim();
-  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
-  return s;
-}
-// todayIST: returns today's date as "DD/MM/YYYY" in IST — locale-independent
-function todayIST(){
-  const ist=new Date(Date.now()+5.5*60*60*1000);
-  return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
-}
-// fmtDate: → display string "DD/MM/YYYY"
-function fmtDate(v){
-  if(!v) return '';
-  const ist=toIST(v);
-  if(ist) return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
-  return String(v);
-}
-// fmtTime: → display string "HH:MM AM/PM"
-function fmtTime(v){
-  if(!v) return '';
-  const ist=toIST(v);
-  if(ist){ let h=ist.getUTCHours(),m=ist.getUTCMinutes(); const p=h>=12?'PM':'AM'; h=h%12||12; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+p; }
-  return String(v).replace(/[\u00a0\u202f\u2009]/g,' ');
-}
-function toast(msg){ const t=doc('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),3500); }
-function closeMo(id){ doc(id).classList.add('hide'); }
-function safeP(v){ if(Array.isArray(v)) return v; if(typeof v==='object'&&v!==null) return v; if(!v||typeof v!=='string') return []; try{ return JSON.parse(v); }catch{ return []; } }
-
-// Click outside modal to close
-document.querySelectorAll('.mo').forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) m.classList.add('hide'); }); });
-
-// ════════════════════════════════════════════════
-// STAFF MANAGEMENT (Admin only)
+// STAFF
 // ════════════════════════════════════════════════
 async function loadStaff(){
   const tb=doc('staff-tb');
@@ -1127,23 +1529,12 @@ async function loadStaff(){
     </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:28px;color:#999">No staff members yet</td></tr>';
   }catch(e){ toast('Error: '+e.message); tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:28px;color:#f00">'+e.message+'</td></tr>'; }
 }
-
-function openStaffModal(){
-  doc('mo-staff-t').textContent='Add Staff Member';
-  doc('sf-orig-uid').value=''; doc('sf-uid').value=''; doc('sf-nm').value=''; doc('sf-pw').value=''; doc('sf-stat').value='active';
-  doc('sf-uid').disabled=false; doc('sf-pw').placeholder='Min 6 characters';
-  doc('mo-staff').classList.remove('hide');
-}
-function editStaff(uid,nm,stat){
-  doc('mo-staff-t').textContent='Edit Staff Member';
-  doc('sf-orig-uid').value=uid; doc('sf-uid').value=uid; doc('sf-nm').value=nm; doc('sf-stat').value=stat;
-  doc('sf-uid').disabled=true; doc('sf-pw').value=''; doc('sf-pw').placeholder='Leave blank to keep password';
-  doc('mo-staff').classList.remove('hide');
-}
+function openStaffModal(){ doc('mo-staff-t').textContent='Add Staff Member'; doc('sf-orig-uid').value=''; doc('sf-uid').value=''; doc('sf-nm').value=''; doc('sf-pw').value=''; doc('sf-stat').value='active'; doc('sf-uid').disabled=false; doc('sf-pw').placeholder='Min 6 characters'; doc('mo-staff').classList.remove('hide'); }
+function editStaff(uid,nm,stat){ doc('mo-staff-t').textContent='Edit Staff Member'; doc('sf-orig-uid').value=uid; doc('sf-uid').value=uid; doc('sf-nm').value=nm; doc('sf-stat').value=stat; doc('sf-uid').disabled=true; doc('sf-pw').value=''; doc('sf-pw').placeholder='Leave blank to keep'; doc('mo-staff').classList.remove('hide'); }
 async function submitStaff(){
   const origUid=doc('sf-orig-uid').value, uid=doc('sf-uid').value.trim(), nm=doc('sf-nm').value.trim(), pw=doc('sf-pw').value, stat=doc('sf-stat').value;
   if(!nm) return toast('Name required');
-  if(!origUid && (!uid||pw.length<6)) return toast('Username and password (6+) required');
+  if(!origUid&&(!uid||pw.length<6)) return toast('Username and password (6+) required');
   try{
     if(origUid){ await api('updateStaff',{username:origUid,name:nm,status:stat,...(pw?{password:pw}:{})}); toast('✅ Updated!'); }
     else{ await api('createStaff',{username:uid,name:nm,password:pw,status:stat}); toast('✅ Staff created!'); }
@@ -1152,16 +1543,61 @@ async function submitStaff(){
 }
 async function delStaff(username){
   if(!confirm(`Delete staff "${username}"?`)) return;
-  try{ await api('deleteStaff',{username}); toast('✅ Deleted'); loadStaff(); }catch(e){ toast('❌ '+e.message); }
+  try{ await api('deleteStaff',{username}); toast('✅ Deleted'); loadStaff(); }
+  catch(e){ toast('❌ '+e.message); }
 }
 
 // ════════════════════════════════════════════════
-// STARTUP — No auto-login. Autofill credentials only.
+// UTILS
+// ════════════════════════════════════════════════
+function doc(id){ return document.getElementById(id); }
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg){ const t=doc('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),3500); }
+function closeMo(id){ doc(id).classList.add('hide'); }
+function safeP(v){ if(Array.isArray(v)) return v; if(typeof v==='object'&&v!==null) return v; if(!v||typeof v!=='string') return []; try{ return JSON.parse(v); }catch{ return []; } }
+
+function toIST(v){
+  if(!v) return null;
+  if(v instanceof Date) return new Date(v.getTime()+5.5*60*60*1000);
+  const s=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)||/^\d{4}-\d{2}-\d{2}$/.test(s)){
+    const d=new Date(s); if(!isNaN(d.getTime())) return new Date(d.getTime()+5.5*60*60*1000);
+  }
+  return null;
+}
+function normDate(v){
+  if(!v) return '';
+  const ist=toIST(v);
+  if(ist) return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
+  const s=String(v).trim();
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  return s;
+}
+function todayIST(){
+  const ist=new Date(Date.now()+5.5*60*60*1000);
+  return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
+}
+function fmtDate(v){
+  if(!v) return '';
+  const ist=toIST(v);
+  if(ist) return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
+  return String(v);
+}
+function fmtTime(v){
+  if(!v) return '';
+  const ist=toIST(v);
+  if(ist){ let h=ist.getUTCHours(),m=ist.getUTCMinutes(); const p=h>=12?'PM':'AM'; h=h%12||12; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+p; }
+  return String(v).replace(/[\u00a0\u202f\u2009]/g,' ');
+}
+
+// Click outside modal to close
+document.querySelectorAll('.mo').forEach(m=>{ m.addEventListener('click',e=>{ if(e.target===m) m.classList.add('hide'); }); });
+
+// ════════════════════════════════════════════════
+// STARTUP
 // ════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded',()=>{
-  // Clean up any legacy hb_admin data from older versions
   try{ localStorage.removeItem('hb_admin'); }catch{}
-  // Show login screen — autofill saved credentials
   autofillAdminCreds();
   if(window.innerWidth<=768){ doc('menu-toggle').style.display='block'; }
 });

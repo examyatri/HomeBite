@@ -500,6 +500,16 @@ textarea.inp{resize:vertical;min-height:72px}
       <div id="pw-msg" class="save-msg"></div>
     </div>
 
+    <!-- Wallet Balance Card (subscriber only) -->
+    <div class="acct-card hide" id="wallet-card">
+      <div class="acct-card-title"><i class="fa-solid fa-wallet" style="color:var(--g)"></i> Wallet Balance</div>
+      <div id="wallet-bal-display" style="font-family:var(--ff);font-size:28px;font-weight:800;color:var(--g);margin:8px 0">Loading...</div>
+      <div style="font-size:12px;color:var(--gr);margin-bottom:14px">Tiffin auto-deducted on each order. Recharge by contacting admin.</div>
+      <button class="btn btn-g" style="font-size:13px;padding:11px 18px" onclick="nav('pg-khata')">
+        <i class="fa-solid fa-book-open"></i> View Full Khata
+      </button>
+    </div>
+
     <!-- Tiffin / Subscriber -->
     <div class="acct-card">
       <div class="acct-card-title"><i class="fa-solid fa-crown" style="color:var(--o)"></i> Monthly Tiffin Plan</div>
@@ -520,6 +530,62 @@ textarea.inp{resize:vertical;min-height:72px}
       <i class="fa-solid fa-right-from-bracket"></i> Logout
     </button>
     <div style="height:16px"></div>
+  </div>
+</div>
+
+
+<!-- ═══ RESTAURANT CLOSED POPUP ═══ -->
+<div class="modal-overlay hide" id="closed-overlay" onclick="closedOverlayClick(event)">
+  <div class="modal-box" style="text-align:center;max-width:340px;margin:auto;border-radius:26px">
+    <div class="modal-emoji">🌙</div>
+    <div class="modal-title">Restaurant is Closed</div>
+    <div class="modal-body">
+      <p style="text-align:center;padding:0 0 16px">Orders are accepted between <strong>7:00 AM – 7:30 PM</strong> only.</p>
+      <p style="text-align:center;color:var(--gr);font-size:13px">Please try again after <strong>7:00 AM</strong> tomorrow. 🙏</p>
+    </div>
+    <button class="btn btn-p" style="margin-top:16px;width:100%" onclick="doc('closed-overlay').classList.add('hide')">OK, Got it</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE: KHATA (Subscriber Ledger) ═══ -->
+<div class="pg right" id="pg-khata">
+  <div class="tnav">
+    <button class="bk-btn" onclick="back()"><i class="fa-solid fa-arrow-left"></i></button>
+    <span class="pg-title">My Khata</span>
+    <button class="btn-ghost btn btn-sm" onclick="loadKhata()"><i class="fa-solid fa-rotate"></i></button>
+  </div>
+  <div class="pg-body" style="padding:16px">
+
+    <!-- Balance Card -->
+    <div id="khata-bal-card" style="background:linear-gradient(135deg,#2a9d8f,#21867a);color:#fff;border-radius:16px;padding:20px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;opacity:.85;text-transform:uppercase;letter-spacing:.5px">Current Wallet Balance</div>
+      <div id="khata-balance" style="font-family:var(--ff);font-size:34px;font-weight:800;margin:6px 0">₹—</div>
+      <div style="font-size:12px;opacity:.75">Recharge anytime by contacting admin 📞</div>
+    </div>
+
+    <!-- Date Filter + PDF -->
+    <div style="background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Filter by Date Range</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:1;min-width:120px">
+          <label style="font-size:11px;color:var(--gr);display:block;margin-bottom:4px">From</label>
+          <input id="kh-from-u" class="inp" type="date" style="padding:10px 12px;font-size:13px">
+        </div>
+        <div style="flex:1;min-width:120px">
+          <label style="font-size:11px;color:var(--gr);display:block;margin-bottom:4px">To</label>
+          <input id="kh-to-u" class="inp" type="date" style="padding:10px 12px;font-size:13px">
+        </div>
+        <button class="btn btn-g btn-sm" onclick="loadKhata()"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <button class="btn btn-sm" style="background:var(--p);color:#fff" onclick="exportKhataUser()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+      </div>
+    </div>
+
+    <!-- Transactions List -->
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden">
+      <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6;font-family:var(--ff);font-size:15px;font-weight:700">Transaction History</div>
+      <div id="khata-list"><div style="text-align:center;padding:32px;color:#999">Loading...</div></div>
+    </div>
+    <div style="height:20px"></div>
   </div>
 </div>
 
@@ -1494,6 +1560,168 @@ if (document.readyState === 'loading') {
 } else {
   bootApp();
 }
+
+// ══════════════════════════════════════════════
+// RESTAURANT CLOSED TIME CHECK (7:30 PM – 7:00 AM)
+// ══════════════════════════════════════════════
+function isRestaurantClosed() {
+  const now = new Date();
+  const ist = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+  const h = ist.getUTCHours() + ist.getUTCMinutes() / 60;
+  // Closed 19:30 to 7:00
+  return h >= 19.5 || h < 7;
+}
+
+function checkRestaurantTime() {
+  if (isRestaurantClosed()) {
+    doc('closed-overlay').classList.remove('hide');
+    return true;
+  }
+  return false;
+}
+
+function closedOverlayClick(e) {
+  if (e.target === doc('closed-overlay')) doc('closed-overlay').classList.add('hide');
+}
+
+// ══════════════════════════════════════════════
+// WALLET / KHATA — User Panel
+// ══════════════════════════════════════════════
+let _khataUserRows = [];
+
+async function loadWalletBalance() {
+  const user = Auth.get(); if (!user) return;
+  const isSub = getSub();
+  if (!isSub) { doc('wallet-card').classList.add('hide'); return; }
+  doc('wallet-card').classList.remove('hide');
+  try {
+    const b = await api('getSubscriberBalance', { phone: user.phone });
+    const bal = Number(b.balance) || 0;
+    const el = doc('wallet-bal-display');
+    el.textContent = '₹' + bal.toLocaleString('en-IN');
+    el.style.color = bal < 0 ? 'var(--p)' : 'var(--g)';
+  } catch {}
+}
+
+async function loadKhata() {
+  const user = Auth.get(); if (!user) return;
+  const phone = user.phone;
+  const fromEl = doc('kh-from-u'), toEl = doc('kh-to-u');
+  const fromDate = fromEl && fromEl.value ? ymdToDMY(fromEl.value) : '';
+  const toDate   = toEl   && toEl.value   ? ymdToDMY(toEl.value)   : '';
+  doc('khata-list').innerHTML = '<div style="text-align:center;padding:32px;color:#999"><span class="spin" style="border-color:rgba(0,0,0,.1);border-top-color:var(--p)"></span></div>';
+  try {
+    const params = { phone };
+    if (fromDate) params.fromDate = fromDate;
+    if (toDate)   params.toDate   = toDate;
+    const res = await api('khataGet', params);
+    _khataUserRows = res.rows || [];
+    // Update balance card
+    const bal = Number(res.balance) || 0;
+    const balEl = doc('khata-balance');
+    balEl.textContent = '₹' + bal.toLocaleString('en-IN');
+    const card = doc('khata-bal-card');
+    card.style.background = bal < 0
+      ? 'linear-gradient(135deg,#e63946,#c1121f)'
+      : 'linear-gradient(135deg,#2a9d8f,#21867a)';
+    renderKhataUser(_khataUserRows);
+  } catch(e) {
+    doc('khata-list').innerHTML = '<div style="text-align:center;padding:32px;color:#e63946">Error: ' + esc(e.message) + '</div>';
+  }
+}
+
+function ymdToDMY(ymd) {
+  const p = ymd.split('-'); return p[2] + '/' + p[1] + '/' + p[0];
+}
+
+function renderKhataUser(rows) {
+  if (!rows.length) {
+    doc('khata-list').innerHTML = '<div style="text-align:center;padding:32px;color:#999">No transactions yet</div>';
+    return;
+  }
+  const reversed = rows.slice().reverse();
+  doc('khata-list').innerHTML = reversed.map(r => {
+    const isCredit = r.txnType === 'Amount Received (Recharge)';
+    const isUdhar  = r.txnType === 'Tiffin Given on Udhar';
+    const icon     = isCredit ? '⬇️' : isUdhar ? '⏳' : '⬆️';
+    const amtColor = isCredit ? '#2a9d8f' : '#e63946';
+    const amtPrefix = isCredit ? '+' : '-';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #f3f4f6">
+      <div style="font-size:22px;width:32px;text-align:center">${icon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${esc(r.txnType)}</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px">${esc(r.date)} ${esc(r.time)}${r.note ? ' · ' + esc(r.note) : ''}</div>
+        <div style="font-size:11px;color:#d1d5db;margin-top:1px">Balance: ₹${r.balanceBefore} → ₹${r.balanceAfter}</div>
+      </div>
+      <div style="font-family:var(--ff);font-weight:800;font-size:16px;color:${amtColor};white-space:nowrap">${amtPrefix}₹${r.amount}</div>
+    </div>`;
+  }).join('');
+}
+
+function exportKhataUser() {
+  const user = Auth.get(); if (!user) return;
+  if (!_khataUserRows.length) { toast('No transactions to export'); return; }
+  const rows = _khataUserRows.slice().reverse();
+  const bal  = rows.length ? Number(rows[0].balanceAfter) : 0;
+  const content = `<html><head><style>
+    body{font-family:Arial,sans-serif;font-size:13px;padding:24px;max-width:600px;margin:0 auto}
+    h2{color:#e63946;margin-bottom:4px}
+    .meta{color:#666;font-size:12px;margin-bottom:16px}
+    .bal{font-size:18px;font-weight:bold;padding:12px 18px;background:${bal<0?'#fde8ea':'#e8f5f3'};border-radius:8px;display:inline-block;margin-bottom:18px}
+    table{width:100%;border-collapse:collapse}
+    th{background:#f3f4f6;padding:8px 12px;text-align:left;font-weight:700;border-bottom:2px solid #e5e7eb;font-size:12px}
+    td{padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:12px}
+    .pos{color:#2a9d8f;font-weight:700}.neg{color:#e63946;font-weight:700}
+    @media print{.no-print{display:none}}
+  </style></head><body>
+  <h2>🍱 Home Bite — Khata Statement</h2>
+  <div class="meta">${esc(user.name)} | ${esc(user.phone)} | ${new Date().toLocaleString('en-IN')}</div>
+  <div class="bal">Balance: ₹${bal}</div>
+  <table><thead><tr><th>#</th><th>Date</th><th>Type</th><th>Note</th><th>Amount</th><th>Balance</th></tr></thead><tbody>
+  ${rows.map((r,i) => {
+    const isC = r.txnType === 'Amount Received (Recharge)';
+    return '<tr><td>'+(i+1)+'</td><td>'+r.date+' '+r.time+'</td><td>'+r.txnType+'</td><td>'+(r.note||'—')+'</td><td class="'+(isC?'pos':'neg')+'">'+(isC?'+':'-')+'₹'+r.amount+'</td><td>₹'+r.balanceAfter+'</td></tr>';
+  }).join('')}
+  </tbody></table>
+  <div style="margin-top:24px;font-size:11px;color:#999">Home Bite — Khata Statement</div>
+  </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(content);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
+}
+
+// Patch renderAccount to load wallet
+const _origRenderAccount = renderAccount;
+function renderAccount() {
+  _origRenderAccount();
+  loadWalletBalance();
+}
+
+// Patch nav to load khata when entering pg-khata
+const _origOnEnter = onEnter;
+function onEnter(id) {
+  _origOnEnter(id);
+  if (id === 'pg-khata') loadKhata();
+}
+
+// Patch placeOrder to check restaurant time
+const _origPlaceOrder = placeOrder;
+async function placeOrder() {
+  if (checkRestaurantTime()) return;
+  return _origPlaceOrder.apply(this, arguments);
+}
+
+// Check time on cart page entry too
+const _origNav = nav;
+function nav(id) {
+  if (id === 'pg-cart' && isRestaurantClosed()) {
+    doc('closed-overlay').classList.remove('hide');
+    return;
+  }
+  _origNav.apply(this, arguments);
+}
+
 </script>
 </body>
 </html>
