@@ -646,7 +646,7 @@ function filterOrd(f,btn){
 
 function renderOrds(){
   const srch=(doc('ord-srch').value||'').toLowerCase();
-  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const today=todayIST();
   const sc={pending:'b-y',preparing:'b-o','out for delivery':'b-bl',delivered:'b-g',paid:'b-g'};
 
   let filtered=_ords.filter(o=>{
@@ -852,7 +852,6 @@ function renderVarRows(){
 }
 
 async function submitMenu(){
-  const _sbtn=doc('menu-submit-btn'); if(_sbtn){_sbtn.disabled=true;}
   const itemId=doc('mi-id').value;
   const variants=_varRows.filter(v=>v.label&&v.price);
   const data={
@@ -1042,6 +1041,15 @@ async function saveCutoffSettings(){
   const enabled=doc('cutoff-enabled').checked;
   const cutoffDay=doc('cutoff-day').value||'11:30';
   const cutoffNight=doc('cutoff-night').value||'19:30';
+  // Validate: lunch cutoff must be earlier than dinner cutoff
+  if(enabled){
+    const [dH,dM]=cutoffDay.split(':').map(Number);
+    const [nH,nM]=cutoffNight.split(':').map(Number);
+    if(dH*60+dM>=nH*60+nM){
+      toast('❌ Lunch cutoff must be earlier than dinner cutoff');
+      return;
+    }
+  }
   try{
     await api('setOrderCutoff',{enabled,cutoffDay,cutoffNight});
     toast('✅ Settings saved!');
@@ -1063,12 +1071,20 @@ function toIST(v){
   }
   return null;
 }
-// normDate: → "DD/MM/YYYY" string for Today filter comparison
+// normDate: → "DD/MM/YYYY" string for Today filter comparison — IST-aware, locale-independent
 function normDate(v){
   if(!v) return '';
   const ist=toIST(v);
   if(ist) return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
-  return String(v);
+  // Fallback: try to parse "DD/MM/YYYY" directly
+  const s=String(v).trim();
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  return s;
+}
+// todayIST: returns today's date as "DD/MM/YYYY" in IST — locale-independent
+function todayIST(){
+  const ist=new Date(Date.now()+5.5*60*60*1000);
+  return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
 }
 // fmtDate: → display string "DD/MM/YYYY"
 function fmtDate(v){

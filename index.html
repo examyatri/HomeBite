@@ -1099,17 +1099,25 @@ async function loadMenu() {
   const list = doc('menu-list');
   list.innerHTML = '<div class="sk sk-lg"></div><div class="sk sk-lg"></div>';
   try {
-    const menu = await api('getMenu');
+    // Fetch menu and cutoff config in parallel
+    const [menu, cfg] = await Promise.all([
+      api('getMenu'),
+      api('getOrderCutoff').catch(() => null)
+    ]);
     _menu = menu;
+    window._cutoffCfg = cfg;
+
+    const h   = getISTHours();
     const ist = new Date(Date.now() + 5.5 * 3600000);
-    const h = ist.getUTCHours() + ist.getUTCMinutes() / 60;
     const d = String(ist.getUTCDate()).padStart(2,'0'), mo = String(ist.getUTCMonth()+1).padStart(2,'0'), y = ist.getUTCFullYear();
-    doc('menu-lbl').textContent = (h < 11.5 ? '🌅 Breakfast / Lunch Menu' : '🌙 Evening / Dinner Menu') + ' · ' + d+'/'+mo+'/'+y;
+
+    // Use admin-configured cutoffDay for menu label split (not hardcoded 11:30)
+    const dayCutoffH = cfg ? (() => { const [dH,dM]=(cfg.cutoffDay||'11:30').split(':').map(Number); return dH+dM/60; })() : 11.5;
+    const isLunch = h < dayCutoffH;
+    doc('menu-lbl').textContent = (isLunch ? '🌅 Breakfast / Lunch Menu' : '🌙 Evening / Dinner Menu') + ' · ' + d+'/'+mo+'/'+y;
+
     renderMenu(menu);
-    try {
-      const cfg = await api('getOrderCutoff');
-      updateCutoffBanner(cfg, h, h < 11.5 ? 'morning' : 'evening');
-    } catch {}
+    if (cfg) updateCutoffBanner(cfg, h, isLunch ? 'morning' : 'evening');
   } catch(e) {
     list.innerHTML = `<div class="empty">
       <span class="em">😕</span>
@@ -1122,18 +1130,76 @@ async function loadMenu() {
   }
 }
 
+// ── CUTOFF HELPERS ────────────────────────────────────────────
+// Convert "HH:MM" (24h) → "H:MM AM/PM" human-readable string
+function fmtCutoffTime(t24) {
+  const [h, m] = String(t24 || '').split(':').map(Number);
+  if (isNaN(h)) return t24;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12  = h % 12 || 12;
+  return h12 + ':' + String(m).padStart(2, '0') + ' ' + ampm;
+}
+
+// Returns current IST fractional hours (0–24)
+function getISTHours() {
+  const ist = new Date(Date.now() + 5.5 * 3600000);
+  return ist.getUTCHours() + ist.getUTCMinutes() / 60;
+}
+
+/**
+ * Full order-window logic:
+ *   00:00 – 07:00  → Closed (overnight). Opens at 7 AM for lunch.
+ *   07:00 – cutoffDay  → OPEN for Lunch (morning menu)
+ *   cutoffDay – cutoffNight → OPEN for Dinner (evening menu) — lunch orders already closed
+ *   cutoffNight – 24:00 → Closed (night). Both sessions done.
+ *
+ * Returns { closed: bool, reason: string, detail: string, sessionClosed: bool }
+ * sessionClosed = true means THIS menu session is closed but another slot may be open later.
+ */
+function calcOrderState(cfg, currentH) {
+  if (!cfg || !cfg.enabled) return { closed: false, reason: '', detail: '' };
+
+  const [dH, dM] = (cfg.cutoffDay   || '11:30').split(':').map(Number);
+  const [nH, nM] = (cfg.cutoffNight || '19:30').split(':').map(Number);
+  const dayCutoff   = dH + dM / 60;   // e.g. 11.5
+  const nightCutoff = nH + nM / 60;   // e.g. 19.5
+  const morningOpen = 7;               // orders start accepting from 7 AM
+
+  const dayFmt   = fmtCutoffTime(cfg.cutoffDay);
+  const nightFmt = fmtCutoffTime(cfg.cutoffNight);
+
+  if (currentH >= nightCutoff) {
+    // After dinner cutoff — both sessions closed for today
+    return { closed: true, reason: 'All orders closed for today', detail: 'Lunch & dinner orders resume tomorrow at 7:00 AM' };
+  }
+  if (currentH >= dayCutoff) {
+    // Between lunch cutoff and dinner cutoff → dinner session open
+    // Menu is showing evening; lunch orders are done but dinner orders are active
+    return { closed: false, reason: 'Orders open', detail: `Dinner orders close at ${nightFmt}`, session: 'evening' };
+  }
+  if (currentH >= morningOpen) {
+    // Between 7 AM and lunch cutoff → lunch session open
+    return { closed: false, reason: 'Orders open', detail: `Lunch orders close at ${dayFmt}`, session: 'morning' };
+  }
+  // Before 7 AM — too early
+  return { closed: true, reason: 'Orders not started yet', detail: `Lunch orders open at 7:00 AM (close at ${dayFmt})` };
+}
+
 function updateCutoffBanner(cfg, currentH, menuType) {
   const banner = doc('cutoff-banner'), msgEl = doc('cutoff-msg'), subEl = doc('cutoff-sub'), placeBtn = doc('place-btn');
   if (!cfg || !cfg.enabled) { banner.classList.add('hide'); if (placeBtn) placeBtn.disabled = false; return; }
-  const [dH, dM] = (cfg.cutoffDay || '11:30').split(':').map(Number);
-  const [nH, nM] = (cfg.cutoffNight || '19:30').split(':').map(Number);
-  const dayCutoff = dH + dM/60, nightCutoff = nH + nM/60;
-  let closed = false;
-  if (menuType === 'morning' && currentH >= dayCutoff) { closed = true; msgEl.textContent = 'Orders closed for lunch'; subEl.textContent = `Cutoff was ${cfg.cutoffDay} AM`; }
-  else if (menuType === 'evening' && currentH >= nightCutoff) { closed = true; msgEl.textContent = 'Orders closed for dinner'; subEl.textContent = `Cutoff was ${cfg.cutoffNight} IST`; }
-  else { msgEl.textContent = 'Orders open'; subEl.textContent = menuType === 'morning' ? `Closes at ${cfg.cutoffDay} AM` : `Closes at ${cfg.cutoffNight} IST`; banner.style.background = 'linear-gradient(135deg,#2a9d8f,#1d7a6f)'; }
+
+  const state = calcOrderState(cfg, currentH);
   banner.classList.remove('hide');
-  if (placeBtn) placeBtn.disabled = closed;
+  msgEl.textContent = state.reason;
+  subEl.textContent = state.detail;
+
+  if (state.closed) {
+    banner.style.background = 'linear-gradient(135deg,#e63946,#c1121f)';
+  } else {
+    banner.style.background = 'linear-gradient(135deg,#2a9d8f,#1d7a6f)';
+  }
+  if (placeBtn) placeBtn.disabled = state.closed;
 }
 
 function renderMenu(menu) {
@@ -1202,6 +1268,12 @@ function renderCart() {
     bill.innerHTML = ''; dNote.innerHTML = ''; btn.classList.add('hide'); return;
   }
   btn.classList.remove('hide');
+  // Apply cutoff state to place button on cart render
+  if (window._cutoffCfg && window._cutoffCfg.enabled) {
+    const st = calcOrderState(window._cutoffCfg, getISTHours());
+    btn.disabled = st.closed;
+    btn.title = st.closed ? st.reason + '. ' + st.detail : '';
+  }
   list.innerHTML = cart.map(item => {
     const img = resolveImg(item.imageUrl) || `https://picsum.photos/seed/${item.itemId}/56`;
     return `<div class="c-item">
@@ -1258,6 +1330,15 @@ async function placeOrder() {
   const user = Auth.get(), cart = Cart.get();
   if (!user?.address?.trim()) { toast('Pehle account mein address set karein'); nav('pg-account'); return; }
   if (!cart.length) { toast('Cart khaali hai!'); return; }
+  // Re-validate cutoff at time of placing
+  try {
+    const cfg2 = await api('getOrderCutoff');
+    if (cfg2 && cfg2.enabled) {
+      const nowH = getISTHours();
+      const st = calcOrderState(cfg2, nowH);
+      if (st.closed) { toast('❌ ' + st.reason + '. ' + st.detail); return; }
+    }
+  } catch (_e2) { /* allow if check fails */ }
   const isSub = getSub(), sub = cart.reduce((s, i) => s + i.price * i.qty, 0), del = isSub ? 0 : 20;
   const disc = _coupon ? calcDisc(_coupon, sub) : 0, total = Math.max(0, sub - disc + del);
   const btn = doc('place-btn');
@@ -1284,7 +1365,12 @@ async function placeOrder() {
     const wb = doc('wa-btn-wrap');
     if (wb) { wb.classList.add('hide'); setTimeout(() => wb.classList.remove('hide'), 2500); }
   } catch(e) { toast('❌ ' + e.message); }
-  finally { btn.innerHTML = '<i class="fa-brands fa-whatsapp"></i> Place Order'; btn.disabled = false; }
+  finally {
+    btn.innerHTML = '<i class="fa-brands fa-whatsapp"></i> Place Order';
+    // Re-check cutoff state before re-enabling — don't unlock if orders are closed
+    const stillClosed = window._cutoffCfg && window._cutoffCfg.enabled && calcOrderState(window._cutoffCfg, getISTHours()).closed;
+    btn.disabled = !!stillClosed;
+  }
 }
 
 // ══════════════════════════════════════════════

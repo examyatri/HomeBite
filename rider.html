@@ -424,12 +424,25 @@ let _activeOrders=[];  // orderStatus === 'out for delivery' (approved)
 let _deliveredOrders=[];// orderStatus === 'delivered'
 let _currentTab='active'; // 'active' | 'delivered'
 let _searchQ='';
+let _dayCutoffH=11.5;  // updated from backend config — used for morning/evening split
+let _isLoading=false;  // race-condition guard for auto-refresh
 
 async function loadOrders(){
   if(!_rider) return;
+  if(_isLoading) return; // prevent concurrent loads (race condition guard)
+  _isLoading=true;
   doc('orders-con').innerHTML='<div class="empty"><span>⏳</span><p>Loading...</p></div>';
   try{
-    _orders=await api('getRiderOrders',{riderId:_rider.riderId});
+    const [orders, cutoffCfg] = await Promise.all([
+      api('getRiderOrders',{riderId:_rider.riderId}),
+      api('getOrderCutoff').catch(()=>null)
+    ]);
+    // Update day cutoff hour from backend config so isDayOrder is accurate
+    if(cutoffCfg && cutoffCfg.cutoffDay){
+      const [dH,dM]=cutoffCfg.cutoffDay.split(':').map(Number);
+      _dayCutoffH=dH+dM/60;
+    }
+    _orders=orders;
     // Split into active (out for delivery) and delivered
     _activeOrders=_orders.filter(o=>o.orderStatus==='out for delivery');
     _deliveredOrders=_orders.filter(o=>o.orderStatus==='delivered')
@@ -443,6 +456,7 @@ async function loadOrders(){
     if(_currentTab==='active') renderActive();
     else renderDelivered();
   }catch(e){toast('❌ '+e.message);}
+  finally{_isLoading=false;}
 }
 
 // ══ TAB SWITCHING ══
@@ -508,7 +522,7 @@ function getOrderHour(t){
   if(p==='pm'&&h!==12) h+=12;if(p==='am'&&h===12) h=0;
   return h+mn/60;
 }
-function isDayOrder(o){const h=getOrderHour(o.time);return h<0?true:h<11.5;}
+function isDayOrder(o){const h=getOrderHour(o.time);return h<0?true:h<_dayCutoffH;}
 
 function orderDateToISO(d){
   if(!d&&d!==0) return '';
@@ -835,7 +849,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   autofillRiderCreds();
 });
 
-setInterval(()=>{if(_rider&&!document.hidden) loadOrders();},60000);
+setInterval(()=>{if(_rider && !document.hidden && !_isLoading) loadOrders();},60000);
 </script>
 </body>
 </html>
