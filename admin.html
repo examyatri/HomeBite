@@ -203,6 +203,13 @@ tr:hover td{background:#fafafa}
     <div id="admin-creds-hint" class="creds-hint">✅ Credentials filled from last session</div>
     <div class="fg"><label class="lbl">Password</label><div class="pw-wrap"><input id="a-pw" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="pw-eye" onclick="togglePw('a-pw',this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button></div></div>
     <button class="btn btn-p btn-full" id="login-btn" onclick="doLogin()"><i class="fa-solid fa-lock-open"></i> Access Dashboard</button>
+    <div style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0">
+      <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">⚙️ Credentials Setup</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.6">
+        Default: <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">admin@purobite.com</code> / <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">admin123</code><br>
+        To change, run <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">setupSheets()</code> once in Apps Script, or update <strong>Settings sheet</strong> → <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">admin_email</code> / <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">admin_password</code> rows.
+      </div>
+    </div>
   </div>
 </div>
 
@@ -388,6 +395,22 @@ tr:hover td{background:#fafafa}
 
       <!-- SETTINGS -->
       <div class="pg-v" id="pg-settings">
+        <!-- Admin Password Reset Card -->
+        <div class="tc" style="max-width:520px;margin-bottom:20px">
+          <div class="th"><h3>🔐 Change Admin Password</h3><span style="font-size:12px;color:var(--gr)">Updates hashed password in Settings sheet</span></div>
+          <div style="padding:18px">
+            <div class="fg"><label class="lbl">New Password</label>
+              <div class="pw-wrap">
+                <input id="new-admin-pw" class="inp" type="password" placeholder="Min 6 characters">
+                <button type="button" class="pw-eye" onclick="togglePw('new-admin-pw',this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button>
+              </div>
+            </div>
+            <div class="fg"><label class="lbl">Confirm Password</label>
+              <input id="new-admin-pw-confirm" class="inp" type="password" placeholder="Re-enter password">
+            </div>
+            <button class="btn btn-dk" onclick="saveAdminPassword()"><i class="fa-solid fa-key"></i> Update Password</button>
+          </div>
+        </div>
         <div class="tc" style="max-width:720px;margin-bottom:20px">
           <div class="th"><h3>📅 Day-wise Restaurant Schedule</h3><span style="font-size:12px;color:var(--gr)">Set opening, lunch & dinner hours per day</span></div>
           <div style="padding:16px">
@@ -805,7 +828,7 @@ function updateAuthUI(){
 
 async function doLogin(){
   const role=doc('a-role').value;
-  const pw=doc('a-pw').value;
+  const pw=doc('a-pw').value.trim();
   // Validate BEFORE disabling button so finally always runs correctly
   if(!pw){ toast('Password required'); return; }
   if(role==='admin' && !doc('a-em').value.trim()){ toast('Email required'); return; }
@@ -815,7 +838,8 @@ async function doLogin(){
   btn.innerHTML='<span class="spin"></span> Logging in...'; btn.disabled=true;
   try{
     if(role==='admin'){
-      const em=doc('a-em').value.trim();
+      // Normalize email: trim + lowercase to avoid case-mismatch with Settings sheet
+      const em=doc('a-em').value.trim().toLowerCase();
       const admin=await api('adminLogin',{email:em,password:pw});
       Session.set({...admin,role:'admin'});
       ACreds.save('admin',em,pw);
@@ -827,7 +851,10 @@ async function doLogin(){
       ACreds.save('staff',uid,pw);
       showApp(Session.get());
     }
-  }catch(e){ toast('❌ '+e.message); }
+  }catch(e){
+    const msg=e.message||'Login failed';
+    toast('❌ '+msg);
+  }
   finally{ btn.innerHTML='<i class="fa-solid fa-lock-open"></i> Access Dashboard'; btn.disabled=false; }
 }
 
@@ -1569,6 +1596,25 @@ async function submitRider(){
 // ════════════════════════════════════════════════
 // SETTINGS — loaded by the full loadSettings() below in WEEKLY SCHEDULE section
 // ════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════
+// ADMIN PASSWORD RESET (Settings page)
+// ════════════════════════════════════════════════
+async function saveAdminPassword(){
+  const pw=doc('new-admin-pw').value;
+  const pw2=doc('new-admin-pw-confirm').value;
+  if(!pw||pw.length<6){ toast('Password must be at least 6 characters'); return; }
+  if(pw!==pw2){ toast('❌ Passwords do not match'); return; }
+  try{
+    await api('resetAdminPassword',{newPassword:pw});
+    doc('new-admin-pw').value='';
+    doc('new-admin-pw-confirm').value='';
+    toast('✅ Password updated! Use new password on next login.');
+    // Update saved credentials so autofill stays correct
+    const saved=ACreds.get();
+    if(saved) ACreds.save(saved.role,saved.id,pw);
+  }catch(e){ toast('❌ '+e.message); }
+}
 
 function toggleCutoffUI(){
   const on=doc('cutoff-enabled').checked;
