@@ -175,7 +175,8 @@ tr:hover td{background:#fafafa}
 
 <!-- ADMIN LOADER (shown on initial page load only) -->
 <div id="admin-loader" style="position:fixed;inset:0;background:var(--sb);z-index:99999;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s">
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  transition:opacity .35s ease;pointer-events:all">
   <div style="font-family:'Sora',sans-serif;font-size:28px;font-weight:900;
     background:linear-gradient(135deg,#e63946,#f4591d);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
     🍱 Puro Bite
@@ -805,24 +806,25 @@ function updateAuthUI(){
 async function doLogin(){
   const role=doc('a-role').value;
   const pw=doc('a-pw').value;
-  if(!pw) return toast('Password required');
+  // Validate BEFORE disabling button so finally always runs correctly
+  if(!pw){ toast('Password required'); return; }
+  if(role==='admin' && !doc('a-em').value.trim()){ toast('Email required'); return; }
+  if(role==='staff' && !doc('a-uid').value.trim()){ toast('Username required'); return; }
+
   const btn=doc('login-btn');
   btn.innerHTML='<span class="spin"></span> Logging in...'; btn.disabled=true;
   try{
     if(role==='admin'){
       const em=doc('a-em').value.trim();
-      if(!em) return toast('Email required');
-      // Always verify+load from sheet
       const admin=await api('adminLogin',{email:em,password:pw});
-      Session.set({...admin,role:'admin'}); // in-memory only
-      ACreds.save('admin',em,pw); // save ONLY for autofill
+      Session.set({...admin,role:'admin'});
+      ACreds.save('admin',em,pw);
       showApp(Session.get());
     } else {
       const uid=doc('a-uid').value.trim();
-      if(!uid) return toast('Username required');
       const staff=await api('staffLogin',{username:uid,password:pw});
-      Session.set({...staff,role:'staff'}); // in-memory only
-      ACreds.save('staff',uid,pw); // save ONLY for autofill
+      Session.set({...staff,role:'staff'});
+      ACreds.save('staff',uid,pw);
       showApp(Session.get());
     }
   }catch(e){ toast('❌ '+e.message); }
@@ -1565,17 +1567,8 @@ async function submitRider(){
 }
 
 // ════════════════════════════════════════════════
-// SETTINGS — Order Cutoff
+// SETTINGS — loaded by the full loadSettings() below in WEEKLY SCHEDULE section
 // ════════════════════════════════════════════════
-async function loadSettings(){
-  try{
-    const cfg=await api('getOrderCutoff');
-    doc('cutoff-enabled').checked=!!cfg.enabled;
-    if(cfg.cutoffDay) doc('cutoff-day').value=cfg.cutoffDay;
-    if(cfg.cutoffNight) doc('cutoff-night').value=cfg.cutoffNight;
-    toggleCutoffUI();
-  }catch(e){ /* not set yet */ }
-}
 
 function toggleCutoffUI(){
   const on=doc('cutoff-enabled').checked;
@@ -1663,19 +1656,11 @@ let _khataData=[], _khataFilter='all', _activeKhataPhone='', _activeKhataEntries
 
 async function loadKhata(){
   const tb=doc('k-tb');
-  if(tb) tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:#999">Loading...</td></tr>';
+  if(tb) tb.innerHTML='<tr><td colspan="6" style="padding:0"><div class="sk sk-row" style="margin:10px 14px"></div><div class="sk sk-row" style="margin:8px 14px"></div><div class="sk sk-row" style="margin:8px 14px"></div></td></tr>';
   try{
     _khataData=await api('adminGetAllKhata');
     renderKhata();
-    // Summary stats
-    const total=_khataData.reduce((s,k)=>s+(Number(k.balance)||0),0);
-    const low=_khataData.filter(k=>(Number(k.balance)||0)<100&&(Number(k.balance)||0)>=0).length;
-    const neg=_khataData.filter(k=>(Number(k.balance)||0)<0).length;
-    const el=id=>doc(id);
-    if(el('k-total-bal')) el('k-total-bal').textContent='₹'+total;
-    if(el('k-total-subs')) el('k-total-subs').textContent=_khataData.length;
-    if(el('k-low-bal')) el('k-low-bal').textContent=low;
-    if(el('k-neg-bal')) el('k-neg-bal').textContent=neg;
+    updateKhataStats(_khataData);
   }catch(e){ toast('Khata error: '+e.message); }
 }
 
@@ -2187,10 +2172,13 @@ document.addEventListener('DOMContentLoaded',()=>{
 // STARTUP — Session restore + auto-refresh
 // ════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded',()=>{
-  // Dismiss loader with fade
+  // Dismiss loader — immediately stop blocking clicks, then fade out
   const loader=document.getElementById('admin-loader');
   const dismissLoader=()=>{
-    if(loader){ loader.style.opacity='0'; setTimeout(()=>{ loader.style.display='none'; },400); }
+    if(!loader) return;
+    loader.style.pointerEvents='none'; // stop blocking immediately
+    loader.style.opacity='0';
+    setTimeout(()=>{ loader.style.display='none'; },380);
   };
   // Clean up any legacy data
   try{ localStorage.removeItem('pb_admin'); }catch{}
@@ -2199,8 +2187,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   if(saved && saved.role){
     _adminSession=saved;
     dismissLoader();
-    showApp(saved); // restore UI directly — no API call needed
-    toast('✅ Session restored');
+    showApp(saved);
     return;
   }
   // No saved session: show login with autofill

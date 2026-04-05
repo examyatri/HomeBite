@@ -197,7 +197,8 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:520px;
 
 <!-- RIDER LOADER -->
 <div id="rider-loader" style="position:fixed;inset:0;background:linear-gradient(160deg,#fff5f5 0%,#f4f6f9 60%);z-index:99999;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .4s">
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  transition:opacity .35s ease;pointer-events:all">
   <div style="font-size:52px">🏍️</div>
   <div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#e63946">Puro Bite Rider</div>
   <div style="font-size:12px;color:#6b7280;font-weight:600">Loading your dashboard...</div>
@@ -467,8 +468,8 @@ async function loadOrders(){
     _activeOrders=_orders.filter(o=>o.orderStatus==='out for delivery');
     _deliveredOrders=_orders.filter(o=>o.orderStatus==='delivered')
       .sort((a,b)=>{
-        const ta=Number(String(a.orderId).replace(.PB-.,'').split('-')[0])||0;
-        const tb=Number(String(b.orderId).replace(.PB-.,'').split('-')[0])||0;
+        const ta=Number(String(a.orderId).replace('PB-','').split('-')[0])||0;
+        const tb=Number(String(b.orderId).replace('PB-','').split('-')[0])||0;
         return tb-ta; // newest first
       });
     updateStats();
@@ -659,8 +660,8 @@ function renderActive(){
 }
 
 function sortOldest(a,b){
-  const ta=Number(String(a.orderId).replace(.PB-.,'').split('-')[0])||0;
-  const tb=Number(String(b.orderId).replace(.PB-.,'').split('-')[0])||0;
+  const ta=Number(String(a.orderId).replace('PB-','').split('-')[0])||0;
+  const tb=Number(String(b.orderId).replace('PB-','').split('-')[0])||0;
   return ta-tb;
 }
 
@@ -866,7 +867,10 @@ function safeP(v){if(Array.isArray(v)) return v;if(typeof v==='object'&&v!==null
 window.addEventListener('DOMContentLoaded',()=>{
   const loader=document.getElementById('rider-loader');
   const dismissLoader=()=>{
-    if(loader){ loader.style.opacity='0'; setTimeout(()=>{ loader.style.display='none'; },400); }
+    if(!loader) return;
+    loader.style.pointerEvents='none'; // immediately stop blocking clicks
+    loader.style.opacity='0';
+    setTimeout(()=>{ loader.style.display='none'; },380);
   };
   try{localStorage.removeItem('pb_rider');}catch{}
   // ── Restore session from sessionStorage (fixes frequent logout) ──
