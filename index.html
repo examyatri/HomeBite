@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Home Bite – Ghar ka Khana</title>
+<title>Puro Bite – Ghar ka Khana</title>
 <meta name="theme-color" content="#e63946">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -347,14 +347,53 @@ textarea.inp{resize:vertical;min-height:72px}
   .m-img{height:190px}
   .auth-hero{padding:64px 32px 32px}
 }
+
+/* ══ MENU SEARCH BAR ══ */
+.menu-search-wrap{padding:0 0 10px;position:relative}
+.menu-search-inp{
+  width:100%;padding:11px 16px 11px 42px;background:#fff;
+  border:2px solid #ede8e4;border-radius:50px;font-family:var(--fb);
+  font-size:14px;color:var(--dk);outline:none;transition:border-color .18s;
+  -webkit-appearance:none;
+}
+.menu-search-inp:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(230,57,70,.1)}
+.menu-search-inp::placeholder{color:#b0a8a3}
+.menu-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gr);font-size:15px;pointer-events:none}
+
+/* ══ CATEGORY CHIPS ══ */
+.cat-chips-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;margin-bottom:14px;
+  scrollbar-width:none}
+.cat-chips-wrap::-webkit-scrollbar{display:none}
+.cat-chips{display:flex;gap:8px;padding:0 0 2px;width:max-content;min-width:100%}
+.cat-chip{
+  display:inline-flex;align-items:center;gap:5px;padding:7px 16px;
+  border-radius:50px;font-size:12px;font-weight:700;font-family:var(--ff);
+  border:2px solid #ede8e4;background:#fff;color:var(--gr);
+  cursor:pointer;white-space:nowrap;touch-action:manipulation;transition:all .15s;
+  flex-shrink:0;
+}
+.cat-chip:active{transform:scale(.95)}
+.cat-chip.act{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 3px 10px rgba(230,57,70,.28)}
+
+/* ══ HIGHLIGHT BADGES ══ */
+.m-badge{
+  display:inline-flex;align-items:center;gap:4px;padding:3px 10px;
+  border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.3px;
+  text-transform:uppercase;margin-bottom:6px;
+}
+.m-badge-bestseller{background:#fff1f2;color:#c1121f}
+.m-badge-chef{background:#ede9fe;color:#6d28d9}
+.m-badge-recommended{background:var(--gl);color:#1e7e71}
+.m-badge-new{background:#fffde7;color:#c67c00}
 </style>
 </head>
 <body>
 
 <div id="app-loader">
-  <div class="logo-mark">Home Bite</div>
+  <div class="logo-mark">Puro Bite</div>
   <div class="tagline">Ghar ka khana ♥</div>
   <div class="loader-ring"></div>
+  <div id="loader-msg" style="font-size:12px;color:var(--gr);font-weight:600;margin-top:4px;min-height:18px">Loading your account...</div>
 </div>
 
 <div class="ptr-indicator" id="ptr-ind"><i class="fa-solid fa-arrow-rotate-right"></i></div>
@@ -362,7 +401,7 @@ textarea.inp{resize:vertical;min-height:72px}
 <!-- ═══ PAGE 1: AUTH ═══ -->
 <div class="pg here" id="pg-auth">
   <div class="auth-brand">
-    <div class="auth-logo-n">Home Bite</div>
+    <div class="auth-logo-n">Puro Bite</div>
     <div class="auth-logo-t">Ghar ka khana ♥</div>
   </div>
   <div class="auth-hero">
@@ -411,7 +450,7 @@ textarea.inp{resize:vertical;min-height:72px}
 <!-- ═══ PAGE 2: HOME ═══ -->
 <div class="pg right" id="pg-home" style="overflow:hidden;display:flex;flex-direction:column;">
   <div class="home-top">
-    <div><div class="logo-n">Home Bite</div><div class="logo-t">Ghar ka khana ♥</div></div>
+    <div><div class="logo-n">Puro Bite</div><div class="logo-t">Ghar ka khana ♥</div></div>
     <div class="t-acts">
       <button class="t-btn" title="Refresh menu" onclick="loadMenu();toast('🔄 Refreshing...')"><i class="fa-solid fa-rotate-right"></i></button>
       <!-- Wallet Header Button (subscribers only) -->
@@ -441,6 +480,17 @@ textarea.inp{resize:vertical;min-height:72px}
       </button>
       <div class="sec-t">Today's Menu</div>
       <div class="sec-s" id="menu-lbl">Loading fresh meals...</div>
+      <!-- Search bar -->
+      <div class="menu-search-wrap">
+        <i class="fa-solid fa-magnifying-glass menu-search-icon"></i>
+        <input class="menu-search-inp" id="menu-search" type="text"
+          placeholder="Search roti, sabji, chicken..."
+          oninput="onMenuSearch(this.value)">
+      </div>
+      <!-- Category chips (populated dynamically) -->
+      <div class="cat-chips-wrap">
+        <div class="cat-chips" id="cat-chips"></div>
+      </div>
       <div id="menu-list">
         <div class="sk sk-lg"></div><div class="sk sk-lg"></div><div class="sk sk-lg"></div>
       </div>
@@ -604,7 +654,7 @@ textarea.inp{resize:vertical;min-height:72px}
       </button>
     </div>
     <div class="acct-card" style="cursor:pointer" onclick="showAbout()">
-      <div class="acct-card-title"><i class="fa-solid fa-circle-info" style="color:var(--p)"></i> About Home Bite</div>
+      <div class="acct-card-title"><i class="fa-solid fa-circle-info" style="color:var(--p)"></i> About Puro Bite</div>
       <div style="font-size:13px;color:var(--gr)">App version, our story &amp; more</div>
     </div>
     <button class="btn btn-danger" onclick="doLogout()" style="margin-top:4px">
@@ -630,8 +680,8 @@ textarea.inp{resize:vertical;min-height:72px}
     <div style="background:#fff;border-radius:var(--r);padding:14px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.04)">
       <div style="font-weight:700;font-size:13px;margin-bottom:10px">Filter by Date Range</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <input type="date" id="ku-from" class="inp" style="flex:1;min-width:130px;font-size:12px;padding:9px 12px">
-        <input type="date" id="ku-to" class="inp" style="flex:1;min-width:130px;font-size:12px;padding:9px 12px">
+        <input type="date" id="ku-from" class="inp" style="flex:1;min-width:130px;font-size:12px;padding:9px 12px" placeholder="Select start date">
+        <input type="date" id="ku-to" class="inp" style="flex:1;min-width:130px;font-size:12px;padding:9px 12px" placeholder="Select end date">
         <button class="btn" style="background:var(--gl);color:var(--g);padding:10px 14px;font-size:13px" onclick="applyUserKhataFilter()"><i class="fa-solid fa-filter"></i></button>
         <button class="btn" style="background:#fde8ea;color:var(--p);padding:10px 14px;font-size:13px" onclick="exportUserKhataPDF()"><i class="fa-solid fa-file-pdf"></i></button>
       </div>
@@ -726,7 +776,7 @@ textarea.inp{resize:vertical;min-height:72px}
   <div class="modal-box">
     <button class="modal-close" onclick="hideAbout()"><i class="fa-solid fa-xmark"></i></button>
     <div class="modal-emoji">🍱</div>
-    <h2 class="modal-title">About Home Bite</h2>
+    <h2 class="modal-title">About Puro Bite</h2>
     <div class="modal-body">
       <p>Yahan daily menu change hota hai 😄</p>
       <p>Veg + Non-veg dono available, aur sirf aalu nahi — green sabzi bhi milti hai 🌱</p>
@@ -747,7 +797,7 @@ textarea.inp{resize:vertical;min-height:72px}
 // ══════════════════════════════════════════════
 const CFG = {
   GAS:    'https://script.google.com/macros/s/AKfycbwHq-D_E4_aD2W3R9TmaTk39pW87El0UCN89Vrjx4lUUhWRnMJbcsuUZLt1trwjkAq8Yg/exec',
-  KEY:    'HB_SECURE_API_KEY_2026',
+  KEY:    'PB_SECURE_API_KEY_2026',
   WA:     '919889760350',
   TIFFIN: '919889760350'
 };
@@ -774,7 +824,7 @@ function safeP(v) {
   try { return JSON.parse(v); } catch { return []; }
 }
 function getSub() {
-  try { return JSON.parse(localStorage.getItem('hb_sub'))?.isSubscriber || false; } catch { return false; }
+  try { return JSON.parse(localStorage.getItem('pb_sub'))?.isSubscriber || false; } catch { return false; }
 }
 function fmtDate(v) {
   if (!v) return '';
@@ -1053,14 +1103,22 @@ function hideAbout(e) {
 // ══════════════════════════════════════════════
 let _session = null;
 const Creds = {
-  save: (phone, pw) => Store.setJSON('hb_creds', { phone, pw }),
-  get:  ()         => Store.getJSON('hb_creds'),
-  clear: ()        => Store.remove('hb_creds')
+  save: (phone, pw) => Store.setJSON('pb_creds', { phone, pw }),
+  get:  ()         => Store.getJSON('pb_creds'),
+  clear: ()        => Store.remove('pb_creds')
 };
+
+// Session store in sessionStorage — survives F5, not tab close
+const SessStore = {
+  save: (u) => { try { sessionStorage.setItem('pb_user_sess', JSON.stringify(u)); } catch {} },
+  get:  ()  => { try { return JSON.parse(sessionStorage.getItem('pb_user_sess')); } catch { return null; } },
+  clear:()  => { try { sessionStorage.removeItem('pb_user_sess'); } catch {} }
+};
+
 const Auth = {
   get:   () => _session,
-  set:   u  => { _session = u; },
-  clear: () => { _session = null; Store.remove('hb_sub'); }
+  set:   u  => { _session = u; SessStore.save(u); },
+  clear: () => { _session = null; Store.remove('pb_sub'); SessStore.clear(); }
 };
 
 function togglePw(inputId, btn) {
@@ -1084,6 +1142,7 @@ function autofillCreds() {
 
 function doLogout() {
   if (!confirm('Logout karna chahte hain?')) return;
+  stopPolling();
   Auth.clear(); Cart.clear(); _coupon = null; _walletBal = null;
   document.querySelectorAll('.pg').forEach(p => { p.classList.remove('here','left'); p.classList.add('right'); });
   doc('pg-auth').classList.remove('right'); doc('pg-auth').classList.add('here');
@@ -1104,7 +1163,7 @@ function switchTab(t, el) {
 
 function forgotPassword() {
   const phone = doc('l-ph').value.trim();
-  let msg = 'Namaste! 🙏 Mujhe apna Home Bite password reset karna hai.\n\n';
+  let msg = 'Namaste! 🙏 Mujhe apna Puro Bite password reset karna hai.\n\n';
   msg += phone ? `📱 Mera registered mobile number: *${phone}*\n\n` : '📱 Mera registered mobile number: (please fill in above)\n\n';
   msg += 'Kripya mujhe naya password set karne mein help karein. 🙏';
   openWA(CFG.WA, msg);
@@ -1148,9 +1207,9 @@ async function initApp() {
   let subData = null;
   try {
     subData = await api('checkSubscriber', { phone: user.phone });
-    Store.setJSON('hb_sub', subData);
+    Store.setJSON('pb_sub', subData);
   } catch {}
-  const cachedSub = subData || Store.getJSON('hb_sub');
+  const cachedSub = subData || Store.getJSON('pb_sub');
   const isSub = cachedSub?.isSubscriber;
   if (isSub) {
     doc('sub-banner').classList.remove('hide');
@@ -1176,6 +1235,7 @@ async function initApp() {
   updateBottomNav('pg-home');
   showAppUI();
   loadMenu();
+  startPolling();
 }
 
 // ══════════════════════════════════════════════
@@ -1253,9 +1313,9 @@ async function savePassword() {
 // CART
 // ══════════════════════════════════════════════
 const Cart = {
-  get:   ()  => Store.getJSON('hb_cart') || [],
-  save:  c   => { Store.setJSON('hb_cart', c); updateBadge(); },
-  clear: ()  => { Store.remove('hb_cart'); updateBadge(); },
+  get:   ()  => Store.getJSON('pb_cart') || [],
+  save:  c   => { Store.setJSON('pb_cart', c); updateBadge(); },
+  clear: ()  => { Store.remove('pb_cart'); updateBadge(); },
   add:  (item, variantLabel, variantPrice) => {
     const cart = Cart.get();
     const key = (item.itemId + (variantLabel || '')).replace(/['\/]/g,'_');
@@ -1306,6 +1366,8 @@ function resolveImg(url) {
 // MENU
 // ══════════════════════════════════════════════
 let _menu = [];
+let _menuSearch = '';
+let _activeCategory = 'all';
 
 async function loadMenu() {
   const list = doc('menu-list');
@@ -1317,14 +1379,75 @@ async function loadMenu() {
     const h = getISTHours();
     const ist = new Date(Date.now() + 5.5 * 3600000);
     const d = String(ist.getUTCDate()).padStart(2,'0'), mo = String(ist.getUTCMonth()+1).padStart(2,'0'), y = ist.getUTCFullYear();
-    const dayCutoffH = cfg ? (() => { const [dH,dM]=(cfg.cutoffDay||'11:30').split(':').map(Number); return dH+dM/60; })() : 11.5;
-    const isLunch = h < dayCutoffH;
+    // Use weekly schedule lunchEnd if available
+    const schedLunchEnd = cfg && cfg.weeklySchedule
+      ? (() => { const dow=ist.getUTCDay(); const s=cfg.weeklySchedule[dow]; return s?timeStrToH(s.lunchEnd||'11:30'):11.5; })()
+      : (() => { const [dH,dM]=(cfg&&cfg.cutoffDay||'11:30').split(':').map(Number); return dH+dM/60; })();
+    const isLunch = h < schedLunchEnd;
     doc('menu-lbl').textContent = (isLunch ? '🌅 Breakfast / Lunch Menu' : '🌙 Evening / Dinner Menu') + ' · ' + d+'/'+mo+'/'+y;
-    renderMenu(menu);
+    // Build category chips
+    buildCategoryChips(menu);
+    // Reset search + category on fresh load
+    _menuSearch = '';
+    const si = doc('menu-search'); if (si) si.value = '';
+    _activeCategory = 'all';
+    filterAndRenderMenu();
     if (cfg) updateCutoffBanner(cfg, h, isLunch ? 'morning' : 'evening');
   } catch(e) {
-    list.innerHTML = `<div class="empty"><span class="em">😕</span><h3>Menu load failed</h3><p style="color:#888;font-size:13px;margin-bottom:12px">Internet check karein aur retry karein</p><button class="btn btn-p" style="width:auto;padding:10px 24px" onclick="loadMenu()"><i class="fa-solid fa-rotate-right"></i> Retry</button></div>`;
+    doc('menu-list').innerHTML = `<div class="empty"><span class="em">😕</span><h3>Menu load failed</h3><p style="color:#888;font-size:13px;margin-bottom:12px">Internet check karein aur retry karein</p><button class="btn btn-p" style="width:auto;padding:10px 24px" onclick="loadMenu()"><i class="fa-solid fa-rotate-right"></i> Retry</button></div>`;
   }
+}
+
+function timeStrToH(t) {
+  if (!t) return 0;
+  const parts = String(t).split(':').map(Number);
+  return (parts[0]||0) + (parts[1]||0)/60;
+}
+
+function buildCategoryChips(menu) {
+  const chipsEl = doc('cat-chips'); if (!chipsEl) return;
+  // Collect unique categories preserving order
+  const cats = ['all'];
+  menu.forEach(item => {
+    const cat = (item.category||'').trim();
+    if (cat && !cats.includes(cat)) cats.push(cat);
+  });
+  chipsEl.innerHTML = cats.map(c => {
+    const label = c === 'all' ? '🍽️ All' : c;
+    return `<button class="cat-chip${c==='all'?' act':''}" onclick="setCategory('${c.replace(/'/g,"\'")}',this)">${label}</button>`;
+  }).join('');
+}
+
+function setCategory(cat, el) {
+  _activeCategory = cat;
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('act'));
+  if (el) el.classList.add('act');
+  filterAndRenderMenu();
+}
+
+function onMenuSearch(val) {
+  _menuSearch = (val || '').toLowerCase().trim();
+  filterAndRenderMenu();
+}
+
+function filterAndRenderMenu() {
+  let filtered = _menu;
+  // Category filter
+  if (_activeCategory && _activeCategory !== 'all') {
+    filtered = filtered.filter(i => (i.category||'').toLowerCase() === _activeCategory.toLowerCase());
+  }
+  // Search filter
+  if (_menuSearch) {
+    filtered = filtered.filter(i =>
+      (i.name||'').toLowerCase().includes(_menuSearch) ||
+      (i.category||'').toLowerCase().includes(_menuSearch)
+    );
+  }
+  if (!filtered.length && _menuSearch) {
+    doc('menu-list').innerHTML = `<div class="empty"><span class="em">🔍</span><h3>No results for "${esc(_menuSearch)}"</h3><p>Try a different search term</p></div>`;
+    return;
+  }
+  renderMenu(filtered);
 }
 
 function fmtCutoffTime(t24) {
@@ -1341,6 +1464,24 @@ function getISTHours() {
 }
 
 function calcOrderState(cfg, currentH) {
+  // Check day-wise weekly schedule first
+  if (cfg && cfg.weeklySchedule) {
+    const ist = new Date(Date.now() + 5.5 * 3600000);
+    const dow = ist.getUTCDay();
+    const sched = cfg.weeklySchedule[dow];
+    if (sched) {
+      if (!sched.open) return { closed: true, reason: 'Restaurant closed today', detail: 'We are closed today. See you tomorrow!' };
+      const openH   = timeStrToH(sched.openTime    || '07:00');
+      const leH     = timeStrToH(sched.lunchEnd    || '11:30');
+      const dsH     = timeStrToH(sched.dinnerStart || '11:30');
+      const deH     = timeStrToH(sched.dinnerEnd   || '19:30');
+      if (currentH < openH)  return { closed: true,  reason: 'Not yet open', detail: `Opens at ${sched.openTime||'07:00'}` };
+      if (currentH >= deH)   return { closed: true,  reason: 'Closed for today', detail: 'All orders done. See you tomorrow!' };
+      if (currentH < leH)    return { closed: false, reason: 'Orders open', detail: `Lunch orders close at ${sched.lunchEnd||'11:30'}`, session: 'morning' };
+      if (currentH < deH)    return { closed: false, reason: 'Orders open', detail: `Dinner orders close at ${sched.dinnerEnd||'19:30'}`, session: 'evening' };
+    }
+  }
+  // Fallback: legacy cutoff
   if (!cfg || !cfg.enabled) return { closed: false, reason: '', detail: '' };
   const [dH, dM] = (cfg.cutoffDay   || '11:30').split(':').map(Number);
   const [nH, nM] = (cfg.cutoffNight || '19:30').split(':').map(Number);
@@ -1362,6 +1503,19 @@ function showClosedPopup(detail) {
 
 function updateCutoffBanner(cfg, currentH, menuType) {
   const banner = doc('cutoff-banner'), msgEl = doc('cutoff-msg'), subEl = doc('cutoff-sub'), placeBtn = doc('place-btn');
+  // Always check weekly schedule first
+  if (cfg && cfg.weeklySchedule) {
+    const state = calcOrderState(cfg, currentH);
+    banner.classList.remove('hide');
+    if (msgEl) msgEl.textContent = state.reason;
+    if (subEl) subEl.textContent = state.detail;
+    banner.style.background = state.closed
+      ? 'linear-gradient(135deg,#e63946,#c1121f)'
+      : 'linear-gradient(135deg,#2a9d8f,#1d7a6f)';
+    if (placeBtn) placeBtn.disabled = state.closed;
+    return;
+  }
+  // Fallback: hard timing check 7:30 PM – 7:00 AM
   const CLOSE_H = 19.5, OPEN_H = 7.0;
   const isNightClosed = currentH >= CLOSE_H || currentH < OPEN_H;
   if (!cfg || !cfg.enabled) {
@@ -1378,47 +1532,84 @@ function updateCutoffBanner(cfg, currentH, menuType) {
   banner.classList.remove('hide');
   if (msgEl) msgEl.textContent = state.reason;
   if (subEl) subEl.textContent = state.detail;
-  if (state.closed) banner.style.background = 'linear-gradient(135deg,#e63946,#c1121f)';
-  else banner.style.background = 'linear-gradient(135deg,#2a9d8f,#1d7a6f)';
+  banner.style.background = state.closed
+    ? 'linear-gradient(135deg,#e63946,#c1121f)'
+    : 'linear-gradient(135deg,#2a9d8f,#1d7a6f)';
   if (placeBtn) placeBtn.disabled = state.closed;
 }
+
+const _badgeMap = {
+  bestseller: { cls:'m-badge-bestseller', text:'🔥 Bestseller' },
+  chef:       { cls:'m-badge-chef',       text:"👨‍🍳 Chef's Choice" },
+  recommended:{ cls:'m-badge-recommended',text:'⭐ Recommended' },
+  new:        { cls:'m-badge-new',        text:'🆕 New' }
+};
 
 function renderMenu(menu) {
   if (!menu.length) {
     doc('menu-list').innerHTML = `<div class="empty"><span class="em">😴</span><h3>Abhi menu nahi hai</h3><p>Baad mein aayein</p></div>`;
     return;
   }
+  // Use a stable global index keyed by itemId for selVar / addToCart references
   doc('menu-list').innerHTML = menu.map((item, idx) => {
     const cart = Cart.get();
     const imgSrc = resolveImg(item.imageUrl) || `https://picsum.photos/seed/${item.itemId}/400/172`;
     const variants = Array.isArray(item.variants) ? item.variants : [];
-    const varHtml = variants.length >= 1 ? `<div class="var-row" id="var-${idx}">${variants.map((v,vi) => `<button class="var-pill${vi===0?' sel':''}" onclick="selVar(${idx},${vi},'${esc(v.label)}',${v.price})" data-vi="${vi}">${esc(v.label)} ₹${v.price}</button>`).join('')}</div>` : '';
+    const varHtml = variants.length >= 1
+      ? `<div class="var-row" id="var-${idx}">${variants.map((v,vi) =>
+          `<button class="var-pill${vi===0?' sel':''}" onclick="selVar(${idx},${vi},'${esc(v.label)}',${v.price})" data-vi="${vi}">${esc(v.label)} ₹${v.price}</button>`
+        ).join('')}</div>`
+      : '';
     const defPrice = variants.length > 0 ? variants[0].price : item.price;
     const defLabel = variants.length > 0 ? variants[0].label : '';
     const key = (item.itemId + (defLabel || '')).replace(/['\/]/g, '_');
     const inCart = cart.find(i => i._key === key);
     const qty = inCart ? inCart.qty : 0;
     const ctrl = qty > 0
-      ? `<div class="qty-ctl"><button class="q-btn" onclick="Cart.qty('${key}',-1);renderMenu(_menu)">−</button><span class="q-n">${qty}</span><button class="q-btn" onclick="Cart.qty('${key}',1);renderMenu(_menu)">+</button></div>`
+      ? `<div class="qty-ctl"><button class="q-btn" onclick="Cart.qty('${key}',-1);filterAndRenderMenu()">−</button><span class="q-n">${qty}</span><button class="q-btn" onclick="Cart.qty('${key}',1);filterAndRenderMenu()">+</button></div>`
       : `<button class="add-btn" onclick="addToCart(${idx},'${esc(item.itemId)}')">Add +</button>`;
-    return `<div class="m-card"><img class="m-img" src="${imgSrc}" alt="${esc(item.name)}" loading="lazy" onerror="this.onerror=null;this.src='https://picsum.photos/seed/${idx}/400/172'"><div class="m-body"><div class="m-name">${esc(item.name)}</div><div class="m-cat">${esc(item.category)}${variants.length >= 1 ? ' · '+variants.length+' size'+(variants.length>1?'s':'') : ''}</div>${varHtml}<div class="m-foot"><div class="m-price" id="price-${idx}">₹${defPrice}</div>${ctrl}</div></div></div>`;
+    // Highlight badge
+    const badgeInfo = _badgeMap[item.highlight];
+    const badgeHtml = badgeInfo
+      ? `<div class="m-badge ${badgeInfo.cls}">${badgeInfo.text}</div>`
+      : '';
+    return `<div class="m-card">
+      <img class="m-img" src="${imgSrc}" alt="${esc(item.name)}" loading="lazy"
+           onerror="this.onerror=null;this.src='https://picsum.photos/seed/${idx}/400/172'">
+      <div class="m-body">
+        ${badgeHtml}
+        <div class="m-name">${esc(item.name)}</div>
+        <div class="m-cat">${esc(item.category)}${variants.length >= 1 ? ' · '+variants.length+' size'+(variants.length>1?'s':'') : ''}</div>
+        ${varHtml}
+        <div class="m-foot">
+          <div class="m-price" id="price-${idx}">₹${defPrice}</div>
+          ${ctrl}
+        </div>
+      </div>
+    </div>`;
   }).join('');
 }
 
 const _selVars = {};
 function selVar(idx, vi, label, price) {
   _selVars[idx] = { label, price };
-  doc('price-' + idx).textContent = '₹' + price;
-  doc('var-' + idx).querySelectorAll('.var-pill').forEach((p, i) => p.classList.toggle('sel', i === vi));
+  const priceEl = doc('price-' + idx);
+  if (priceEl) priceEl.textContent = '₹' + price;
+  const varRow = doc('var-' + idx);
+  if (varRow) varRow.querySelectorAll('.var-pill').forEach((p, i) => p.classList.toggle('sel', i === vi));
 }
 function addToCart(idx, itemId) {
-  const item = _menu[idx]; if (!item) return;
+  // Find item in currently displayed list (filtered), then also check full _menu
+  const displayed = doc('menu-list').querySelectorAll('.m-card');
+  // Use itemId to find in _menu regardless of filter index
+  const item = _menu.find(i => i.itemId === itemId);
+  if (!item) return;
   const sv = _selVars[idx];
   const variants = Array.isArray(item.variants) ? item.variants : [];
   const varLabel = sv ? sv.label : (variants.length > 0 ? variants[0].label : '');
   const varPrice = sv ? sv.price : (variants.length > 0 ? variants[0].price : item.price);
   Cart.add(item, varLabel, varPrice);
-  renderMenu(_menu);
+  filterAndRenderMenu();
 }
 
 // ══════════════════════════════════════════════
@@ -1484,20 +1675,26 @@ async function placeOrder() {
   const user = Auth.get(), cart = Cart.get();
   if (!user?.address?.trim()) { toast('Pehle account mein address set karein'); nav('pg-account'); return; }
   if (!cart.length) { toast('Cart khaali hai!'); return; }
-  // Hard timing check: 7:30 PM – 7:00 AM = closed
+  // Timing check (uses weekly schedule if available, else hard cutoff)
   const nowH = getISTHours();
-  if (nowH >= 19.5 || nowH < 7) {
-    const detail = nowH >= 19.5 ? 'Restaurant is closed. Try after 7:00 AM tomorrow.' : 'Restaurant opens at 7:00 AM.';
-    showClosedPopup(detail); return;
-  }
-  // Re-validate server-side cutoff
   try {
     const cfg2 = await api('getOrderCutoff');
-    if (cfg2 && cfg2.enabled) {
+    if (cfg2) {
       const st = calcOrderState(cfg2, nowH);
       if (st.closed) { showClosedPopup(st.reason + '. ' + st.detail); return; }
+    } else {
+      // Fallback hard check
+      if (nowH >= 19.5 || nowH < 7) {
+        const detail = nowH >= 19.5 ? 'Restaurant is closed. Try after 7:00 AM tomorrow.' : 'Restaurant opens at 7:00 AM.';
+        showClosedPopup(detail); return;
+      }
     }
-  } catch (_e2) {}
+  } catch (_e2) {
+    // If API fails, use hard timing as safety net
+    if (nowH >= 19.5 || nowH < 7) {
+      showClosedPopup('Restaurant is closed. Try after 7:00 AM.'); return;
+    }
+  }
 
   const isSub = getSub();
   const sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
@@ -1535,7 +1732,7 @@ async function placeOrder() {
       setTimeout(() => refreshWalletBalance(), 2000);
     } else {
       // ── NON-SUBSCRIBER FLOW: WhatsApp confirmation ──
-      let msg = `🍱 *Home Bite Order*\n📋 ID: *${res.orderId}*\n👤 ${user.name} | 📞 ${user.phone}\n📍 ${user.address}\n\n*Items:*\n`;
+      let msg = `🍱 *Puro Bite Order*\n📋 ID: *${res.orderId}*\n👤 ${user.name} | 📞 ${user.phone}\n📍 ${user.address}\n\n*Items:*\n`;
       cart.forEach(i => { msg += `• ${i.name}${i.selectedVariant ? ` (${i.selectedVariant})` : ''} ×${i.qty} — ₹${i.price * i.qty}\n`; });
       msg += `\n`;
       if (disc > 0) msg += `🎟️ Discount: −₹${disc}\n`;
@@ -1613,6 +1810,9 @@ async function loadUserKhata() {
   if (balEl) balEl.textContent = '₹—';
   if (subEl) subEl.textContent = 'Loading your wallet...';
   if (listEl) listEl.innerHTML = '<div style="text-align:center;padding:40px;color:#999">Loading transactions...</div>';
+  // Auto-fill today as end date
+  const toEl = doc('ku-to');
+  if (toEl && !toEl.value) toEl.value = new Date().toISOString().split('T')[0];
   try {
     const data = await api('getKhata', { phone: user.phone });
     _userKhataEntries  = data.entries || [];
@@ -1655,17 +1855,85 @@ function renderUserKhataList(entries) {
 
 function exportUserKhataPDF() {
   const user = Auth.get(); if (!user) return;
-  const entries = _userKhataFiltered.length ? _userKhataFiltered : _userKhataEntries;
   const from = doc('ku-from').value, to = doc('ku-to').value;
-  const balance = entries.length ? Number(entries[entries.length-1].runningBalance) || 0 : 0;
+  const allEntries = [..._userKhataEntries]; // Always use full history for balance calc
+  // Compute opening balance = sum of entries BEFORE filter start
+  let openingBal = 0, filtered = allEntries;
+  if (from || to) {
+    const before = [], inRange = [];
+    allEntries.forEach(e => {
+      const parts = (e.date||'').split('/');
+      if (parts.length !== 3) { inRange.push(e); return; }
+      const d = new Date(`${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`);
+      if (from && d < new Date(from)) before.push(e);
+      else if (to && d > new Date(to)) {}
+      else inRange.push(e);
+    });
+    openingBal = before.reduce((s,e) => s + (Number(e.amount)||0), 0);
+    filtered = inRange;
+  }
+  const closingBal = filtered.reduce((s,e) => s + (Number(e.amount)||0), openingBal);
   const typeLabels = { recharge:'Amount Received', tiffin_given:'Tiffin Given', tiffin_udhar:'Tiffin Udhar', adjustment:'Adjustment' };
-  const rows = [...entries].reverse().map(e => {
-    const amt = Number(e.amount)||0, bal = Number(e.runningBalance);
-    return `<tr><td>${e.date||''}</td><td>${e.time||''}</td><td>${typeLabels[e.type]||e.type}</td><td style="color:${amt>=0?'green':'red'};font-weight:700">${amt>=0?'+':''}₹${Math.abs(amt)}</td><td style="font-weight:700">₹${bal}</td><td>${(e.note||'').substring(0,40)}</td></tr>`;
+  let runBal = openingBal;
+  const rows = filtered.map(e => {
+    const amt = Number(e.amount)||0;
+    runBal += amt;
+    // Ordered Items column
+    let orderedItems = '—';
+    if (e.type==='tiffin_given' || e.type==='tiffin_udhar') {
+      const note = e.note||'';
+      const itemMatch = note.match(/\(([^)]+)\)\s*$/);
+      const ordIdMatch = note.match(/(PB-[\w-]+)/i);
+      const itemName = itemMatch ? itemMatch[1] : 'tiffin';
+      const ordId = ordIdMatch ? ordIdMatch[1] : '';
+      orderedItems = itemName + (ordId ? ' | ' + ordId : '');
+    }
+    return `<tr><td>${e.date||''}</td><td>${e.time||''}</td><td>${typeLabels[e.type]||e.type}</td><td style="color:${amt>=0?'green':'red'};font-weight:700">${amt>=0?'+':''}₹${Math.abs(amt)}</td><td style="font-weight:700;color:${runBal<0?'#e63946':'#111'}">₹${runBal}</td><td style="font-size:11px;color:#555">${orderedItems}</td><td>${(e.note||'').substring(0,40)}</td></tr>`;
   }).join('');
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Khata — ${user.name}</title><style>body{font-family:Arial,sans-serif;margin:30px;color:#111}h1{color:#e63946;font-size:22px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#f3f4f6;padding:9px;text-align:left;font-size:12px;border:1px solid #e5e7eb}td{padding:9px;font-size:12px;border:1px solid #e5e7eb}.info{display:flex;justify-content:space-between;margin-bottom:20px;background:#f9fafb;padding:16px;border-radius:10px}.bal{font-size:22px;font-weight:800;color:${balance<0?'#e63946':'#2a9d8f'}}</style></head><body><h1>🍱 Home Bite — My Khata</h1><div class="info"><div><strong>${user.name}</strong><br>📞 ${user.phone}<br>${user.address||''}</div><div style="text-align:right"><div style="font-size:11px;color:#999">CLOSING BALANCE</div><div class="bal">₹${balance}</div>${from||to?`<div style="font-size:11px;color:#999">${from||'start'} to ${to||'today'}</div>`:''}</div></div><table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Amount</th><th>Balance</th><th>Note</th></tr></thead><tbody>${rows}</tbody></table><div style="margin-top:20px;font-size:11px;color:#999">Generated: ${new Date().toLocaleString('en-IN')}</div></body></html>`;
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Khata — ${user.name}</title><style>body{font-family:Arial,sans-serif;margin:30px;color:#111}h1{color:#e63946;font-size:22px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#f3f4f6;padding:9px;text-align:left;font-size:12px;border:1px solid #e5e7eb}td{padding:9px;font-size:12px;border:1px solid #e5e7eb}.info{display:flex;justify-content:space-between;margin-bottom:20px;background:#f9fafb;padding:16px;border-radius:10px}.bal{font-size:22px;font-weight:800;color:${closingBal<0?'#e63946':'#2a9d8f'}}</style></head><body><h1>🍱 Puro Bite — My Khata</h1><div class="info"><div><strong>${user.name}</strong><br>📞 ${user.phone}<br>${user.address||''}</div><div style="text-align:right">${from||to?`<div style="font-size:11px;color:#999">Period: ${from||'start'} to ${to||'today'}</div>`:''}${openingBal!==0?`<div style="font-size:11px;color:#999">Opening Balance</div><div style="font-size:16px;font-weight:700;color:#555">₹${openingBal}</div>`:''}<div style="font-size:11px;color:#999;margin-top:4px">Closing Balance</div><div class="bal">₹${closingBal}</div></div></div><table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Amount</th><th>Balance</th><th>Ordered Items</th><th>Note</th></tr></thead><tbody>${rows||'<tr><td colspan="7" style="text-align:center;color:#999">No transactions in this period</td></tr>'}</tbody></table><div style="margin-top:20px;font-size:11px;color:#999">Generated: ${new Date().toLocaleString('en-IN')}</div></body></html>`;
   const w = window.open('', '_blank'); w.document.write(html); w.document.close();
   setTimeout(() => w.print(), 600);
+}
+
+// ══════════════════════════════════════════════
+// REAL-TIME POLLING (wallet + orders every 30s)
+// ══════════════════════════════════════════════
+let _pollTimer = null;
+
+function startPolling() {
+  stopPolling();
+  _pollTimer = setInterval(() => {
+    if (document.hidden || !_session) return;
+    const cur = stack[stack.length - 1];
+    // Silently refresh wallet balance for subscribers
+    if (getSub()) {
+      api('getSubscriberBalance', { phone: _session.phone })
+        .then(r => { updateWalletUI(Number(r.balance) || 0); })
+        .catch(() => {});
+    }
+    // Silently refresh orders if on orders page
+    if (cur === 'pg-orders') {
+      api('getUserOrders', { userId: _session.userId })
+        .then(orders => renderOrders(orders))
+        .catch(() => {});
+    }
+    // Silently refresh khata if on wallet page
+    if (cur === 'pg-khata' && getSub()) {
+      api('getKhata', { phone: _session.phone })
+        .then(data => {
+          _userKhataEntries = data.entries || [];
+          _userKhataFiltered = [..._userKhataEntries];
+          const bal = Number(data.balance) || 0;
+          updateWalletUI(bal);
+          renderUserKhataList(_userKhataFiltered);
+        })
+        .catch(() => {});
+    }
+  }, 30000); // 30 seconds
+}
+
+function stopPolling() {
+  if (_pollTimer) { clearInterval(_pollTimer); _pollTimer = null; }
 }
 
 // ══════════════════════════════════════════════
@@ -1678,8 +1946,43 @@ function bootApp() {
     if ('caches' in window) { caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {}); }
   }
   history.replaceState({ page: 'pg-auth' }, '', location.pathname);
+
+  // ── Try to restore session from sessionStorage (fixes frequent logout) ──
+  const savedSess = SessStore.get();
+  const savedSub  = Store.getJSON('pb_sub');
+  if (savedSess && savedSess.userId) {
+    Auth.set(savedSess);
+    const isSub = savedSub?.isSubscriber;
+    if (isSub) {
+      doc('sub-banner').classList.remove('hide');
+      doc('wallet-hdr-btn').classList.remove('hide');
+      // Fetch fresh balance in background
+      api('getSubscriberBalance', { phone: savedSess.phone })
+        .then(r => updateWalletUI(Number(r.balance) || 0))
+        .catch(() => { if (_walletBal !== null) updateWalletUI(_walletBal); });
+    } else {
+      doc('wallet-hdr-btn').classList.add('hide');
+    }
+    updateBadge();
+    // Navigate directly to home
+    doc('pg-auth').classList.replace('here','left');
+    doc('pg-home').classList.remove('right','left');
+    doc('pg-home').classList.add('here');
+    stack = ['pg-auth','pg-home'];
+    history.replaceState({ page: 'pg-auth' }, '', location.pathname);
+    history.pushState({ page: 'pg-home' }, '', '#pg-home');
+    updateBottomNav('pg-home');
+    showAppUI();
+    loadMenu();
+    startPolling();
+    loader.classList.add('fade-out');
+    setTimeout(() => { loader.style.display = 'none'; }, 300);
+    return;
+  }
+
+  // No session: show auth
   autofillCreds();
-  Store.remove('hb_user');
+  Store.remove('pb_user');
   loader.classList.add('fade-out');
   setTimeout(() => { loader.style.display = 'none'; }, 300);
 }
@@ -1688,11 +1991,12 @@ function bootApp() {
   setTimeout(() => {
     const visible = document.querySelector('.pg.here');
     if (!visible || !visible.offsetHeight) { location.replace(location.pathname); }
-  }, 3000);
+  }, 8000); // Increased from 3s to 8s — prevents false reloads on slow connections
 })();
 
 window.addEventListener('pageshow', e => {
   if (e.persisted && !_session) {
+    stopPolling();
     document.querySelectorAll('.pg').forEach(p => { p.classList.remove('here','left'); p.classList.add('right'); });
     doc('pg-auth').classList.remove('right'); doc('pg-auth').classList.add('here');
     stack = ['pg-auth'];
