@@ -826,65 +826,42 @@ function safeP(v) {
 function getSub() {
   try { return JSON.parse(localStorage.getItem('pb_sub'))?.isSubscriber || false; } catch { return false; }
 }
-// ── DATE / TIME UTILITIES — handle DD/MM/YYYY, ISO, 1899 GAS serials ──
 function fmtDate(v) {
   if (!v) return '';
   const s = String(v).trim();
-  // Already DD/MM/YYYY
-  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
-  // ISO or Date object
+  // Already DD/MM/YYYY or DD/MM/YYYY HH:MM AM/PM
+  if (/^\d{2}\/\d{2}\/\d{4}/.test(s)) return s.substring(0,10);
+  // Reject 1899 serial dates from Google Sheets
+  if (s.startsWith('1899-') || s.startsWith('1900-')) return '';
   if (/^\d{4}-\d{2}-\d{2}T/.test(s) || v instanceof Date) {
     const raw = v instanceof Date ? v : new Date(s);
-    if (!isNaN(raw.getTime())) {
-      const ist = new Date(raw.getTime() + 5.5*60*60*1000);
+    if (raw.getFullYear() <= 1900) return '';
+    const ist = new Date(raw.getTime() + 5.5*60*60*1000);
+    if (!isNaN(ist.getTime()))
       return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
-    }
-  }
-  // YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-    const [y,m,d] = s.split('-');
-    return `${d}/${m}/${y}`;
   }
   return s;
 }
 function fmtTime(v) {
   if (!v) return '';
-  const s = String(v).trim().replace(/[\u00a0\u202f\u2009]/g,' ');
+  const s = String(v).trim();
   // Already HH:MM AM/PM
-  if (/^\d{1,2}:\d{2}\s*(AM|PM)$/i.test(s)) return s;
-  // ISO string — may be 1899 GAS time serial or real datetime
+  if (/^\d{2}:\d{2} (AM|PM)$/.test(s)) return s;
+  // DD/MM/YYYY HH:MM AM/PM — extract time
+  if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(s)) return s.substring(11);
+  // Reject 1899 serial dates
+  if (s.startsWith('1899-') || s.startsWith('1900-')) return '';
   if (/^\d{4}-\d{2}-\d{2}T/.test(s) || v instanceof Date) {
     const raw = v instanceof Date ? v : new Date(s);
-    if (!isNaN(raw.getTime())) {
-      let h = raw.getUTCHours(), m = raw.getUTCMinutes();
-      // Only apply IST offset for real dates (>= 1970), not 1899 time serials
-      if (raw.getUTCFullYear() >= 1970) {
-        const ist = new Date(raw.getTime() + 5.5*60*60*1000);
-        h = ist.getUTCHours(); m = ist.getUTCMinutes();
-      }
-      const p = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+    if (raw.getFullYear() <= 1900) return '';
+    const ist = new Date(raw.getTime() + 5.5*60*60*1000);
+    if (!isNaN(ist.getTime())) {
+      let h = ist.getUTCHours(), m = ist.getUTCMinutes(), p = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
       return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+p;
     }
   }
-  return s;
-}
-// dateToYMD: any date value → "YYYY-MM-DD" for <input type=date> filter comparison
-function dateToYMD(v) {
-  if (!v) return '';
-  const s = String(v).trim();
-  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
-    const [dd,mm,yyyy] = s.split('/');
-    return `${yyyy}-${mm}-${dd}`;
-  }
-  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
-    const d = new Date(s);
-    if (!isNaN(d.getTime())) {
-      const ist = new Date(d.getTime() + 5.5*60*60*1000);
-      return `${ist.getUTCFullYear()}-${String(ist.getUTCMonth()+1).padStart(2,'0')}-${String(ist.getUTCDate()).padStart(2,'0')}`;
-    }
-  }
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  return '';
+  return s.replace(/[\u00a0\u202f\u2009]/g,' ');
 }
 
 // ── WALLET STATE (in-memory, updated on login and after each order) ──
@@ -1866,10 +1843,17 @@ async function loadUserKhata() {
 function applyUserKhataFilter() {
   const from = doc('ku-from').value, to = doc('ku-to').value;
   _userKhataFiltered = _userKhataEntries.filter(e => {
-    const ymd = dateToYMD(e.date);
-    if (!ymd) return true;
-    if (from && ymd < from) return false;
-    if (to   && ymd > to)   return false;
+    const raw = String(e.date || e.createdAt || '').trim();
+    let d;
+    if (/^\d{2}\/\d{2}\/\d{4}/.test(raw)) {
+      const p = raw.substring(0,10).split('/');
+      d = new Date(`${p[2]}-${p[1]}-${p[0]}`);
+    } else if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
+      d = new Date(raw.substring(0,10));
+    } else { return true; }
+    if (isNaN(d.getTime())) return true;
+    if (from && d < new Date(from)) return false;
+    if (to   && d > new Date(to + 'T23:59:59')) return false;
     return true;
   });
   renderUserKhataList(_userKhataFiltered);
@@ -1885,7 +1869,7 @@ function renderUserKhataList(entries) {
     const amt = Number(e.amount) || 0;
     const bal = Number(e.runningBalance);
     const isCredit = amt >= 0;
-    return `<div style="background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.07);display:flex;align-items:center;gap:12px;border:1px solid rgba(0,0,0,.04)"><div style="width:40px;height:40px;border-radius:50%;background:${isCredit?'#e8f5f3':'#fde8ea'};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${isCredit?'💰':'🍱'}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;color:${typeColors[e.type]||'#111'}">${typeLabels[e.type] || e.type}</div><div style="font-size:11px;color:#999;margin-top:2px">${fmtDate(e.date)} · ${fmtTime(e.time)}</div>${e.note ? `<div style="font-size:12px;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(e.note)}</div>` : ''}</div><div style="text-align:right;flex-shrink:0"><div style="font-weight:800;font-size:15px;color:${isCredit?'#2a9d8f':'#e63946'}">${isCredit?'+':''}₹${Math.abs(amt)}</div><div style="font-size:11px;color:#999;margin-top:2px">Bal: <strong style="color:${bal<0?'#e63946':'#111'}">₹${bal}</strong></div></div></div>`;
+    return `<div style="background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.07);display:flex;align-items:center;gap:12px;border:1px solid rgba(0,0,0,.04)"><div style="width:40px;height:40px;border-radius:50%;background:${isCredit?'#e8f5f3':'#fde8ea'};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${isCredit?'💰':'🍱'}</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;color:${typeColors[e.type]||'#111'}">${typeLabels[e.type] || e.type}</div><div style="font-size:11px;color:#999;margin-top:2px">${fmtDate(e.date||e.createdAt||'')} · ${fmtTime(e.time||e.createdAt||'')}</div>${e.note ? `<div style="font-size:12px;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(e.note)}</div>` : ''}</div><div style="text-align:right;flex-shrink:0"><div style="font-weight:800;font-size:15px;color:${isCredit?'#2a9d8f':'#e63946'}">${isCredit?'+':''}₹${Math.abs(amt)}</div><div style="font-size:11px;color:#999;margin-top:2px">Bal: <strong style="color:${bal<0?'#e63946':'#111'}">₹${bal}</strong></div></div></div>`;
   }).join('');
 }
 
@@ -1893,14 +1877,25 @@ function exportUserKhataPDF() {
   const user = Auth.get(); if (!user) return;
   const from = doc('ku-from').value, to = doc('ku-to').value;
   const allEntries = [..._userKhataEntries];
+
+  function parseEntryDate(e) {
+    const raw = String(e.date || e.createdAt || '').trim();
+    if (/^\d{2}\/\d{2}\/\d{4}/.test(raw)) {
+      const p = raw.substring(0,10).split('/');
+      return new Date(`${p[2]}-${p[1]}-${p[0]}`);
+    }
+    if (/^\d{4}-\d{2}-\d{2}/.test(raw)) return new Date(raw.substring(0,10));
+    return null;
+  }
+
   let openingBal = 0, filtered = allEntries;
   if (from || to) {
     const before = [], inRange = [];
     allEntries.forEach(e => {
-      const ymd = dateToYMD(e.date);
-      if (!ymd) { inRange.push(e); return; }
-      if (from && ymd < from) before.push(e);
-      else if (to && ymd > to) { /* skip */ }
+      const d = parseEntryDate(e);
+      if (!d) { inRange.push(e); return; }
+      if (from && d < new Date(from)) before.push(e);
+      else if (to && d > new Date(to + 'T23:59:59')) {}
       else inRange.push(e);
     });
     openingBal = before.reduce((s,e) => s + (Number(e.amount)||0), 0);
@@ -1917,17 +1912,17 @@ function exportUserKhataPDF() {
       const note = e.note||'';
       const itemMatch = note.match(/\(([^)]+)\)\s*$/);
       const ordIdMatch = note.match(/(PB-[\w-]+)/i);
-      const itemName = itemMatch ? itemMatch[1] : 'tiffin';
-      const ordId = ordIdMatch ? ordIdMatch[1] : '';
-      orderedItems = itemName + (ordId ? ' | ' + ordId : '');
+      orderedItems = (itemMatch?itemMatch[1]:'tiffin') + (ordIdMatch?' | '+ordIdMatch[1]:'');
     }
-    // Use fmtDate/fmtTime — never show raw ISO or 1899 strings
-    return `<tr><td>${fmtDate(e.date)}</td><td>${fmtTime(e.time)}</td><td>${typeLabels[e.type]||e.type}</td><td style="color:${amt>=0?'green':'red'};font-weight:700">${amt>=0?'+':''}₹${Math.abs(amt)}</td><td style="font-weight:700;color:${runBal<0?'#e63946':'#111'}">₹${runBal}</td><td style="font-size:11px;color:#555">${orderedItems}</td><td>${(e.note||'').substring(0,40)}</td></tr>`;
+    const displayDate = fmtDate(e.date||e.createdAt||'');
+    const displayTime = fmtTime(e.time||e.createdAt||'');
+    return `<tr><td>${displayDate}</td><td>${displayTime}</td><td>${typeLabels[e.type]||e.type}</td><td style="color:${amt>=0?'green':'red'};font-weight:700">${amt>=0?'+':''}₹${Math.abs(amt)}</td><td style="font-weight:700;color:${runBal<0?'#e63946':'#111'}">₹${runBal}</td><td style="font-size:11px;color:#555">${orderedItems}</td><td>${(e.note||'').substring(0,40)}</td></tr>`;
   }).join('');
-  // Clean generated-on date in IST
-  const nowIST = new Date(Date.now() + 5.5*3600*1000);
-  const genStr = `${String(nowIST.getUTCDate()).padStart(2,'0')}/${String(nowIST.getUTCMonth()+1).padStart(2,'0')}/${nowIST.getUTCFullYear()} ${fmtTime(nowIST.toISOString())}`;
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Khata — ${user.name}</title><style>body{font-family:Arial,sans-serif;margin:30px;color:#111}h1{color:#e63946;font-size:22px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#f3f4f6;padding:9px;text-align:left;font-size:12px;border:1px solid #e5e7eb}td{padding:9px;font-size:12px;border:1px solid #e5e7eb}.info{display:flex;justify-content:space-between;margin-bottom:20px;background:#f9fafb;padding:16px;border-radius:10px}.bal{font-size:22px;font-weight:800;color:${closingBal<0?'#e63946':'#2a9d8f'}}</style></head><body><h1>🍱 Puro Bite — My Khata</h1><div class="info"><div><strong>${user.name}</strong><br>📞 ${user.phone}<br>${user.address||''}</div><div style="text-align:right">${from||to?`<div style="font-size:11px;color:#999">Period: ${from||'start'} to ${to||'today'}</div>`:''}${openingBal!==0?`<div style="font-size:11px;color:#999">Opening Balance</div><div style="font-size:16px;font-weight:700;color:#555">₹${openingBal}</div>`:''}<div style="font-size:11px;color:#999;margin-top:4px">Closing Balance</div><div class="bal">₹${closingBal}</div></div></div><table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Amount</th><th>Balance</th><th>Ordered Items</th><th>Note</th></tr></thead><tbody>${rows||'<tr><td colspan="7" style="text-align:center;color:#999">No transactions in this period</td></tr>'}</tbody></table><div style="margin-top:20px;font-size:11px;color:#999">Generated: ${genStr}</div></body></html>`;
+  function fmtPeriodDate(ymd){ if(!ymd) return ''; const p=ymd.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+  const periodStr = from||to ? `Period: ${fmtPeriodDate(from)||'Start'} to ${fmtPeriodDate(to)||'Today'}` : 'All Transactions';
+  const istNow = new Date(Date.now()+5.5*60*60*1000);
+  const genStr = `${String(istNow.getUTCDate()).padStart(2,'0')}/${String(istNow.getUTCMonth()+1).padStart(2,'0')}/${istNow.getUTCFullYear()}, ${String(istNow.getUTCHours()%12||12).padStart(2,'0')}:${String(istNow.getUTCMinutes()).padStart(2,'0')} ${istNow.getUTCHours()>=12?'PM':'AM'} IST`;
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Khata — ${user.name}</title><style>body{font-family:Arial,sans-serif;margin:30px;color:#111}h1{color:#e63946;font-size:22px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#f3f4f6;padding:9px;text-align:left;font-size:12px;border:1px solid #e5e7eb}td{padding:9px;font-size:12px;border:1px solid #e5e7eb}.info{display:flex;justify-content:space-between;margin-bottom:20px;background:#f9fafb;padding:16px;border-radius:10px}.bal{font-size:22px;font-weight:800;color:${closingBal<0?'#e63946':'#2a9d8f'}}</style></head><body><h1>🍱 Puro Bite — My Khata</h1><div class="info"><div><strong>${user.name}</strong><br>📞 ${user.phone}<br>${user.address||''}<br><span style="font-size:11px;color:#999">${periodStr}</span></div><div style="text-align:right">${openingBal!==0?`<div style="font-size:11px;color:#999">Opening Balance</div><div style="font-size:16px;font-weight:700;color:#555">₹${openingBal}</div>`:''}<div style="font-size:11px;color:#999;margin-top:4px">Closing Balance</div><div class="bal">₹${closingBal}</div></div></div><table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Amount</th><th>Balance</th><th>Ordered Items</th><th>Note</th></tr></thead><tbody>${rows||'<tr><td colspan="7" style="text-align:center;color:#999">No transactions in this period</td></tr>'}</tbody></table><div style="margin-top:20px;font-size:11px;color:#999">Generated: ${genStr}</div></body></html>`;
   const w = window.open('', '_blank'); w.document.write(html); w.document.close();
   setTimeout(() => w.print(), 600);
 }

@@ -549,43 +549,43 @@ function orderDateToISO(d){
   if(!d&&d!==0) return '';
   if(d instanceof Date){const i=new Date(d.getTime()+5.5*3600000);return `${i.getUTCFullYear()}-${String(i.getUTCMonth()+1).padStart(2,'0')}-${String(i.getUTCDate()).padStart(2,'0')}`;}
   const s=String(d).trim();
-  // DD/MM/YYYY
-  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)){const[dd,mm,yyyy]=s.split('/');return `${yyyy}-${mm}-${dd}`;}
-  // YYYY-MM-DD
   if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  // ISO datetime — apply IST offset
   if(/^\d{4}-\d{2}-\d{2}T/.test(s)){const i=new Date(new Date(s).getTime()+5.5*3600000);if(!isNaN(i.getTime())) return `${i.getUTCFullYear()}-${String(i.getUTCMonth()+1).padStart(2,'0')}-${String(i.getUTCDate()).padStart(2,'0')}`;}
+  const p=s.split('/');if(p.length===3&&p[2].trim().length===4) return `${p[2].trim()}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
   return '';
 }
 
 function fmtDate(v){
-  if(!v&&v!==0) return '';
+  if(!v) return '';
   const s=String(v).trim();
-  // Already DD/MM/YYYY
-  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
-  if(v instanceof Date||/^\d{4}-\d{2}-\d{2}T/.test(s)){
+  // Already DD/MM/YYYY or DD/MM/YYYY HH:MM AM/PM
+  if(/^\d{2}\/\d{2}\/\d{4}/.test(s)) return s.substring(0,10);
+  // Reject 1899 serial dates from Sheets
+  if(s.startsWith('1899-')||s.startsWith('1900-')) return '';
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)){
     const raw=v instanceof Date?v:new Date(s);
-    if(!isNaN(raw.getTime())){const i=new Date(raw.getTime()+5.5*3600000);return String(i.getUTCDate()).padStart(2,'0')+'/'+String(i.getUTCMonth()+1).padStart(2,'0')+'/'+i.getUTCFullYear();}
+    if(raw.getFullYear()<=1900) return '';
+    const i=new Date(raw.getTime()+5.5*3600000);
+    if(!isNaN(i.getTime())) return String(i.getUTCDate()).padStart(2,'0')+'/'+String(i.getUTCMonth()+1).padStart(2,'0')+'/'+i.getUTCFullYear();
   }
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)){const[y,m,d]=s.split('-');return `${d}/${m}/${y}`;}
   return s;
 }
 function fmtTime(v){
-  if(!v&&v!==0) return '';
-  const s=String(v).trim().replace(/[\u00a0\u202f\u2009]/g,' ');
+  if(!v) return '';
+  const s=String(v).trim();
   // Already HH:MM AM/PM
-  if(/^\d{1,2}:\d{2}\s*(AM|PM)$/i.test(s)) return s;
-  if(v instanceof Date||/^\d{4}-\d{2}-\d{2}T/.test(s)){
+  if(/^\d{2}:\d{2} (AM|PM)$/.test(s)) return s;
+  // DD/MM/YYYY HH:MM AM/PM — extract time
+  if(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(s)) return s.substring(11);
+  // Reject 1899
+  if(s.startsWith('1899-')||s.startsWith('1900-')) return '';
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){
     const raw=v instanceof Date?v:new Date(s);
-    if(!isNaN(raw.getTime())){
-      let h=raw.getUTCHours(),m=raw.getUTCMinutes();
-      // Only add IST offset for real dates, not 1899 GAS time serials
-      if(raw.getUTCFullYear()>=1970){const ist=new Date(raw.getTime()+5.5*3600000);h=ist.getUTCHours();m=ist.getUTCMinutes();}
-      const ap=h>=12?'PM':'AM';h=h%12||12;
-      return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+ap;
-    }
+    if(raw.getFullYear()<=1900) return '';
+    const i=new Date(raw.getTime()+5.5*3600000);
+    if(!isNaN(i.getTime())){let h=i.getUTCHours(),m=i.getUTCMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+ap;}
   }
-  return s;
+  return s.replace(/[\u00a0\u202f\u2009]/g,' ');
 }
 
 // ══ STATS & TAB COUNTS ══

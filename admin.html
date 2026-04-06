@@ -198,16 +198,16 @@ tr:hover td{background:#fafafa}
         <option value="staff">Staff</option>
       </select>
     </div>
-    <div class="fg" id="a-em-fg"><label class="lbl">Email</label><input id="a-em" class="inp" type="email" placeholder="admin@email.com"></div>
+    <div class="fg" id="a-em-fg"><label class="lbl">Email</label><input id="a-em" class="inp" type="email" placeholder="admin@email.com" value="visaryhal2022@vishal.com"></div>
     <div class="fg" id="a-uid-fg" style="display:none"><label class="lbl">Staff Username</label><input id="a-uid" class="inp" type="text" placeholder="username"></div>
     <div id="admin-creds-hint" class="creds-hint">✅ Credentials filled from last session</div>
     <div class="fg"><label class="lbl">Password</label><div class="pw-wrap"><input id="a-pw" class="inp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="pw-eye" onclick="togglePw('a-pw',this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button></div></div>
     <button class="btn btn-p btn-full" id="login-btn" onclick="doLogin()"><i class="fa-solid fa-lock-open"></i> Access Dashboard</button>
     <div style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0">
-      <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">⚙️ Credentials Setup</div>
+      <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">⚙️ Login Info</div>
       <div style="font-size:12px;color:#64748b;line-height:1.6">
-        Default: <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">admin@purobite.com</code> / <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">admin123</code><br>
-        To change, run <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">setupSheets()</code> once in Apps Script, or update <strong>Settings sheet</strong> → <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">admin_email</code> / <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">admin_password</code> rows.
+        Email: <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">visaryhal2022@vishal.com</code><br>
+        Password: <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;font-size:11px">yadrajav@546</code>
       </div>
     </div>
   </div>
@@ -751,6 +751,12 @@ async function api(action,data={}){
   npStart();
   const ctrl=new AbortController();
   const timer=setTimeout(()=>ctrl.abort(),25000);
+  // Auto-inject adminToken for wallet/khata write actions
+  const walletActions=['rechargeWallet','addKhataEntry'];
+  if(walletActions.includes(action)){
+    const sess=Session.get();
+    if(sess&&sess.adminToken) data.adminToken=sess.adminToken;
+  }
   try{
     const r=await fetch(CFG.GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,data,apiKey:CFG.KEY}),signal:ctrl.signal});
     clearTimeout(timer);
@@ -807,8 +813,8 @@ function autofillAdminCreds(){
   try{
     if(c.role){ doc('a-role').value=c.role; updateAuthUI(); }
     if(c.id){
-      if(c.role==='admin') doc('a-em').value=c.id;
-      else doc('a-uid').value=c.id;
+      if(c.role==='admin' && doc('a-em')) doc('a-em').value=c.id;
+      else if(c.role==='staff') doc('a-uid').value=c.id;
     }
     if(c.pw) doc('a-pw').value=c.pw;
     const hint=doc('admin-creds-hint');
@@ -821,7 +827,7 @@ function autofillAdminCreds(){
 // ════════════════════════════════════════════════
 function updateAuthUI(){
   const role=doc('a-role').value;
-  doc('a-em-fg').style.display=role==='admin'?'block':'none';
+  const emFg=doc('a-em-fg'); if(emFg) emFg.style.display=role==='admin'?'block':'none';
   doc('a-uid-fg').style.display=role==='staff'?'block':'none';
   doc('auth-subtitle').textContent=role==='admin'?'Admin Control Center':'Staff Portal';
 }
@@ -829,18 +835,16 @@ function updateAuthUI(){
 async function doLogin(){
   const role=doc('a-role').value;
   const pw=doc('a-pw').value.trim();
-  // Validate BEFORE disabling button so finally always runs correctly
   if(!pw){ toast('Password required'); return; }
-  if(role==='admin' && !doc('a-em').value.trim()){ toast('Email required'); return; }
+  if(role==='admin' && doc('a-em') && !doc('a-em').value.trim()){ toast('Email required'); return; }
   if(role==='staff' && !doc('a-uid').value.trim()){ toast('Username required'); return; }
 
   const btn=doc('login-btn');
   btn.innerHTML='<span class="spin"></span> Logging in...'; btn.disabled=true;
   try{
     if(role==='admin'){
-      // Normalize email: trim + lowercase to avoid case-mismatch with Settings sheet
-      const em=doc('a-em').value.trim().toLowerCase();
-      const admin=await api('adminLogin',{email:em,password:pw});
+      const em=doc('a-em')?doc('a-em').value.trim().toLowerCase():'';
+      const admin=await api('adminLogin',{email:em, password:pw});
       Session.set({...admin,role:'admin'});
       ACreds.save('admin',em,pw);
       showApp(Session.get());
@@ -1459,7 +1463,7 @@ function renderSubs(){
     <td><span class="bdg b-g">${esc(s.plan||'both')}</span></td>
     <td><span class="bdg ${(s.status||'active')==='active'?'b-g':'b-o'}">${esc(s.status||'active')}</span></td>
     <td><span class="bdg ${balClass}" style="font-weight:800">₹${bal}</span></td>
-    <td style="font-size:12px;color:#999">${s.startDate?fmtDate(s.startDate):''}</td>
+    <td style="font-size:12px;color:#999">${s.startDate?new Date(s.startDate).toLocaleDateString():''}</td>
     <td>
       <button class="btn btn-sm" style="background:var(--gl);color:var(--g);margin-right:4px" onclick="viewSubKhata('${esc(s.phone)}','${esc(s.name)}')"><i class="fa-solid fa-book"></i></button>
       <button class="btn btn-sm btn-ghost" onclick="editSub('${esc(s.phone)}','${esc(s.name)}','${esc(s.plan||'both')}','${esc(s.status||'active')}')" style="margin-right:4px"><i class="fa-solid fa-pen"></i></button>
@@ -1523,7 +1527,7 @@ function renderUsers(){
       <td style="font-size:12px;color:#999">${esc(u.email)}</td>
       <td style="font-size:12px;max-width:160px">${esc(u.address)}</td>
       <td><span class="bdg ${isSub?'b-g':'b-gr'}">${isSub?'Subscriber':'Daily'}</span></td>
-      <td style="font-size:12px;color:#999">${u.createdAt?fmtDate(u.createdAt):''}</td>
+      <td style="font-size:12px;color:#999">${u.createdAt?new Date(u.createdAt).toLocaleDateString():''}</td>
     </tr>`;
   }).join(''):'<tr><td colspan="6" style="text-align:center;padding:28px;color:#999">No users</td></tr>';
 }
@@ -1650,102 +1654,61 @@ async function saveCutoffSettings(){
 function doc(id){ return document.getElementById(id); }
 function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 // Shared IST parser: any date/time value → IST-adjusted Date
-// ════════════════════════════════════════════════
-// DATE / TIME UTILITIES — handle DD/MM/YYYY, ISO, and 1899-based GAS serials
-// ════════════════════════════════════════════════
-
-// Parse any date/time value → Date object in IST
+// toIST: converts any date/time value → IST-adjusted Date object
+// Handles: ISO strings, plain Date objects, DD/MM/YYYY strings
+// REJECTS: 1899-era Google Sheets serial time values (returns null so fallback kicks in)
 function toIST(v){
-  if(!v && v!==0) return null;
-  if(v instanceof Date) return new Date(v.getTime()+5.5*60*60*1000);
+  if(!v) return null;
+  if(v instanceof Date){
+    if(v.getFullYear()<=1900) return null; // 1899 serial — reject
+    return new Date(v.getTime()+5.5*60*60*1000);
+  }
   const s=String(v).trim();
-
-  // Already formatted as DD/MM/YYYY (stored string from backend)
-  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)){
-    const [dd,mm,yyyy]=s.split('/');
-    return new Date(Number(yyyy),Number(mm)-1,Number(dd),0,0,0);
-  }
-  // Already formatted as HH:MM AM/PM (stored time string)
-  if(/^\d{1,2}:\d{2}\s*(AM|PM)$/i.test(s)) return null; // handled by fmtTime directly
-
-  // ISO 8601 — "2026-04-04T18:30:00.000Z" (GAS Date cell leak)
-  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){
+  // Reject 1899 serial strings coming from Sheets
+  if(s.startsWith('1899-')||s.startsWith('1900-')) return null;
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)||/^\d{4}-\d{2}-\d{2}$/.test(s)){
     const d=new Date(s);
-    if(!isNaN(d.getTime())) return new Date(d.getTime()+5.5*60*60*1000);
-  }
-  // YYYY-MM-DD date only
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)){
-    const d=new Date(s+'T00:00:00Z');
-    if(!isNaN(d.getTime())) return new Date(d.getTime()+5.5*60*60*1000);
+    if(!isNaN(d.getTime())&&d.getFullYear()>1900) return new Date(d.getTime()+5.5*60*60*1000);
   }
   return null;
 }
-
-// fmtDate: any value → "DD/MM/YYYY"
+// normDate: → "DD/MM/YYYY" for Today filter — IST-aware, locale-independent
+function normDate(v){
+  if(!v) return '';
+  const s=String(v).trim();
+  // Already DD/MM/YYYY — return as-is
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  // DD/MM/YYYY HH:MM AM/PM (Sheets sanitized format) — extract date part
+  if(/^\d{2}\/\d{2}\/\d{4} /.test(s)) return s.substring(0,10);
+  const ist=toIST(v);
+  if(ist) return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
+  return s;
+}
+// todayIST: today as "DD/MM/YYYY" in IST
+function todayIST(){
+  const ist=new Date(Date.now()+5.5*60*60*1000);
+  return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
+}
+// fmtDate: → display "DD/MM/YYYY"
 function fmtDate(v){
   if(!v) return '';
   const s=String(v).trim();
-  // Already correct format
-  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  if(/^\d{2}\/\d{2}\/\d{4}/.test(s)) return s.substring(0,10);
   const ist=toIST(v);
-  if(ist) return String(ist.getDate()).padStart(2,'0')+'/'+String(ist.getMonth()+1).padStart(2,'0')+'/'+ist.getFullYear();
+  if(ist) return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
   return s;
 }
-
-// fmtTime: any value → "HH:MM AM/PM"
+// fmtTime: → display "HH:MM AM/PM"
 function fmtTime(v){
   if(!v) return '';
-  const s=String(v).trim().replace(/[\u00a0\u202f\u2009]/g,' ');
-  // Already correct format e.g. "10:30 AM"
-  if(/^\d{1,2}:\d{2}\s*(AM|PM)$/i.test(s)) return s;
-  // ISO string — may be 1899-12-30T... (GAS time serial) or real datetime
-  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){
-    const d=new Date(s);
-    if(!isNaN(d.getTime())){
-      // For 1899 dates, the TIME part is what matters (it's a time-only serial)
-      let h=d.getUTCHours(), m=d.getUTCMinutes();
-      // If it's a 1899 serial, no IST offset needed — time is already local
-      // If it's a real date (>= 1970), apply IST offset
-      if(d.getUTCFullYear() >= 1970){
-        const ist=new Date(d.getTime()+5.5*60*60*1000);
-        h=ist.getUTCHours(); m=ist.getUTCMinutes();
-      }
-      const p=h>=12?'PM':'AM'; h=h%12||12;
-      return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+p;
-    }
-  }
-  return s;
-}
-
-// normDate: any value → "DD/MM/YYYY" for comparison
-function normDate(v){ return fmtDate(v); }
-
-// todayIST: → "DD/MM/YYYY"
-function todayIST(){
-  const now=new Date();
-  const ist=new Date(now.getTime()+5.5*60*60*1000);
-  return String(ist.getUTCDate()).padStart(2,'0')+'/'+String(ist.getUTCMonth()+1).padStart(2,'0')+'/'+ist.getUTCFullYear();
-}
-
-// dateToYMD: any date value → "YYYY-MM-DD" for <input type=date> comparison
-function dateToYMD(v){
-  if(!v) return '';
   const s=String(v).trim();
-  // DD/MM/YYYY → YYYY-MM-DD
-  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)){
-    const [dd,mm,yyyy]=s.split('/');
-    return `${yyyy}-${mm}-${dd}`;
-  }
-  // ISO — extract date part
-  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){
-    const d=new Date(s);
-    if(!isNaN(d.getTime())){
-      const ist=new Date(d.getTime()+5.5*60*60*1000);
-      return `${ist.getUTCFullYear()}-${String(ist.getUTCMonth()+1).padStart(2,'0')}-${String(ist.getUTCDate()).padStart(2,'0')}`;
-    }
-  }
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  return '';
+  // Already HH:MM AM/PM string (from Sheets or manual entry)
+  if(/^\d{2}:\d{2} (AM|PM)$/.test(s)) return s;
+  // DD/MM/YYYY HH:MM AM/PM — extract time part
+  if(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(s)) return s.substring(11);
+  const ist=toIST(v);
+  if(ist){ let h=ist.getUTCHours(),m=ist.getUTCMinutes(); const p=h>=12?'PM':'AM'; h=h%12||12; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+p; }
+  return s.replace(/[\u00a0\u202f\u2009]/g,' ');
 }
 function toast(msg){ const t=doc('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),3500); }
 function closeMo(id){ doc(id).classList.add('hide'); }
@@ -1890,8 +1853,8 @@ function renderKhataDetail(entries){
     const amt=Number(e.amount)||0;
     const bal=Number(e.runningBalance);
     return `<tr>
-      <td style="font-size:12px;white-space:nowrap">${esc(fmtDate(e.date))}</td>
-      <td style="font-size:12px;color:#999">${esc(fmtTime(e.time))}</td>
+      <td style="font-size:12px;white-space:nowrap">${esc(e.date||'')}</td>
+      <td style="font-size:12px;color:#999">${esc(e.time||'')}</td>
       <td><span class="bdg ${typeClass[e.type]||'b-gr'}" style="font-size:11px">${typeLabels[e.type]||e.type}</span></td>
       <td style="font-weight:800;color:${amt>=0?'var(--g)':'var(--p)'}">${amt>=0?'+':''}₹${Math.abs(amt)}</td>
       <td style="font-weight:700;color:${bal<0?'var(--p)':'var(--dk)'}">₹${bal}</td>
@@ -1905,12 +1868,21 @@ function filterKhataDetail(){
   let entries=_activeKhataEntries;
   if(from||to){
     entries=entries.filter(e=>{
-      const ymd=dateToYMD(e.date);
-      if(!ymd) return true;
-      if(from && ymd < from) return false;
-      if(to   && ymd > to)   return false;
+      // Support both DD/MM/YYYY and ISO (YYYY-MM-DD) formats
+      const raw=String(e.date||'').trim();
+      let d;
+      if(/^\d{2}\/\d{2}\/\d{4}/.test(raw)){
+        const parts=raw.substring(0,10).split('/');
+        d=new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+      } else if(/^\d{4}-\d{2}-\d{2}/.test(raw)){
+        d=new Date(raw.substring(0,10));
+      } else { return true; }
+      if(isNaN(d.getTime())) return true;
+      if(from&&d<new Date(from)) return false;
+      if(to&&d>new Date(to+'T23:59:59')) return false;
       return true;
     });
+  }
   }
   renderKhataDetail(entries);
 }
@@ -1962,25 +1934,40 @@ function exportKhataPDF(){
   const name=doc('mo-khata-t').textContent.replace('📒 Khata — ','');
   const allEntries=[..._activeKhataEntries];
   const fromDate=doc('kd-from').value, toDate=doc('kd-to').value;
-  let openingBal=0, filtered=allEntries.slice().reverse();
+
+  // Helper: parse entry date string → JS Date (handles DD/MM/YYYY and ISO)
+  function parseEntryDate(raw){
+    const s=String(raw||'').trim();
+    if(/^\d{2}\/\d{2}\/\d{4}/.test(s)){
+      const p=s.substring(0,10).split('/');
+      return new Date(`${p[2]}-${p[1]}-${p[0]}`);
+    }
+    if(/^\d{4}-\d{2}-\d{2}/.test(s)) return new Date(s.substring(0,10));
+    return null;
+  }
+
+  let openingBal=0, filtered=allEntries.reverse();
   if(fromDate||toDate){
     const beforeFilter=[], inFilter=[];
     allEntries.forEach(e=>{
-      const ymd=dateToYMD(e.date);
-      if(!ymd){ inFilter.push(e); return; }
-      if(fromDate && ymd < fromDate){ beforeFilter.push(e); }
-      else if(toDate && ymd > toDate){ /* skip */ }
+      const d=parseEntryDate(e.date||e.createdAt||'');
+      if(!d){inFilter.push(e);return;}
+      if(fromDate&&d<new Date(fromDate)){beforeFilter.push(e);}
+      else if(toDate&&d>new Date(toDate+'T23:59:59')){}
       else inFilter.push(e);
     });
     openingBal=beforeFilter.reduce((s,e)=>s+(Number(e.amount)||0),0);
     filtered=inFilter;
   }
+  // Closing balance = opening + sum of filtered amounts (computed, not from runningBalance field)
   const closingBal=filtered.reduce((s,e)=>s+(Number(e.amount)||0),openingBal);
   const typeLabels={recharge:'Amount Received',tiffin_given:'Tiffin Given',tiffin_udhar:'Tiffin Udhar',adjustment:'Adjustment'};
+  // Compute running balance for display rows
   let runBal=openingBal;
   const rows=filtered.map(e=>{
     const amt=Number(e.amount)||0;
     runBal+=amt;
+    // Ordered Items column
     let orderedItems='—';
     if(e.type==='tiffin_given'||e.type==='tiffin_udhar'){
       const note=e.note||'';
@@ -1990,19 +1977,22 @@ function exportKhataPDF(){
       const ordId=ordIdMatch?ordIdMatch[1]:'';
       orderedItems=`${itemName}${ordId?' | '+ordId:''}`;
     }
-    // Use fmtDate/fmtTime so PDF always shows clean DD/MM/YYYY and HH:MM AM/PM
-    return `<tr><td>${esc(fmtDate(e.date))}</td><td>${esc(fmtTime(e.time))}</td><td>${typeLabels[e.type]||e.type}</td><td style="color:${amt>=0?'green':'red'};font-weight:700">${amt>=0?'+':''}₹${Math.abs(amt)}</td><td style="font-weight:700;color:${runBal<0?'#e63946':'#111'}">₹${runBal}</td><td style="font-size:11px;color:#555">${orderedItems}</td><td style="font-size:11px;color:#666;max-width:140px">${(e.note||'').substring(0,50)}</td></tr>`;
+    const displayDate=fmtDate(e.date||e.createdAt||'');
+    const displayTime=fmtTime(e.time||e.createdAt||'');
+    return `<tr><td>${displayDate}</td><td>${displayTime}</td><td>${typeLabels[e.type]||e.type}</td><td style="color:${amt>=0?'green':'red'};font-weight:700">${amt>=0?'+':''}₹${Math.abs(amt)}</td><td style="font-weight:700;color:${runBal<0?'#e63946':'#111'}">₹${runBal}</td><td style="font-size:11px;color:#555">${orderedItems}</td><td style="font-size:11px;color:#666;max-width:140px">${(e.note||'').substring(0,50)}</td></tr>`;
   }).join('');
-  // Format generated-on date cleanly in IST
-  const nowIST=new Date(Date.now()+5.5*3600*1000);
-  const genDate=`${String(nowIST.getUTCDate()).padStart(2,'0')}/${String(nowIST.getUTCMonth()+1).padStart(2,'0')}/${nowIST.getUTCFullYear()} ${fmtTime(nowIST.toISOString())}`;
+  // Format period display nicely
+  function fmtPeriodDate(ymd){ if(!ymd) return ''; const p=ymd.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+  const periodStr=fromDate||toDate?`Period: ${fmtPeriodDate(fromDate)||'Start'} to ${fmtPeriodDate(toDate)||'Today'}`:'All Transactions';
+  const istNow=new Date(Date.now()+5.5*60*60*1000);
+  const genStr=`${String(istNow.getUTCDate()).padStart(2,'0')}/${String(istNow.getUTCMonth()+1).padStart(2,'0')}/${istNow.getUTCFullYear()}, ${String(istNow.getUTCHours()%12||12).padStart(2,'0')}:${String(istNow.getUTCMinutes()).padStart(2,'0')} ${istNow.getUTCHours()>=12?'PM':'AM'} IST`;
   const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Khata — ${name}</title>
   <style>body{font-family:Arial,sans-serif;margin:30px;color:#111}h1{color:#e63946;font-size:22px}table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#f3f4f6;padding:9px;text-align:left;font-size:11px;border:1px solid #e5e7eb;white-space:nowrap}td{padding:8px;font-size:11px;border:1px solid #e5e7eb;word-break:break-word}.bal{font-size:22px;font-weight:800;color:${closingBal<0?'#e63946':'#2a9d8f'}}.header{display:flex;justify-content:space-between;margin-bottom:20px;background:#f9fafb;padding:16px;border-radius:10px}</style>
   </head><body>
   <h1>🍱 Puro Bite — Khata Statement</h1>
-  <div class="header"><div><strong>${name}</strong><br><code>${phone}</code>${fromDate||toDate?`<br><span style="font-size:11px;color:#999">Period: ${fromDate||'start'} to ${toDate||'today'}</span>`:''}</div><div style="text-align:right"><div style="font-size:11px;color:#999">OPENING BALANCE</div><div style="font-size:16px;font-weight:700;color:#555">₹${openingBal}</div><div style="font-size:11px;color:#999;margin-top:6px">CLOSING BALANCE</div><div class="bal">₹${closingBal}</div></div></div>
+  <div class="header"><div><strong>${name}</strong><br><code>${phone}</code><br><span style="font-size:11px;color:#999">${periodStr}</span></div><div style="text-align:right"><div style="font-size:11px;color:#999">OPENING BALANCE</div><div style="font-size:16px;font-weight:700;color:#555">₹${openingBal}</div><div style="font-size:11px;color:#999;margin-top:6px">CLOSING BALANCE</div><div class="bal">₹${closingBal}</div></div></div>
   <table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Amount</th><th>Balance</th><th>Ordered Items</th><th>Note</th></tr></thead><tbody>${rows||'<tr><td colspan="7" style="text-align:center;color:#999">No transactions in this period</td></tr>'}</tbody></table>
-  <div style="margin-top:20px;font-size:11px;color:#999">Generated on ${genDate}</div>
+  <div style="margin-top:20px;font-size:11px;color:#999">Generated on ${genStr}</div>
   </body></html>`;
   const w=window.open('','_blank'); w.document.write(html); w.document.close();
   setTimeout(()=>w.print(),600);
@@ -2020,7 +2010,7 @@ async function loadStaff(){
       <td><code style="font-weight:700">${esc(s.username)}</code></td>
       <td style="font-weight:700">${esc(s.name)}</td>
       <td><span class="bdg ${(s.status||'active')==='active'?'b-g':'b-r'}">${esc(s.status||'active')}</span></td>
-      <td style="font-size:12px;color:#999">${s.createdAt?fmtDate(s.createdAt):''}</td>
+      <td style="font-size:12px;color:#999">${s.createdAt?new Date(s.createdAt).toLocaleDateString():''}</td>
       <td>
         <button class="btn btn-sm btn-ghost" onclick="editStaff('${esc(s.username)}','${esc(s.name)}','${esc(s.status||'active')}')"><i class="fa-solid fa-pen"></i></button>
         <button class="btn btn-sm btn-red" style="margin-left:4px" onclick="delStaff('${esc(s.username)}')"><i class="fa-solid fa-trash"></i></button>
