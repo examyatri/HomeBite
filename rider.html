@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Home Bite – Rider</title>
+<title>Puro Bite – Rider</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -195,11 +195,22 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:520px;
 </head>
 <body>
 
+<!-- RIDER LOADER -->
+<div id="rider-loader" style="position:fixed;inset:0;background:linear-gradient(160deg,#fff5f5 0%,#f4f6f9 60%);z-index:99999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  transition:opacity .35s ease;pointer-events:all">
+  <div style="font-size:52px">🏍️</div>
+  <div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#e63946">Puro Bite Rider</div>
+  <div style="font-size:12px;color:#6b7280;font-weight:600">Loading your dashboard...</div>
+  <div style="width:36px;height:36px;border:3px solid #fde8ea;border-top-color:#e63946;
+    border-radius:50%;animation:sp .8s linear infinite;margin-top:6px"></div>
+</div>
+
 <!-- AUTH -->
 <div id="pg-auth">
   <div class="a-logo">
     <span class="a-em">🏍️</span>
-    <h1>Home Bite Rider</h1>
+    <h1>Puro Bite Rider</h1>
     <p>Delivery Partner Portal</p>
   </div>
   <div class="a-card">
@@ -356,7 +367,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--tx);max-width:520px;
 <script>
 const CFG={
   GAS:'https://script.google.com/macros/s/AKfycbwHq-D_E4_aD2W3R9TmaTk39pW87El0UCN89Vrjx4lUUhWRnMJbcsuUZLt1trwjkAq8Yg/exec',
-  KEY:'HB_SECURE_API_KEY_2026'
+  KEY:'PB_SECURE_API_KEY_2026'
 };
 
 async function api(action,data={}){
@@ -373,16 +384,23 @@ async function api(action,data={}){
 // ══ AUTH ══
 let _rider=null;
 
+const RCreds={
+  save:(em,pw)=>{try{localStorage.setItem('pb_rider_creds',JSON.stringify({em,pw}));}catch{}},
+  get:()=>{try{return JSON.parse(localStorage.getItem('pb_rider_creds'));}catch{return null;}}
+};
+
+// sessionStorage for rider — survives F5, fixes frequent logout
+const RSess={
+  save:(r)=>{try{sessionStorage.setItem('pb_rider_sess',JSON.stringify(r));}catch{}},
+  get:()=>{try{return JSON.parse(sessionStorage.getItem('pb_rider_sess'));}catch{return null;}},
+  clear:()=>{try{sessionStorage.removeItem('pb_rider_sess');}catch{}}
+};
+
 function togglePw(id,btn){
   const inp=doc(id),icon=btn.querySelector('i');if(!inp) return;
   if(inp.type==='password'){inp.type='text';icon.classList.replace('fa-eye','fa-eye-slash');}
   else{inp.type='password';icon.classList.replace('fa-eye-slash','fa-eye');}
 }
-
-const RCreds={
-  save:(em,pw)=>{try{localStorage.setItem('hb_rider_creds',JSON.stringify({em,pw}));}catch{}},
-  get:()=>{try{return JSON.parse(localStorage.getItem('hb_rider_creds'));}catch{return null;}}
-};
 
 function autofillRiderCreds(){
   const c=RCreds.get();
@@ -398,7 +416,9 @@ async function doLogin(){
   btn.innerHTML='<span class="spin"></span> Logging in...';btn.disabled=true;
   try{
     _rider=await api('riderLogin',{email:em,password:pw});
-    RCreds.save(em,pw);showApp();
+    RCreds.save(em,pw);
+    RSess.save(_rider);
+    showApp();
   }catch(e){toast('❌ '+e.message);}
   finally{btn.innerHTML='<i class="fa-solid fa-right-to-bracket"></i> Login &amp; Start Delivery';btn.disabled=false;}
 }
@@ -406,6 +426,7 @@ async function doLogin(){
 function doLogout(){
   if(!confirm('Logout?')) return;
   _rider=null;
+  RSess.clear();
   doc('pg-app').style.display='none';
   doc('pg-auth').style.display='flex';
   autofillRiderCreds();
@@ -447,8 +468,8 @@ async function loadOrders(){
     _activeOrders=_orders.filter(o=>o.orderStatus==='out for delivery');
     _deliveredOrders=_orders.filter(o=>o.orderStatus==='delivered')
       .sort((a,b)=>{
-        const ta=Number(String(a.orderId).replace('HB-','').split('-')[0])||0;
-        const tb=Number(String(b.orderId).replace('HB-','').split('-')[0])||0;
+        const ta=Number(String(a.orderId).replace('PB-','').split('-')[0])||0;
+        const tb=Number(String(b.orderId).replace('PB-','').split('-')[0])||0;
         return tb-ta; // newest first
       });
     updateStats();
@@ -535,19 +556,35 @@ function orderDateToISO(d){
 }
 
 function fmtDate(v){
-  if(!v&&v!==0) return '';
-  const p=(raw)=>{const i=new Date(new Date(raw).getTime()+5.5*3600000);if(isNaN(i.getTime())) return null;return String(i.getUTCDate()).padStart(2,'0')+'/'+String(i.getUTCMonth()+1).padStart(2,'0')+'/'+i.getUTCFullYear();};
-  if(v instanceof Date) return p(v)||String(v);
+  if(!v) return '';
   const s=String(v).trim();
-  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return p(s)||s;
+  // Already DD/MM/YYYY or DD/MM/YYYY HH:MM AM/PM
+  if(/^\d{2}\/\d{2}\/\d{4}/.test(s)) return s.substring(0,10);
+  // Reject 1899 serial dates from Sheets
+  if(s.startsWith('1899-')||s.startsWith('1900-')) return '';
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)){
+    const raw=v instanceof Date?v:new Date(s);
+    if(raw.getFullYear()<=1900) return '';
+    const i=new Date(raw.getTime()+5.5*3600000);
+    if(!isNaN(i.getTime())) return String(i.getUTCDate()).padStart(2,'0')+'/'+String(i.getUTCMonth()+1).padStart(2,'0')+'/'+i.getUTCFullYear();
+  }
   return s;
 }
 function fmtTime(v){
-  if(!v&&v!==0) return '';
-  const p=(raw)=>{const i=new Date(new Date(raw).getTime()+5.5*3600000);if(isNaN(i.getTime())) return null;let h=i.getUTCHours(),m=i.getUTCMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+ap;};
-  if(v instanceof Date) return p(v)||String(v);
+  if(!v) return '';
   const s=String(v).trim();
-  if(/^\d{4}-\d{2}-\d{2}T/.test(s)) return p(s)||s;
+  // Already HH:MM AM/PM
+  if(/^\d{2}:\d{2} (AM|PM)$/.test(s)) return s;
+  // DD/MM/YYYY HH:MM AM/PM — extract time
+  if(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} (AM|PM)$/.test(s)) return s.substring(11);
+  // Reject 1899
+  if(s.startsWith('1899-')||s.startsWith('1900-')) return '';
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){
+    const raw=v instanceof Date?v:new Date(s);
+    if(raw.getFullYear()<=1900) return '';
+    const i=new Date(raw.getTime()+5.5*3600000);
+    if(!isNaN(i.getTime())){let h=i.getUTCHours(),m=i.getUTCMinutes();const ap=h>=12?'PM':'AM';h=h%12||12;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+ap;}
+  }
   return s.replace(/[\u00a0\u202f\u2009]/g,' ');
 }
 
@@ -639,8 +676,8 @@ function renderActive(){
 }
 
 function sortOldest(a,b){
-  const ta=Number(String(a.orderId).replace('HB-','').split('-')[0])||0;
-  const tb=Number(String(b.orderId).replace('HB-','').split('-')[0])||0;
+  const ta=Number(String(a.orderId).replace('PB-','').split('-')[0])||0;
+  const tb=Number(String(b.orderId).replace('PB-','').split('-')[0])||0;
   return ta-tb;
 }
 
@@ -669,7 +706,7 @@ function renderDelivered(){
 function renderCard(o, isDone){
   let items=[]; try{items=safeP(o.items);}catch{}
   const mapsUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address)}`;
-  const waMsg=`Hello ${o.name}! Main aapka Home Bite order deliver karne aa raha hoon.\n\nOrder: ${o.orderId}\nAmount: \u20b9${o.finalAmount}`;
+  const waMsg=`Hello ${o.name}! Main aapka Puro Bite order deliver karne aa raha hoon.\n\nOrder: ${o.orderId}\nAmount: \u20b9${o.finalAmount}`;
   const waUrl='https://wa.me/91'+String(o.phone).replace(/\D/g,'')+'?text='+encodeURIComponent(waMsg);
   const itemsSummary=items.slice(0,2).map(i=>`${i.name}${i.selectedVariant?` (${i.selectedVariant})`:''}×${i.qty}`).join(', ')+(items.length>2?` +${items.length-2}more`:'');
   const payLbl=o.userType==='subscriber'?'👑 Wallet':isDone?'💰 Collected':'💰 Collect';
@@ -811,7 +848,7 @@ h1{font-size:18px;color:#e63946;margin-bottom:3px}.sub{color:#999;font-size:11px
 .row{display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px}
 .sep{border-top:1px dashed #e5e7eb;margin:7px 0}.tot{font-size:15px;font-weight:800;color:#e63946}
 a{color:#2a9d8f}@media print{.np{display:none!important}}</style></head><body>
-<h1>🍱 Home Bite – Delivery Sheet</h1>
+<h1>🍱 Puro Bite – Delivery Sheet</h1>
 <div class="sub">Rider: ${esc(_rider.name)} | ${new Date().toLocaleString('en-IN')} | ${src.length} order(s)</div>
 <button class="np" onclick="window.print()" style="background:#e63946;color:#fff;padding:8px 16px;border:none;border-radius:7px;font-weight:bold;cursor:pointer;margin-bottom:12px">🖨️ Print / Save PDF</button>
 ${src.map((o,i)=>{
@@ -837,19 +874,35 @@ ${Number(o.discount)>0?`<div class="row"><span style="color:#2a9d8f">Discount</s
   win.document.write(html);win.document.close();
 }
 
-// ── UTILS ──
+// ── INIT ──
 function doc(id){return document.getElementById(id);}
 function esc(s){if(!s) return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function toast(msg){const t=doc('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
 function safeP(v){if(Array.isArray(v)) return v;if(typeof v==='object'&&v!==null) return v;if(!v||typeof v!=='string') return [];try{return JSON.parse(v);}catch{return [];}}
 
-// ── INIT ──
 window.addEventListener('DOMContentLoaded',()=>{
-  try{localStorage.removeItem('hb_rider');}catch{}
+  const loader=document.getElementById('rider-loader');
+  const dismissLoader=()=>{
+    if(!loader) return;
+    loader.style.pointerEvents='none'; // immediately stop blocking clicks
+    loader.style.opacity='0';
+    setTimeout(()=>{ loader.style.display='none'; },380);
+  };
+  try{localStorage.removeItem('pb_rider');}catch{}
+  // ── Restore session from sessionStorage (fixes frequent logout) ──
+  const saved=RSess.get();
+  if(saved&&saved.riderId){
+    _rider=saved;
+    dismissLoader();
+    showApp();
+    return;
+  }
+  dismissLoader();
   autofillRiderCreds();
 });
 
-setInterval(()=>{if(_rider && !document.hidden && !_isLoading) loadOrders();},60000);
+// Poll every 30 seconds (was 60s) for real-time order updates
+setInterval(()=>{if(_rider && !document.hidden && !_isLoading) loadOrders();},30000);
 </script>
 </body>
 </html>
