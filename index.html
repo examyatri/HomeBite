@@ -1826,21 +1826,27 @@ async function placeOrder() {
   if (!user?.address?.trim()) { toast('Pehle account mein address set karein'); nav('pg-account'); return; }
   if (!cart.length) { toast('Cart khaali hai!'); return; }
 
+  // ── Lock + disable button IMMEDIATELY before any async work ──
+  _placingOrder = true;
+  const btn = doc('place-btn');
+  btn.innerHTML = '<span class="spin"></span> Placing...';
+  btn.disabled = true;
+
   // Timing check (uses weekly schedule if available, else hard cutoff)
   const nowH = getISTHours();
   try {
     const cfg2 = await api('getOrderCutoff');
     if (cfg2) {
       const st = calcOrderState(cfg2, nowH);
-      if (st.closed) { showClosedPopup(st.reason + '. ' + st.detail); return; }
+      if (st.closed) { _placingOrder = false; btn.innerHTML = getSub() ? '<i class="fa-solid fa-utensils"></i> Place Order' : '<i class="fa-brands fa-whatsapp"></i> Place Order'; btn.disabled = false; showClosedPopup(st.reason + '. ' + st.detail); return; }
     } else {
       if (nowH >= 19.5 || nowH < 7) {
         const detail = nowH >= 19.5 ? 'Restaurant is closed. Try after 7:00 AM tomorrow.' : 'Restaurant opens at 7:00 AM.';
-        showClosedPopup(detail); return;
+        _placingOrder = false; btn.innerHTML = getSub() ? '<i class="fa-solid fa-utensils"></i> Place Order' : '<i class="fa-brands fa-whatsapp"></i> Place Order'; btn.disabled = false; showClosedPopup(detail); return;
       }
     }
   } catch (_e2) {
-    if (nowH >= 19.5 || nowH < 7) { showClosedPopup('Restaurant is closed. Try after 7:00 AM.'); return; }
+    if (nowH >= 19.5 || nowH < 7) { _placingOrder = false; btn.innerHTML = getSub() ? '<i class="fa-solid fa-utensils"></i> Place Order' : '<i class="fa-brands fa-whatsapp"></i> Place Order'; btn.disabled = false; showClosedPopup('Restaurant is closed. Try after 7:00 AM.'); return; }
   }
 
   const isSub = getSub();
@@ -1852,12 +1858,12 @@ async function placeOrder() {
   // Subscriber wallet balance check (only if Khata ON)
   if (isSub && _khataEnabled && _walletBal !== null && _walletBal < total) {
     toast(`❌ Wallet balance ₹${_walletBal} is insufficient for ₹${total}. Please recharge.`);
+    _placingOrder = false;
+    btn.innerHTML = isSub ? '<i class="fa-solid fa-utensils"></i> Place Order' : '<i class="fa-brands fa-whatsapp"></i> Place Order';
+    btn.disabled = false;
     return;
   }
 
-  const btn = doc('place-btn');
-  _placingOrder = true;
-  btn.innerHTML = '<span class="spin"></span> Placing...'; btn.disabled = true;
   try {
     const res = await api('createOrder', {
       userId: user.userId, name: user.name, phone: user.phone, address: user.address,
@@ -1866,7 +1872,6 @@ async function placeOrder() {
       userType: isSub ? 'subscriber' : 'daily',
       payFromWallet: isSub && _khataEnabled  // only deduct if Khata ON
     });
-
     // ── Build timestamp string ─────────────────────────────────
     const now = new Date();
     const istNow = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);

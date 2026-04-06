@@ -543,7 +543,7 @@ function getOrderHour(t){
   if(p==='pm'&&h!==12) h+=12;if(p==='am'&&h===12) h=0;
   return h+mn/60;
 }
-function isDayOrder(o){const h=getOrderHour(o.time);return h<0?true:h<_dayCutoffH;}
+function isDayOrder(o){const h=getOrderHour(o.time);return h<0?false:h<_dayCutoffH;}
 
 function orderDateToISO(d){
   if(!d&&d!==0) return '';
