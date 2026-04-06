@@ -432,6 +432,24 @@ tr:hover td{background:#fafafa}
             </div>
           </div>
         </div>
+        <div class="tc" style="max-width:520px;margin-bottom:20px">
+          <div class="th"><h3>📒 Khata / Wallet Feature</h3><span style="font-size:12px;color:var(--gr)">Toggle to show/hide Khata and Wallet from user app</span></div>
+          <div style="padding:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--lt);border-radius:var(--r)">
+              <div>
+                <div style="font-weight:700;font-size:14px">Khata &amp; Wallet</div>
+                <div style="font-size:12px;color:var(--gr);margin-top:3px">When OFF: hides wallet from users, stops all Khata API calls</div>
+              </div>
+              <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer">
+                <input type="checkbox" id="khata-enabled-chk" style="opacity:0;width:0;height:0" onchange="saveKhataToggle()">
+                <span id="khata-slider" style="position:absolute;inset:0;background:#ccc;border-radius:26px;transition:.3s">
+                  <span style="position:absolute;left:3px;bottom:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.3)" id="khata-knob"></span>
+                </span>
+              </label>
+            </div>
+            <div id="khata-toggle-msg" style="margin-top:10px;font-size:13px;color:var(--gr)"></div>
+          </div>
+        </div>
         <div class="tc" style="max-width:520px">
           <div class="th"><h3>⏰ Legacy Cutoff (Fallback)</h3><span style="font-size:12px;color:var(--gr)">Used if day schedule not set</span></div>
           <div style="padding:20px">
@@ -1625,6 +1643,27 @@ function toggleCutoffUI(){
   if(knob) knob.style.left=on?'25px':'3px';
 }
 
+async function saveKhataToggle(){
+  const chk=doc('khata-enabled-chk');
+  const slider=doc('khata-slider'), knob=doc('khata-knob');
+  const enabled=chk.checked;
+  if(slider) slider.style.background=enabled?'var(--p)':'#ccc';
+  if(knob)   knob.style.left=enabled?'25px':'3px';
+  const msg=doc('khata-toggle-msg');
+  if(msg){ msg.textContent='Saving...'; msg.style.color='var(--gr)'; }
+  try{
+    await api('setKhataEnabled',{enabled});
+    if(msg){ msg.textContent=enabled?'✅ Khata & Wallet ON — visible to users':'✅ Khata & Wallet OFF — hidden from users'; msg.style.color=enabled?'var(--g)':'var(--p)'; }
+    setTimeout(()=>{ if(msg) msg.textContent=''; },3000);
+  }catch(e){
+    if(msg){ msg.textContent='❌ '+e.message; msg.style.color='var(--p)'; }
+    // Revert toggle on error
+    chk.checked=!enabled;
+    if(slider) slider.style.background=!enabled?'var(--p)':'#ccc';
+    if(knob)   knob.style.left=!enabled?'25px':'3px';
+  }
+}
+
 async function saveCutoffSettings(){
   const enabled=doc('cutoff-enabled').checked;
   const cutoffDay=doc('cutoff-day').value||'11:30';
@@ -2063,6 +2102,15 @@ const _dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Sa
 let _weekSchedule={};
 
 async function loadSettings(){
+  // Load Khata enabled state
+  try{
+    const ke=await api('getKhataEnabled');
+    const chk=doc('khata-enabled-chk');
+    const slider=doc('khata-slider'), knob=doc('khata-knob');
+    if(chk){ chk.checked=!!ke.enabled; }
+    if(slider) slider.style.background=ke.enabled?'var(--p)':'#ccc';
+    if(knob)   knob.style.left=ke.enabled?'25px':'3px';
+  }catch(e){}
   // Load legacy cutoff
   try{
     const cfg=await api('getOrderCutoff');

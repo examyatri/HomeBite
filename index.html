@@ -257,6 +257,12 @@ textarea.inp{resize:vertical;min-height:72px}
 .dt-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--lt);font-size:14px;font-weight:600}
 .dt-row:last-child{border-bottom:none}
 
+/* ══ ORDER CONFIRMATION PAGE ══ */
+.conf-item-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--lt);font-size:13px}
+.conf-item-row:last-child{border-bottom:none}
+.conf-item-name{flex:1;font-weight:600;color:#111827;padding-right:8px}
+.conf-item-amt{font-weight:700;color:var(--p);white-space:nowrap}
+
 /* ══ SUCCESS SUBSCRIBER ══ */
 #pg-success-sub .suc-ico{background:linear-gradient(135deg,#e8f5f3,#c8ede6)}
 .wallet-deduct-card{
@@ -578,6 +584,99 @@ textarea.inp{resize:vertical;min-height:72px}
     </div>
     <button class="btn btn-out" onclick="nav('pg-home')" style="margin-top:8px"><i class="fa-solid fa-house"></i> Back to Menu</button>
     <button class="btn btn-ghost" onclick="nav('pg-orders')" style="margin-top:8px"><i class="fa-solid fa-receipt"></i> View My Orders</button>
+  </div>
+</div>
+
+<!-- ═══ PAGE 4C: ORDER CONFIRMATION (unified for all users) ═══ -->
+<div class="pg right" id="pg-confirm">
+  <div class="tnav">
+    <button class="bk-btn" onclick="nav('pg-home')"><i class="fa-solid fa-house"></i></button>
+    <span class="pg-title">Order Confirmed</span>
+    <button class="btn-ghost btn btn-sm" onclick="nav('pg-orders')"><i class="fa-solid fa-receipt"></i></button>
+  </div>
+  <div class="pg-body" style="padding-bottom:40px">
+    <!-- Success header -->
+    <div style="text-align:center;padding:22px 0 14px">
+      <div style="width:64px;height:64px;background:linear-gradient(135deg,#e8f5f3,#c8ede6);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:10px">✅</div>
+      <div style="font-size:20px;font-weight:800;color:#111827;font-family:'Sora',sans-serif">Order Placed!</div>
+      <div style="font-size:13px;color:var(--gr);margin-top:4px" id="conf-timestamp">—</div>
+    </div>
+
+    <!-- Order ID card -->
+    <div class="card" style="margin-bottom:12px;border-left:4px solid var(--p);background:#fff5f5">
+      <div style="font-size:11px;font-weight:700;color:var(--p);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">Order ID</div>
+      <div style="font-size:18px;font-weight:800;color:#111827;letter-spacing:.5px" id="conf-order-id">—</div>
+    </div>
+
+    <!-- Customer info -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--gr);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">📋 Delivery Details</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;gap:8px;font-size:13px"><span style="color:var(--gr);min-width:60px">Name</span><span style="font-weight:600" id="conf-name">—</span></div>
+        <div style="display:flex;gap:8px;font-size:13px"><span style="color:var(--gr);min-width:60px">Phone</span><span style="font-weight:600" id="conf-phone">—</span></div>
+        <div style="display:flex;gap:8px;font-size:13px"><span style="color:var(--gr);min-width:60px">Address</span><span style="font-weight:600;flex:1" id="conf-address">—</span></div>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--gr);margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px">🍱 Items Ordered</div>
+      <div id="conf-items" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+
+    <!-- Bill summary -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--gr);margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px">🧾 Bill Summary</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--gr)">Subtotal</span><span id="conf-subtotal">—</span></div>
+        <div style="display:flex;justify-content:space-between" id="conf-discount-row">
+          <span style="color:var(--g)">🎟️ Discount</span><span style="color:var(--g);font-weight:600" id="conf-discount-amt">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--gr)">🚴 Delivery</span><span id="conf-delivery">—</span></div>
+        <div style="height:1px;background:#f1f1f1;margin:4px 0"></div>
+        <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800">
+          <span>Total</span><span style="color:var(--p)" id="conf-total">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wallet deduction (subscribers only, khata ON) -->
+    <div id="conf-wallet-info" style="display:none;margin-bottom:12px">
+      <div class="wallet-deduct-card">
+        <i class="fa-solid fa-wallet"></i>
+        <div class="wallet-deduct-info">
+          <div class="wdi-label">Wallet Deducted</div>
+          <div class="wdi-amount">₹<span id="conf-deducted">0</span></div>
+          <div class="wdi-bal">New balance: ₹<span id="conf-new-bal">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment note (non-subscribers only) -->
+    <div id="conf-pay-note" style="display:none;margin-bottom:12px">
+      <div class="card" style="border-left:4px solid var(--p);background:#fff5f5">
+        <div style="font-weight:800;font-size:14px;margin-bottom:6px;color:var(--p)">📸 Send payment screenshot on WhatsApp</div>
+        <div style="font-size:13px;color:var(--gr);line-height:1.6">UPI / QR details will be shared by us. Send screenshot after payment to confirm your order.</div>
+      </div>
+    </div>
+
+    <!-- Delivery time info -->
+    <div class="dt-card" style="border-left:4px solid #2a9d8f;margin-bottom:12px">
+      <div class="dt-h">⏰ Estimated Delivery Time</div>
+      <div class="dt-row"><span>🌅</span><div><div style="font-weight:700">Breakfast / Lunch</div><div style="font-size:12px;color:var(--gr)">12:00 PM – 1:00 PM</div></div></div>
+      <div class="dt-row"><span>🌙</span><div><div style="font-weight:700">Dinner</div><div style="font-size:12px;color:var(--gr)">8:00 PM – 9:00 PM</div></div></div>
+    </div>
+
+    <!-- WhatsApp screenshot button (non-subscribers only) -->
+    <div id="conf-wa-wrap" style="display:none;opacity:0;transform:translateY(10px);transition:opacity .4s ease,transform .4s ease;margin-bottom:12px">
+      <button class="btn btn-wa" onclick="openWhatsApp()" style="font-size:15px;gap:10px;width:100%">
+        <i class="fa-brands fa-whatsapp" style="font-size:18px"></i> Open WhatsApp &amp; Send Screenshot
+      </button>
+    </div>
+
+    <!-- Actions -->
+    <button class="btn btn-p" onclick="nav('pg-orders')" style="margin-bottom:10px"><i class="fa-solid fa-receipt"></i> View My Orders</button>
+    <button class="btn btn-out" onclick="nav('pg-home')"><i class="fa-solid fa-house"></i> Back to Menu</button>
   </div>
 </div>
 
@@ -912,7 +1011,7 @@ function updateWalletUI(bal) {
 
 async function refreshWalletBalance() {
   const user = Auth.get();
-  if (!user || !getSub()) return;
+  if (!user || !getSub() || !_khataEnabled) return;
   try {
     const r = await api('getSubscriberBalance', { phone: user.phone });
     updateWalletUI(Number(r.balance) || 0);
@@ -920,10 +1019,8 @@ async function refreshWalletBalance() {
 }
 
 function openWalletPage() {
-  if (!getSub()) {
-    toast('💳 Join Monthly Plan to use Wallet');
-    return;
-  }
+  if (!_khataEnabled) { toast('Wallet feature is currently unavailable'); return; }
+  if (!getSub()) { toast('💳 Join Monthly Plan to use Wallet'); return; }
   nav('pg-khata');
 }
 
@@ -1033,9 +1130,10 @@ function onEnter(id) {
   if (id === 'pg-cart')        { renderCart(); hideFab(); }
   if (id === 'pg-orders')      { loadOrders(); }
   if (id === 'pg-account')     { renderAccount(); }
-  if (id === 'pg-khata')       { loadUserKhata(); }
+  if (id === 'pg-khata')       { if (_khataEnabled) loadUserKhata(); else { toast('Wallet feature is currently unavailable'); back(); return; } }
   if (id === 'pg-success')     { hideFab(); }
   if (id === 'pg-success-sub') { hideFab(); }
+  if (id === 'pg-confirm')     { hideFab(); }
   if (id !== 'pg-home')        { hideFab(); }
 }
 
@@ -1240,6 +1338,14 @@ async function doSignup() {
 
 async function initApp() {
   const user = Auth.get(); if (!user) return;
+
+  // ── Fetch Khata/Wallet feature flag FIRST ──────────────────
+  try {
+    const ke = await api('getKhataEnabled');
+    _khataEnabled = ke.enabled !== false; // default true
+  } catch { _khataEnabled = true; }
+  applyKhataVisibility();
+
   // Check subscriber status
   let subData = null;
   try {
@@ -1248,7 +1354,7 @@ async function initApp() {
   } catch {}
   const cachedSub = subData || Store.getJSON('pb_sub');
   const isSub = cachedSub?.isSubscriber;
-  if (isSub) {
+  if (isSub && _khataEnabled) {
     doc('sub-banner').classList.remove('hide');
     // Show wallet button in header
     doc('wallet-hdr-btn').classList.remove('hide');
@@ -1260,6 +1366,7 @@ async function initApp() {
   } else {
     doc('wallet-hdr-btn').classList.add('hide');
     updateWalletUI(null);
+    if (isSub) doc('sub-banner').classList.remove('hide'); // still show subscriber banner even if khata off
   }
   updateBadge();
   // Navigate to home
@@ -1295,8 +1402,9 @@ function renderAccount() {
   doc('acct-pw-cur').value = ''; doc('acct-pw-new').value = '';
   const walletWrap = doc('acct-wallet-wrap');
   if (walletWrap) {
-    walletWrap.classList.toggle('hide', !isSub);
-    if (isSub) {
+    const showWallet = isSub && _khataEnabled;
+    walletWrap.classList.toggle('hide', !showWallet);
+    if (showWallet) {
       doc('acct-wallet-bal').textContent = _walletBal !== null ? '₹' + _walletBal : '₹—';
       doc('acct-wallet-sub').textContent = 'Loading...';
       api('getSubscriberBalance', { phone: user.phone }).then(r => {
@@ -1653,6 +1761,8 @@ function addToCart(idx, itemId) {
 // CART PAGE
 // ══════════════════════════════════════════════
 let _coupon = null;
+let _placingOrder = false;       // duplicate-click guard
+let _khataEnabled = true;        // Khata/Wallet feature flag — loaded from backend at initApp
 
 function renderCart() {
   const cart = Cart.get(), isSub = getSub();
@@ -1709,9 +1819,13 @@ let _waMsg = '', _waPhone = '';
 function openWhatsApp() { openWA(_waPhone, _waMsg); }
 
 async function placeOrder() {
+  // ── Duplicate-click guard ──────────────────────────────────
+  if (_placingOrder) { toast('⏳ Order is being placed, please wait...'); return; }
+
   const user = Auth.get(), cart = Cart.get();
   if (!user?.address?.trim()) { toast('Pehle account mein address set karein'); nav('pg-account'); return; }
   if (!cart.length) { toast('Cart khaali hai!'); return; }
+
   // Timing check (uses weekly schedule if available, else hard cutoff)
   const nowH = getISTHours();
   try {
@@ -1720,75 +1834,131 @@ async function placeOrder() {
       const st = calcOrderState(cfg2, nowH);
       if (st.closed) { showClosedPopup(st.reason + '. ' + st.detail); return; }
     } else {
-      // Fallback hard check
       if (nowH >= 19.5 || nowH < 7) {
         const detail = nowH >= 19.5 ? 'Restaurant is closed. Try after 7:00 AM tomorrow.' : 'Restaurant opens at 7:00 AM.';
         showClosedPopup(detail); return;
       }
     }
   } catch (_e2) {
-    // If API fails, use hard timing as safety net
-    if (nowH >= 19.5 || nowH < 7) {
-      showClosedPopup('Restaurant is closed. Try after 7:00 AM.'); return;
-    }
+    if (nowH >= 19.5 || nowH < 7) { showClosedPopup('Restaurant is closed. Try after 7:00 AM.'); return; }
   }
 
   const isSub = getSub();
-  const sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const del = isSub ? 0 : 20;
+  const sub  = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const del  = isSub ? 0 : 20;
   const disc = _coupon ? calcDisc(_coupon, sub) : 0;
   const total = Math.max(0, sub - disc + del);
 
-  // Subscriber wallet check
-  if (isSub && _walletBal !== null && _walletBal < total) {
+  // Subscriber wallet balance check (only if Khata ON)
+  if (isSub && _khataEnabled && _walletBal !== null && _walletBal < total) {
     toast(`❌ Wallet balance ₹${_walletBal} is insufficient for ₹${total}. Please recharge.`);
     return;
   }
 
   const btn = doc('place-btn');
+  _placingOrder = true;
   btn.innerHTML = '<span class="spin"></span> Placing...'; btn.disabled = true;
   try {
     const res = await api('createOrder', {
       userId: user.userId, name: user.name, phone: user.phone, address: user.address,
       items: cart, totalAmount: sub, deliveryCharge: del, finalAmount: total,
-      couponCode: _coupon?.code || '', discount: disc, userType: isSub ? 'subscriber' : 'daily',
-      payFromWallet: isSub
+      couponCode: _coupon?.code || '', discount: disc,
+      userType: isSub ? 'subscriber' : 'daily',
+      payFromWallet: isSub && _khataEnabled  // only deduct if Khata ON
     });
+
+    // ── Build timestamp string ─────────────────────────────────
+    const now = new Date();
+    const istNow = new Date(now.getTime() + 5.5 * 60 * 60 * 1000);
+    const pad = n => String(n).padStart(2, '0');
+    const tsDate = `${pad(istNow.getUTCDate())}/${pad(istNow.getUTCMonth()+1)}/${istNow.getUTCFullYear()}`;
+    const h = istNow.getUTCHours(), m = istNow.getUTCMinutes();
+    const tsTime = `${pad(h > 12 ? h - 12 : h || 12)}:${pad(m)} ${h >= 12 ? 'PM' : 'AM'}`;
 
     Cart.clear(); _coupon = null;
     doc('cpn-inp').value = ''; doc('cpn-msg').classList.add('hide');
 
-    if (isSub) {
-      // ── SUBSCRIBER FLOW: show confirmation screen, update wallet UI ──
-      const newBal = (_walletBal !== null) ? (_walletBal - total) : null;
-      doc('suc-deducted').textContent = total;
-      doc('suc-new-bal').textContent = newBal !== null ? newBal : '—';
-      updateWalletUI(newBal);
-      nav('pg-success-sub');
-      // Refresh actual balance from server in background
-      setTimeout(() => refreshWalletBalance(), 2000);
-    } else {
-      // ── NON-SUBSCRIBER FLOW: WhatsApp confirmation ──
-      let msg = `🍱 *Puro Bite Order*\n📋 ID: *${res.orderId}*\n👤 ${user.name} | 📞 ${user.phone}\n📍 ${user.address}\n\n*Items:*\n`;
-      cart.forEach(i => { msg += `• ${i.name}${i.selectedVariant ? ` (${i.selectedVariant})` : ''} ×${i.qty} — ₹${i.price * i.qty}\n`; });
-      msg += `\n`;
-      if (disc > 0) msg += `🎟️ Discount: −₹${disc}\n`;
-      msg += `🚴 Delivery: ₹${del}\n✅ *Total: ₹${total}*\n\n`;
-      msg += `💳 Please share UPI/QR for payment. I'll send screenshot. 🙏`;
-      _waMsg = msg; _waPhone = CFG.WA;
-      nav('pg-success');
-      doc('pay-note').classList.remove('hide');
-      const wb = doc('wa-btn-wrap');
-      if (wb) { wb.classList.add('hide'); setTimeout(() => wb.classList.remove('hide'), 2500); }
-    }
+    // ── Build WhatsApp message (for non-subscriber or confirmation) ──
+    let waMsg = `🍱 *Puro Bite Order*\n📋 ID: *${res.orderId}*\n👤 ${user.name} | 📞 ${user.phone}\n📍 ${user.address}\n\n*Items:*\n`;
+    cart.forEach(i => { waMsg += `• ${i.name}${i.selectedVariant ? ` (${i.selectedVariant})` : ''} ×${i.qty} — ₹${i.price * i.qty}\n`; });
+    waMsg += `\n`;
+    if (disc > 0) waMsg += `🎟️ Discount: −₹${disc}\n`;
+    waMsg += `🚴 Delivery: ₹${del}\n✅ *Total: ₹${total}*\n\n`;
+    waMsg += `💳 Please share UPI/QR for payment. I'll send screenshot. 🙏`;
+    _waMsg = waMsg; _waPhone = CFG.WA;
+
+    // ── Show unified Order Confirmation Screen ──────────────────
+    showOrderConfirmation({
+      orderId: res.orderId,
+      user, cart, sub, del, disc, total,
+      isSub, tsDate, tsTime
+    });
+
   } catch(e) { toast('❌ ' + e.message); }
   finally {
+    _placingOrder = false;
     const iSub = getSub();
     btn.innerHTML = iSub ? '<i class="fa-solid fa-utensils"></i> Place Order' : '<i class="fa-brands fa-whatsapp"></i> Place Order';
     const nowH2 = getISTHours();
     const stillClosed = (nowH2 >= 19.5 || nowH2 < 7) || (window._cutoffCfg && window._cutoffCfg.enabled && calcOrderState(window._cutoffCfg, nowH2).closed);
     btn.disabled = !!stillClosed;
   }
+}
+
+// ── Order Confirmation Screen ──────────────────────────────────
+function showOrderConfirmation({ orderId, user, cart, sub, del, disc, total, isSub, tsDate, tsTime }) {
+  // Build items HTML
+  let itemsHtml = cart.map(i =>
+    `<div class="conf-item-row">
+       <span class="conf-item-name">${esc(i.name)}${i.selectedVariant ? ` <span style="color:var(--gr);font-size:11px">(${esc(i.selectedVariant)})</span>` : ''} ×${i.qty}</span>
+       <span class="conf-item-amt">₹${i.price * i.qty}</span>
+     </div>`
+  ).join('');
+
+  const confEl = doc('conf-order-id');       if (confEl) confEl.textContent = orderId;
+  const confName = doc('conf-name');         if (confName) confName.textContent = user.name;
+  const confPhone = doc('conf-phone');       if (confPhone) confPhone.textContent = user.phone;
+  const confAddr = doc('conf-address');      if (confAddr) confAddr.textContent = user.address;
+  const confItems = doc('conf-items');       if (confItems) confItems.innerHTML = itemsHtml;
+  const confSub = doc('conf-subtotal');      if (confSub) confSub.textContent = '₹' + sub;
+  const confDel = doc('conf-delivery');      if (confDel) confDel.textContent = isSub ? 'FREE' : '₹' + del;
+  const confDisc = doc('conf-discount-row');
+  if (confDisc) confDisc.style.display = disc > 0 ? 'flex' : 'none';
+  const confDiscAmt = doc('conf-discount-amt'); if (confDiscAmt) confDiscAmt.textContent = '−₹' + disc;
+  const confTotal = doc('conf-total');       if (confTotal) confTotal.textContent = '₹' + total;
+  const confTs = doc('conf-timestamp');      if (confTs) confTs.textContent = tsDate + ' · ' + tsTime;
+
+  // Subscriber wallet deduction info
+  const confWallet = doc('conf-wallet-info');
+  if (confWallet) {
+    if (isSub && _khataEnabled) {
+      const newBal = (_walletBal !== null) ? (_walletBal - total) : null;
+      confWallet.style.display = 'block';
+      const confDeducted = doc('conf-deducted'); if (confDeducted) confDeducted.textContent = total;
+      const confNewBal = doc('conf-new-bal');     if (confNewBal) confNewBal.textContent = newBal !== null ? newBal : '—';
+      updateWalletUI(newBal);
+      setTimeout(() => refreshWalletBalance(), 2000);
+    } else {
+      confWallet.style.display = 'none';
+    }
+  }
+
+  // WhatsApp screenshot button — only for NON-subscribers
+  const confWaWrap = doc('conf-wa-wrap');
+  if (confWaWrap) {
+    if (!isSub) {
+      confWaWrap.style.display = 'block';
+      setTimeout(() => { confWaWrap.style.opacity = '1'; confWaWrap.style.transform = 'translateY(0)'; }, 2500);
+    } else {
+      confWaWrap.style.display = 'none';
+    }
+  }
+
+  // Payment note — only for non-subscribers
+  const confPayNote = doc('conf-pay-note');
+  if (confPayNote) confPayNote.style.display = !isSub ? 'block' : 'none';
+
+  nav('pg-confirm');
 }
 
 // ══════════════════════════════════════════════
@@ -1837,6 +2007,10 @@ let _userKhataEntries = [], _userKhataFiltered = [];
 
 async function loadUserKhata() {
   const user = Auth.get(); if (!user) return;
+  if (!_khataEnabled) {
+    doc('k-user-list').innerHTML = '<div style="text-align:center;padding:40px"><div style="font-size:48px;margin-bottom:12px">📵</div><div style="font-family:Sora,sans-serif;font-size:17px;font-weight:700;margin-bottom:8px">Wallet Unavailable</div><div style="font-size:13px;color:#6b7280">Wallet feature is currently disabled by admin</div></div>';
+    return;
+  }
   if (!getSub()) {
     doc('k-user-list').innerHTML = '<div style="text-align:center;padding:40px"><div style="font-size:48px;margin-bottom:12px">💳</div><div style="font-family:Sora,sans-serif;font-size:17px;font-weight:700;margin-bottom:8px">No Wallet Access</div><div style="font-size:13px;color:#6b7280">Join Monthly Plan to use wallet</div></div>';
     const balEl = doc('k-user-bal');
@@ -1937,13 +2111,29 @@ function exportUserKhataPDF() {
 // ══════════════════════════════════════════════
 let _pollTimer = null;
 
+// ── KHATA / WALLET VISIBILITY GATING ──────────────────────────
+function applyKhataVisibility() {
+  const show = _khataEnabled;
+  // Bottom nav wallet button
+  const bnWallet = doc('bn-wallet');
+  if (bnWallet) bnWallet.style.display = show ? '' : 'none';
+  // Header wallet button — only show if also subscriber
+  if (!show) doc('wallet-hdr-btn').classList.add('hide');
+  // Account panel wallet row
+  const apWalletRow = doc('ap-wallet-row');
+  if (apWalletRow) apWalletRow.style.display = show ? '' : 'none';
+  // Account page wallet wrap
+  const acctWalletWrap = doc('acct-wallet-wrap');
+  if (acctWalletWrap && !show) acctWalletWrap.classList.add('hide');
+}
+
 function startPolling() {
   stopPolling();
   _pollTimer = setInterval(() => {
     if (document.hidden || !_session) return;
     const cur = stack[stack.length - 1];
-    // Silently refresh wallet balance for subscribers
-    if (getSub()) {
+    // Silently refresh wallet balance for subscribers (only if Khata ON)
+    if (_khataEnabled && getSub()) {
       api('getSubscriberBalance', { phone: _session.phone })
         .then(r => { updateWalletUI(Number(r.balance) || 0); })
         .catch(() => {});
@@ -1954,8 +2144,8 @@ function startPolling() {
         .then(orders => renderOrders(orders))
         .catch(() => {});
     }
-    // Silently refresh khata if on wallet page
-    if (cur === 'pg-khata' && getSub()) {
+    // Silently refresh khata if on wallet page (only if Khata ON)
+    if (_khataEnabled && cur === 'pg-khata' && getSub()) {
       api('getKhata', { phone: _session.phone })
         .then(data => {
           _userKhataEntries = data.entries || [];
@@ -1989,8 +2179,17 @@ function bootApp() {
   const savedSub  = Store.getJSON('pb_sub');
   if (savedSess && savedSess.userId) {
     Auth.set(savedSess);
+    // Fetch Khata flag in background (non-blocking, use cached default=true)
+    api('getKhataEnabled').then(ke => {
+      _khataEnabled = ke.enabled !== false;
+      applyKhataVisibility();
+      // Update wallet header visibility based on fresh flag
+      const iS = savedSub?.isSubscriber;
+      if (iS && _khataEnabled) doc('wallet-hdr-btn').classList.remove('hide');
+      else doc('wallet-hdr-btn').classList.add('hide');
+    }).catch(() => {});
     const isSub = savedSub?.isSubscriber;
-    if (isSub) {
+    if (isSub && _khataEnabled) {
       doc('sub-banner').classList.remove('hide');
       doc('wallet-hdr-btn').classList.remove('hide');
       // Fetch fresh balance in background
@@ -1999,6 +2198,7 @@ function bootApp() {
         .catch(() => { if (_walletBal !== null) updateWalletUI(_walletBal); });
     } else {
       doc('wallet-hdr-btn').classList.add('hide');
+      if (isSub) doc('sub-banner').classList.remove('hide');
     }
     updateBadge();
     // Navigate directly to home
